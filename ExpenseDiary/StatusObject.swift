@@ -8,7 +8,7 @@
 import Foundation
 
 class StatusObject: ObservableObject {
-    @Published var tabItem: TabItem = .expense
+    @Published var recordType: RecordType = .expense
     @Published var navItem: GlobalNavItem = .list
     @Published var category: Category? = nil
 }

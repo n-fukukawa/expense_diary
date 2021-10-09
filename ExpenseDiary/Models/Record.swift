@@ -142,6 +142,53 @@ class Record: Object, Identifiable  {
         return nil
     }
     
+    static func getSummary(year: Int, month: Int) -> [Category : Int] {
+        let cate1 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "食費", "icon" : "icon", "order" : 1])
+        let cate2 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "日用品費", "icon" : "icon", "order" : 2])
+        let cate3 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "交通費", "icon" : "icon", "order" : 3])
+        let cateA = Category(value: ["type" : RecordType.income.rawValue, "name" : "給料", "icon" : "icon", "order" : 1])
+        let cateB = Category(value: ["type" : RecordType.income.rawValue, "name" : "賞与", "icon" : "icon", "order" : 2])
+        
+        return [
+            cate1 : 1500,
+            cate2 : 2500,
+            cate3 : 2800,
+            cateA : 250000,
+            cateB : 500000,
+        ]
+    }
+    
+    static func getMonthTotal(year: Int, month: Int, type: RecordType?, category: Category?) -> [Int] {
+        if type == .expense {
+            return [6000, 0,
+               0,
+                3500,
+                4000,
+                9500,
+                1200,
+                5000,
+                2500,
+                3500,
+                1500,
+                2500
+            ]
+        } else {
+           return [250000, 0,
+               0,
+                313500,
+                454000,
+                119500,
+                221200,
+                545000,
+                62500,
+                113500,
+                321500,
+                222500
+            ]
+        }
+
+    }
+    
     
     static func create(date: Date, type:String, category: Category, amount: Int, memo: String, created_at: Date, updated_at: Date) {
         try! realm.write {

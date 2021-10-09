@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct EditRecordView: View {
+    let record: Record?
     @Binding var isActive: Bool
     @State var type: RecordType = .expense
     @State var date = Date()
@@ -17,8 +18,15 @@ struct EditRecordView: View {
     @State var memo = ""
     let formatter = DateFormatter()
     
-    init(isActive: Binding<Bool>) {
+    init(isActive: Binding<Bool>, record: Record? = nil) {
         self._isActive = isActive
+        self.record = record
+        
+        if let _record = self.record {
+            self.amount = "\(_record.amount)"
+            self.memo   = "\(_record.memo)"
+        }
+        
         formatter.locale = Locale(identifier: "ja_JP")
         formatter.dateFormat = "M/d(E)"
     }
@@ -98,6 +106,7 @@ struct EditRecordView: View {
                         .background(Color.white)
                     Divider().frame(height: 1).background(Color.nonActive)
                 }
+
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
                 
@@ -110,13 +119,13 @@ struct EditRecordView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 30)
 
-                Button(action: {}) {
-                    Text("削除する").modifier(BoldText(size: 18)).foregroundColor(.backGround)
+                if record != nil {
+                    Button(action: {}) {
+                        Text("削除する").modifier(BoldText(size: 18)).foregroundColor(.backGround)
+                    }
+                    .buttonStyle(SecondaryButtonStyle())
+                    .padding(.horizontal, 20)
                 }
-                .buttonStyle(SecondaryButtonStyle())
-                .padding(.horizontal, 20)
-                
-                
                
             }
             

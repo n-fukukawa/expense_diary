@@ -12,7 +12,7 @@ struct BarChartCell: View {
     var barColor: Color
     
     var body: some View {
-        RoundedRectangle(cornerRadius: 3)
+        RoundedRectangle(cornerRadius: 1)
             .fill(barColor)
             .scaleEffect(CGSize(width: 1, height: value), anchor: .bottom)
     }

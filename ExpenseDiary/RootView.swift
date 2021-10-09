@@ -12,13 +12,8 @@ struct RootView: View {
     var body: some View {
         ZStack {
             Color.main.ignoresSafeArea(.all)
-            VStack {
-                HeaderView().padding(.horizontal, 30)
-                
-                TabView().padding(.bottom, 10).padding(.horizontal, 10)
-                
-                SelectionView(env: env).padding(.leading, 20).padding(.bottom, 5)
-                
+            VStack(spacing: 0) {
+                HeaderView().padding(.horizontal, 30).padding(.bottom, 16)
                 MainView()
             }
         }
@@ -27,7 +22,12 @@ struct RootView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        RootView().environmentObject(StatusObject())
+        let devices = ["iPhone 8 Plus", "iPhone 12", "iPad Air(4th generation)"]
+        
+        ForEach(devices, id: \.self) { device in
+            RootView().environmentObject(StatusObject())
+                       .previewDevice(.init(rawValue: device))
+        }
     }
 }
 
@@ -38,7 +38,7 @@ struct HeaderView: View {
         HStack {
             if env.navItem == .list {
                 HStack {
-                    Text("10").modifier(BoldText(size: 40))
+                    Text("10").modifier(BoldText(size: 36))
                     
                     VStack(alignment: .leading) {
                         Text("2021")
@@ -51,7 +51,7 @@ struct HeaderView: View {
                 }
             } else {
                 HStack {
-                    Text("2021").tracking(2).modifier(BoldText(size: 40))
+                    Text("2021").tracking(1).modifier(NormalText(size: 36))
                 }
             }
             
@@ -76,22 +76,22 @@ struct TabView: View {
     @EnvironmentObject var env: StatusObject
     var body: some View {
         HStack(spacing: 0) {
-            ForEach(TabItem.all(), id: \.self) { tabItem in
+            ForEach(RecordType.all(), id: \.self) { recordType in
                 Button(action: {
-                    self.env.tabItem = tabItem
+                    self.env.recordType = recordType
                     self.env.category = nil
                 }){
-                    let is_active = self.env.tabItem == tabItem
+                    let is_active = self.env.recordType == recordType
                     VStack(spacing: 8) {
                         if is_active {
-                            Text(tabItem.rawValue).modifier(BoldText(size: 18))
+                            Text(recordType.name).modifier(BoldText(size: 18))
                             Rectangle().frame(height: 3).offset(x: 0, y: -1)
                         } else {
-                            Text(tabItem.rawValue).modifier(NormalText(size: 18))
+                            Text(recordType.name).modifier(NormalText(size: 18))
                             Rectangle().frame(height: 1)
                         }
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.main)
                 }
             }
         }
@@ -104,55 +104,51 @@ struct SelectionView: View {
     
     init(env: StatusObject) {
         self.env = env
-        self.categories = Category.getByType(env.tabItem.type)
+        self.categories = Category.getByType(env.recordType)
     }
     var body: some View {
-        if env.tabItem != .balance {
             ScrollView(.horizontal, showsIndicators:false) {
                 HStack(spacing: 30) {
                     Button(action:{
                         self.env.category = nil
                     }) {
-                        VStack(spacing: 3) {
+                        let is_active = self.env.category === nil
+                        VStack(spacing: 5) {
                             ZStack {
-                                Circle().foregroundColor(self.env.category === nil ? .accent : .backGround)
+                                // Circle().foregroundColor(self.env.category === nil ? .accent : .backGround)
                                 Image("home2")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
-                                    .frame(width: 20, height: 20)
-                                    .foregroundColor(self.env.category === nil ? .white : .darkMain)
+                                    .frame(width: 30, height: 30)
+                                    .foregroundColor(is_active ? .darkMain : .nonActive)
                             }
-                            .frame(width: 40, height: 40)
                             Text("すべて").modifier(BoldText(size: 14))
-                                .foregroundColor(.white)
+                                .foregroundColor(is_active ? .darkMain : .nonActive)
                         }
                     }
                     ForEach(categories, id: \.self) { category in
                         Button(action:{
                             self.env.category = category
                         }) {
-                            VStack(spacing: 3) {
+                            let is_active = category.name == self.env.category?.name
+                            VStack(spacing: 5) {
                                 ZStack {
-                                    Circle().foregroundColor(category.name == self.env.category?.name ? .accent : .backGround)
+                                    //Circle().foregroundColor(category.name == self.env.category?.name ? .backGround : .backGround)
                                     Image(category.icon)
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
-                                        .frame(width: 20, height: 20)
-                                        .foregroundColor(category.name == self.env.category?.name ? .white : .darkMain)
+                                        .frame(width: 30, height: 30)
+                                        .foregroundColor(is_active ? .darkMain : .nonActive)
+                                        .shadow(color: .main.opacity(is_active ? 0.3 : 0), radius: 8)
                                 }
-                                .frame(width: 40, height: 40)
-                                Text(category.name).modifier(BoldText(size: 14))
-                                    .foregroundColor(.white)
+                                Text(category.name).modifier(BoldText(size: 13))
+                                    .foregroundColor(is_active ? .darkMain : .nonActive)
                             }
                         }
                     }
                 }
-                .padding(.trailing, 20)
+                .padding(.horizontal, 20)
             }
-            .onAppear() {
-                
-            }
-        }
     }
 }
 
@@ -165,13 +161,13 @@ struct MainView: View {
                 .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: -2)
             
             VStack {
-                ContentView().padding(.horizontal, 20).padding(.top, 20)
+                ContentView()
                 
-                Spacer()
+                 Spacer()
                 
-                AdmobBannerView().frame(width: 320, height: 50)
+                 AdmobBannerView().frame(width: 320, height: 50).padding(.bottom, 10)
                 
-                GlobalNavView()
+                 GlobalNavView()
             }
         }
     }
@@ -181,59 +177,129 @@ struct MainView: View {
 
 struct ContentView: View {
     @EnvironmentObject var env: StatusObject
-
+    
     var body: some View {
         if(env.navItem == .list) {
-            ListView(env: env)
+            ListView(env: env).padding(.horizontal, 16).padding(.top, 16)
         } else {
-            GraphView()
+            TabView().padding(.vertical, 16)
+            SelectionView(env: env).padding(.bottom, 5)
+            Divider()
+            ChartView(env: env).padding(.horizontal, 16)
         }
     }
 }
 
 struct ListView: View {
     @ObservedObject var env: StatusObject
+    @State var isSummary = false
     let monthlyRecords: [Date: Array<Record>]?
-    var total = 0
-    
+    let summary: [Category: Int]?
+    var expense = 0
+    var income = 0
+    var balance = 0
+
     init(env: StatusObject) {
         self.env = env
-        self.monthlyRecords = Record.getMonthly(type: env.tabItem.type, category: env.category)
+        self.monthlyRecords = Record.getMonthly(type: nil, category: nil)
+        self.summary = Record.getSummary(year: 2021, month: 10)
         if let _monthlyRecords = self.monthlyRecords {
             _monthlyRecords.forEach({ date, dailyRecord in
                 dailyRecord.forEach({ record in
-                    total += record.amount
+                    if record.type == RecordType.expense.rawValue {
+                        self.expense += record.amount
+                    } else if record.type == RecordType.income.rawValue {
+                        self.income += record.amount
+                    }
                 })
             })
+            self.balance = self.income - self.expense
         }
     }
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("\(total) 円").tracking(2).modifier(NormalText(size: 24))
-                    .foregroundColor(.text)
-            }
-            .padding(10)
+        let diaryString = "記録"
+        let summaryString = "まとめ"
+        HStack(spacing: 0) {
+                Button(action: {
+                    self.isSummary = false
+                }){
+                    VStack(spacing: 8) {
+                        if isSummary {
+                            Text(diaryString).tracking(2).modifier(NormalText(size: 18))
+                            Rectangle().frame(height: 1).offset(x: 0, y: -1)
+                        } else {
+                            Text(diaryString).tracking(2).modifier(BoldText(size: 18))
+                            Rectangle().frame(height: 3).offset(x: 0, y: -1)
+                        }
+                    }
+                    .foregroundColor(.main)
+                }
             
-            if let _monthlyRecords = monthlyRecords {
-                ScrollView(showsIndicators: false) {
-                    VStack {
-                        ForEach(Array(_monthlyRecords.keys.sorted(by: >)), id: \.self) { date in
-                            DailyCard(date: date, records: _monthlyRecords[date]!)
+                Button(action: {
+                    self.isSummary = true
+                }){
+                    VStack(spacing: 8) {
+                        if isSummary {
+                            Text(summaryString).tracking(2).modifier(BoldText(size: 18))
+                            Rectangle().frame(height: 3).offset(x: 0, y: -1)
+                        } else {
+                            Text(summaryString).tracking(2).modifier(NormalText(size: 18))
+                            Rectangle().frame(height: 1).offset(x: 0, y: -1)
+                        }
+                    }
+                    .foregroundColor(.main)
+                }
+        }
+        
+        VStack {
+            if isSummary {
+                VStack {
+                    Text("\(balance) 円").tracking(2).modifier(NormalText(size: 24))
+                        .foregroundColor(.text)
+                    HStack {
+                        Spacer()
+                        Text("\(expense) 円").tracking(2).modifier(NormalText(size: 20))
+                            .foregroundColor(.text)
+                        Spacer()
+                        Text("\(income) 円").tracking(2).modifier(NormalText(size: 20))
+                            .foregroundColor(.text)
+                        Spacer()
+                    }
+                    .padding(10)
+                }
+                if let _summary = summary {
+                    ScrollView(showsIndicators: false) {
+                        VStack {
+                            ForEach(Array(_summary.keys), id: \.self) { cate in
+                                ListCard(name: cate.name, memo: "", amount: _summary[cate] ?? 0)
+                            }
                         }
                     }
                 }
+                
             } else {
-                Spacer()
-                Text("データがありません").modifier(NormalText(size: 16)).foregroundColor(.text)
-                Spacer()
+                if let _monthlyRecords = monthlyRecords {
+                    ScrollView(showsIndicators: false) {
+                        VStack {
+                            ForEach(Array(_monthlyRecords.keys.sorted(by: >)), id: \.self) { date in
+                                DailyCard(date: date, records: _monthlyRecords[date]!)
+                            }
+                        }
+                    }
+                } else {
+                    Spacer()
+                    Text("データがありません").modifier(NormalText(size: 16)).foregroundColor(.text)
+                    Spacer()
+                }
             }
         }
     }
 }
 
 struct DailyCard: View {
+    @State var isShowing = false
+    @State var selectedRecord: Record?
     let date: Date
     let records: Array<Record>
     let dateFormatter = DateFormatter()
@@ -257,36 +323,23 @@ struct DailyCard: View {
                     .tracking(1).modifier(NormalText(size: 12))
                 Rectangle().frame(height: 1).foregroundColor(.nonActive)
             }
+            .foregroundColor(.text)
             .padding(.bottom, 10)
             
             VStack(spacing: 8) {
                 ForEach(records) { record in
-                    Button(action: {}) {
-                        ZStack {
-                            Color.white
-                                .cornerRadius(5)
-                                .shadow(color: .black.opacity(0.05), radius: 1, x: 1, y: 1)
-                                
-                            HStack {
-                                Text(record.category?.name ?? "未分類")
-                                    .tracking(2).modifier(NormalText(size: 16))
-                                Text(record.memo)
-                                    .tracking(2).modifier(NormalText(size: 12))
-                                Spacer()
-                                Text("\(record.amount) 円")
-                                    .tracking(2).modifier(NormalText(size: 16))
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 10)
-                        }
+                    Button(action: {
+                        self.isShowing = true
+                        self.selectedRecord = record
+                    }) {
+                        ListCard(name: record.category?.name, memo: record.memo, amount: record.amount)
                     }
-                    .sheet(isPresented: $isShowing) {
-                        EditRecordView()
+                    .sheet(item: $selectedRecord) { rec in
+                        EditRecordView(isActive: $isShowing, record: rec)
                     }
                 }
             }
         }
-        .foregroundColor(.text)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
     }
@@ -315,123 +368,230 @@ struct DailyCard: View {
     //    }
 }
 
+struct ListCard: View {
+    let name: String?
+    let memo: String
+    let amount: Int
+    var body: some View {
+        ZStack {
+            Color.white
+                .cornerRadius(5)
+                .shadow(color: .black.opacity(0.05), radius: 1, x: 1, y: 1)
+            
+            HStack {
+                Text(name ?? "未分類")
+                    .tracking(2).modifier(NormalText(size: 16))
+                Text(memo)
+                    .tracking(2).modifier(NormalText(size: 12))
+                Spacer()
+                Text("\(amount) 円")
+                    .tracking(2).modifier(NormalText(size: 16))
+            }
+            .foregroundColor(.text)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+        }
+    }
+}
 
-struct GraphView: View {
+
+struct ChartView: View {
+    @ObservedObject var env: StatusObject
+    let leadingPadding: CGFloat = 50
     @State private var currentLabel = ""
-    @State private var currentValue = ""
+    @State private var currentValue = 0
     
     @State private var touchLocation: CGFloat = -1
     
+    @State private var activeIndex: Int = 0
+    
+    @State private var labelPositionX: CGFloat = 0
+    
     var barColor: Color = .main
-    var data: [ChartData] = [
-        ChartData(label: "1月", value : 0),
-        ChartData(label: "2月", value : 0),
-        ChartData(label: "3月", value : 0),
-        ChartData(label: "4月", value : 3500),
-        ChartData(label: "5月", value : 4000),
-        ChartData(label: "6月", value : 3500),
-        ChartData(label: "7月", value : 500),
-        ChartData(label: "8月", value : 5500),
-        ChartData(label: "9月", value : 2500),
-        ChartData(label: "10月", value : 3500),
-        ChartData(label: "11月", value : 1500),
-        ChartData(label: "12月", value : 2500),
-    ];
+    var data: [ChartData] = []
+    
+    init(env: StatusObject) {
+        self.env = env
+        setData()
+    }
+    
+    mutating func setData() {
+        let monthTotal = Record.getMonthTotal(year: 2021, month: 10, type: env.recordType, category: env.category)
+        
+        var count = 1
+        monthTotal.forEach({ value in
+            self.data.append(ChartData(label : "\(count)月", value: value))
+            count += 1
+        })
+    }
     
     var body: some View {
-        VStack {
-            GeometryReader { geometry in
+            VStack {
                 ZStack {
-                    Color.main.cornerRadius(5)
+                    Color.darkMain.cornerRadius(5)
                     HStack {
                         Text(currentLabel)
                         Spacer()
                         Text("\(currentValue) 円").tracking(1)
-                    }.modifier(BoldText(size: 16)).foregroundColor(.white)
+                    }
+                    .modifier(BoldText(size: 16)).foregroundColor(.white)
                     .padding(.vertical, 6).padding(.horizontal, 12)
-                }.frame(width: 150).frame(maxHeight: 30)
-                VStack {
-                    HStack(spacing: 15) {
+                }
+                .position(x: labelPositionX)
+                .frame(width: 150).frame(maxHeight: 30)
+                .padding(.top, 10)
+                
+
+                
+                GeometryReader { geometry in
+                ZStack {
+                    let lineCount = getLineCount()
+                    ForEach(0..<lineCount + 1) { index in
+                        Text("\(getMarginedMax() / lineCount * (lineCount - index))")
+                            .modifier(NormalText(size: 12))
+                            .foregroundColor(.nonActive)
+                            .position(x: geometry.frame(in: .local).minX + 16,
+                                      y: geometry.frame(in: .local).maxY / CGFloat(lineCount) * CGFloat(index) - 10)
+                        Rectangle()
+                            .foregroundColor(.nonActive)
+                            .frame(height: 1)
+                            .position(x: geometry.frame(in: .local).midX,
+                                      y: geometry.frame(in: .local).maxY / CGFloat(lineCount) * CGFloat(index))
+                    }
+                
+                    HStack(spacing: 0) {
                         ForEach(0..<data.count, id: \.self) { i in
-                            BarChartCell(value: normalizedValue(index: i), barColor: .main)
-                                .padding(.top)
-                                .opacity(barIsTouched(index: i) ? 1 : 0.7)
-                                .scaleEffect(barIsTouched(index: i) ? CGSize(width: 1.05, height: 1) : CGSize(width: 1, height: 1), anchor: .bottom)
-                                .animation(.spring())
+                            VStack(spacing: 0) {
+                                BarChartCell(value: normalizedValue(index: i), barColor: barIsTouched(index: i) ? .darkMain : .main)
+                                    .scaleEffect(barIsTouched(index: i)
+                                                    ? CGSize(width: 1.05, height: 1)
+                                                    : CGSize(width: 1, height: 1), anchor: .bottom)
+                                    .animation(.spring())
+                                    .padding(.horizontal, 6)
+                                    .gesture(DragGesture(minimumDistance: 0)
+                                                .onChanged({ position in
+                                                    self.activeIndex = i
+                                                    updateLabel(width: geometry.frame(in: .local).midX)
+                                                })
+                                )
+
+//                                    Text(data[i].label)
+//                                        .modifier(NormalText(size: 10))
+//                                        .foregroundColor(.text)
+//                                        .overlay(
+//                                        Text("\( geometry.frame(in: .local).height)")
+//                                        )
+//                                        .modifier(NormalText(size: geometry.frame(in: .local).size.height))
+                            }
                         }
                     }
-                    .gesture(DragGesture(minimumDistance: 0)
-                        .onChanged({ position in
-                            touchLocation = position.location.x/geometry.frame(in: .local).width
-                            updateCurrentValue()
-                        })
-                        .onEnded({ position in
-//                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                                withAnimation(Animation.easeOut(duration: 0.5)) {
-//                                    resetValues()
-//                                }
-//                            }
-                        })
-                    )
-                    
-                    if !currentLabel.isEmpty {
-                        Text(currentLabel).foregroundColor(.text)
-                            .offset(x: labelOffset(in: geometry.frame(in: .local).width))
+                    .onAppear() {
+                        
+                        updateLabel(width: 3)
                     }
-                }.padding(.top, 40)
+//                    .gesture(DragGesture(minimumDistance: 0)
+//                                .onChanged({ position in
+//                                    touchX = position.location.x
+//                                    touchLocation = position.location.x/geometry.frame(in: .local).width
+//                                    updateCurrentValue()
+//                                })
+                    .padding(.leading, leadingPadding)
+                }
             }
         }
         .padding(.top, 30)
+        .padding(.bottom, 10)
+
     }
     
     func normalizedValue(index: Int) -> Double {
-             var allValues: [Int]    {
-                 var values = [Int]()
-                 for data in data {
-                    values.append(data.value)
-                 }
-                 return values
-             }
-             guard let max = allValues.max() else {
-                 return 1
-             }
-             if max != 0 {
-                 return Double(data[index].value) / Double(max)
-             } else {
-                 return 1
-             }
+        let max = getMax()
+        
+        if max != 0 {
+            let marginedMax = self.getMarginedMax()
+            return Double(data[index].value) / Double(marginedMax)
+        } else {
+            return 1
+        }
     }
     
-    func updateCurrentValue()    {
-             let index = Int(touchLocation * CGFloat(data.count))
-             guard index < data.count && index >= 0 else {
-                 currentValue = ""
-                 currentLabel = ""
-                 return
-             }
-             currentValue = "\(data[index].value)"
-             currentLabel = data[index].label
-         }
-    
-    func resetValues() {
-             touchLocation = -1
-             currentValue  =  ""
-             currentLabel = ""
+    func getMax() -> Int {
+        var allValues: [Int]    {
+            var values = [Int]()
+            for data in data {
+                values.append(data.value)
+            }
+            return values
+        }
+        
+        guard let max = allValues.max() else {
+            return 0
+        }
+        
+        return max
     }
+    
+    func getMarginedMax() -> Int {
+        let max = getMax()
+        
+        let digit = String(max).count
+        let divided = Double(max + 1) / pow(Double(10), Double(digit - 1))
+        
+        let initial = Int(divided.rounded(.up))
+        
+        return Int(Double(initial) * pow(Double(10), Double(digit - 1)))
+    }
+    
+    func getLineCount() -> Int {
+        let max = getMax()
+
+        let digit = String(max).count
+        
+        if digit < 3 {
+            return 1;
+        }
+        
+        let divided = Double(max + 1) / pow(Double(10), Double(digit - 1))
+        
+        let initial = Int(divided.rounded(.up))
+        
+        switch(initial) {
+        case 1: return 4;
+        case 2: return 4;
+        case 3: return 6
+        case 4: return 4;
+        case 5: return 5;
+        case 6: return 6;
+        case 7: return 7;
+        case 8: return 4;
+        case 9: return 3;
+        case 10: return 4;
+        default: return 1;
+        }
+    }
+    
+    func updateLabel(width: CGFloat)    {
+        currentValue = data[self.activeIndex].value
+        currentLabel = data[self.activeIndex].label
+        
+        labelPositionX = CGFloat(self.activeIndex) / CGFloat(data.count - 1) * width
+        print (labelPositionX)
+    }
+
     
     func labelOffset(in width: CGFloat) -> CGFloat {
-             let currentIndex = Int(touchLocation * CGFloat(data.count))
-             guard currentIndex < data.count && currentIndex >= 0 else {
-                 return 0
-             }
-             let cellWidth = width / CGFloat(data.count)
-             let actualWidth = width -    cellWidth
-             let position = cellWidth * CGFloat(currentIndex) - actualWidth/2
-             return position
+        let currentIndex = Int(touchLocation * CGFloat(data.count))
+        guard currentIndex < data.count && currentIndex >= 0 else {
+            return 0
+        }
+        let cellWidth = width / CGFloat(data.count)
+        let actualWidth = width -    cellWidth
+        let position = cellWidth * CGFloat(currentIndex) - actualWidth/2
+        return position
     }
     
     func barIsTouched(index: Int) -> Bool {
-        touchLocation > CGFloat(index)/CGFloat(data.count) && touchLocation < CGFloat(index+1)/CGFloat(data.count)
+        self.activeIndex == index
     }
 }
 
@@ -473,4 +633,6 @@ struct GlobalNavView: View {
         .padding(.horizontal, 40)
     }
 }
+
+
 
