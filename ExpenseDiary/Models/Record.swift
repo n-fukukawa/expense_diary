@@ -10,10 +10,9 @@ import RealmSwift
 import SwiftUI
 
 class Record: Object, Identifiable  {
-    @objc dynamic var id = UUID()
+    @objc dynamic var id = UUID().uuidString
     @objc dynamic var date: Date = Date()
-    @objc dynamic var type: Int = RecordType.expense.rawValue
-    @objc dynamic var category: Category?
+    @objc dynamic var category: Category!
     @objc dynamic var amount: Int = 0
     @objc dynamic var memo: String = ""
     @objc dynamic var created_at: Date = Date()
@@ -23,202 +22,105 @@ class Record: Object, Identifiable  {
         return "id"
     }
     
+    var identity: String {
+        return isInvalidated ? "deleted-object-\(UUID().uuidString)" : id
+    }
+    
     private static var realm = try! Realm()
     
-    //    static func all() -> Results<Expense> {
-    //        realm.objects(Expense.self)
-    //    }
     
-    static func getDate(day: Int) -> Date {
-        Calendar.current.date(from: DateComponents(year: 2021, month: 10, day: day))!
-    }
-    
-    static func all(type: RecordType? = nil) -> [Date : Array<Record>] {
-        let cate1 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "食費", "icon" : "icon", "order" : 1])
-        let cate2 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "日用品費", "icon" : "icon", "order" : 2])
-        let cate3 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "交通費", "icon" : "icon", "order" : 3])
+    static func getRecords(start: Date, end: Date, type: RecordType? = nil, category: Category? = nil) -> Results<Record> {
+        var records = self.realm.objects(Record.self).filter("date BETWEEN {%@, %@}", start, end)
         
-        return [
-            self.getDate(day: 6) : [
-                Record(value: [
-                    "date": self.getDate(day: 6),
-                    "type":RecordType.expense.rawValue,
-                    "category": cate3,
-                    "amount": 2500,
-                    "memo": "京都〜神戸",
-                    "created_at": Date(),
-                    "updated_at": Date()
-                ]),
-                
-                Record(value: [
-                    "date": self.getDate(day: 6),
-                    "type":RecordType.expense.rawValue,
-                    "category": cate1,
-                    "amount": 1000,
-                    "memo": "ランチ",
-                    "created_at": Date(),
-                    "updated_at": Date()
-                ]),
-                
-                Record(value: [
-                    "date": self.getDate(day: 6),
-                    "type":RecordType.expense.rawValue,
-                    "category": cate2,
-                    "amount": 280,
-                    "memo": "洗剤",
-                    "created_at": Date(),
-                    "updated_at": Date()
-                ]),
-            ],
-            self.getDate(day: 1) : [
-                Record(value: ["date": self.getDate(day: 1),"type":RecordType.expense.rawValue,"category": cate3,"amount":1500,"memo": "大阪〜神戸","created_at": Date(),"updated_at": Date()
-                ]),
-                Record(value: ["date": self.getDate(day: 1),"type":RecordType.expense.rawValue,"category": cate1,"amount":1000,"memo": "カフェ","created_at": Date(),"updated_at": Date()
-                ]),
-            ],
-        ]
-    }
-    
-    static func getMonthly(type: RecordType?, category: Category?) -> [Date : Array<Record>]? {
-        let cate1 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "食費", "icon" : "icon", "order" : 1])
-        let cate2 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "日用品費", "icon" : "icon", "order" : 2])
-        let cate3 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "交通費", "icon" : "icon", "order" : 3])
-        let cateA = Category(value: ["type" : RecordType.income.rawValue, "name" : "給料", "icon" : "icon", "order" : 1])
-        let cateB = Category(value: ["type" : RecordType.income.rawValue, "name" : "賞与", "icon" : "icon", "order" : 2])
-
-        if type == nil {
-            return self.all()
+        if let type = type {
+            records = records.filter("type == %@", type.rawValue)
         }
         
-        if let _category = category {
-            if _category.name == cate1.name {
-                return [
-                    self.getDate(day: 6) : [
-                        Record(value: ["date": self.getDate(day: 6),"type":RecordType.expense.rawValue,"category": cate1,"amount": 1000,"memo": "ランチ","created_at": Date(),"updated_at": Date()
-                        ]),
-                    ],
-                    self.getDate(day: 1) : [
-                        Record(value: ["date": self.getDate(day: 1),"type":RecordType.expense.rawValue,"category": cate1,"amount": 1000,"memo": "カフェ","created_at": Date(),"updated_at": Date()
-                        ]),
-                    ],
-                ]
-            } else if _category.name == cate2.name {
-                return [
-                    self.getDate(day: 6) : [
-                        Record(value: ["date": self.getDate(day: 6),"type":RecordType.expense.rawValue,"category": cate2,"amount": 280,"memo": "洗剤","created_at": Date(),"updated_at": Date()
-                        ]),
-                    ],
-                ]
-            } else if _category.name == cate3.name {
-                return [
-                    self.getDate(day: 6) : [
-                        Record(value: ["date": self.getDate(day: 6),"type":RecordType.expense.rawValue,"category": cate3,"amount": 2500,"memo": "京都〜神戸","created_at": Date(),"updated_at": Date()
-                        ]),
-                    ],
-                    self.getDate(day: 1) : [
-                        Record(value: ["date": self.getDate(day: 1),"type":RecordType.expense.rawValue,"category": cate3,"amount":1500,"memo": "大阪〜神戸","created_at": Date(),"updated_at": Date()
-                        ]),
-                    ]
-                ]
-            } else if _category.name == cateA.name {
-                return [
-                    self.getDate(day: 25) : [
-                        Record(value: ["date": self.getDate(day: 25),"type":RecordType.income.rawValue,"category": cateA,"amount": 250000,"memo": "テスト株式会社","created_at": Date(),"updated_at": Date()
-                        ]),
-                    ],
-                ]
-            } else if _category.name == cateB.name {
-                return [
-                    self.getDate(day: 15) : [
-                        Record(value: ["date": self.getDate(day: 15),"type":RecordType.income.rawValue,"category": cateB,"amount":500000,"memo": "秋のボーナス","created_at": Date(),"updated_at": Date()
-                        ]),
-                    ]
-                ]
-            } else {
-                return nil
-            }
+        if let category = category {
+            records = records.filter("category == %@", category)
         }
         
-        return nil
+        return records
     }
     
-    static func getSummary(year: Int, month: Int) -> [Category : Int] {
-        let cate1 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "食費", "icon" : "icon", "order" : 1])
-        let cate2 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "日用品費", "icon" : "icon", "order" : 2])
-        let cate3 = Category(value: ["type" : RecordType.expense.rawValue, "name" : "交通費", "icon" : "icon", "order" : 3])
-        let cateA = Category(value: ["type" : RecordType.income.rawValue, "name" : "給料", "icon" : "icon", "order" : 1])
-        let cateB = Category(value: ["type" : RecordType.income.rawValue, "name" : "賞与", "icon" : "icon", "order" : 2])
+    static func getTotal(start: Date, end: Date, type: RecordType, category: Category? = nil) -> Int {
+        return self.getRecords(start: start, end: end, type: type, category: category)
+                    .sum(ofProperty: "amount")
+    }
+    
+    
+    // 年間の月毎のカテゴリー別合計
+    static func getYearly(dates: [Date: Date], type: RecordType, category: Category? = nil) -> [Int] {
+        var results: [Int] = []
         
-        return [
-            cate1 : 1500,
-            cate2 : 2500,
-            cate3 : 2800,
-            cateA : 250000,
-            cateB : 500000,
-        ]
-    }
-    
-    static func getMonthTotal(year: Int, month: Int, type: RecordType?, category: Category?) -> [Int] {
-        if type == .expense {
-            return [6000, 0,
-               0,
-                3500,
-                4000,
-                9500,
-                1200,
-                5000,
-                2500,
-                3500,
-                1500,
-                2500
-            ]
-        } else {
-           return [250000, 0,
-               0,
-                313500,
-                454000,
-                119500,
-                221200,
-                545000,
-                62500,
-                113500,
-                321500,
-                222500
-            ]
-        }
-
+        dates.forEach({start, end in
+            results.append(self.getTotal(start: start, end: end, type: type, category: category))
+        })
+        
+        return results
     }
     
     
-    static func create(date: Date, type:String, category: Category, amount: Int, memo: String, created_at: Date, updated_at: Date) {
+    static func create(date: Date, category: Category, amount: Int, memo: String) -> Record {
         try! realm.write {
-            let newExpense = Record(value: [
+            let record = Record(value: [
                 "date":date,
-                "type":type,
                 "category":category,
                 "amount":amount,
-                "memo":memo,
-                "created_at":created_at,
-                "updated_at":updated_at
+                "memo":memo
             ])
-            realm.add(newExpense)
+            realm.add(record)
+            
+            return record
         }
     }
     
-    static func update(record: Record, date: Date, type:String, category: Category?, amount: Int, memo: String, updated_at: Date) {
+    static func update(record: Record, date: Date, category: Category, amount: Int, memo: String)
+        -> Record {
+            try! realm.write {
+                record.setValue(date, forKey: "date")
+                record.setValue(category, forKey: "category")
+                record.setValue(amount, forKey: "amount")
+                record.setValue(memo, forKey: "memo")
+                record.setValue(Date(), forKey: "updated_at")
+            }
+            
+            return record
+    }
+    
+    static func delete(_ record: Record) {
         try! realm.write {
-            record.setValue(date, forKey: "date")
-            record.setValue(type, forKey: "type")
-            record.setValue(category, forKey: "category")
-            record.setValue(amount, forKey: "amount")
-            record.setValue(memo, forKey: "memo")
-            record.setValue(updated_at, forKey: "updated_at")
+            realm.delete(record)
         }
     }
     
-    static func delete(_ expense: Record) {
+    static func deleteByCategory(_ category: Category) {
         try! realm.write {
-            realm.delete(expense)
+            let records = realm.objects(Record.self).filter("category = %@", category)
+            realm.delete(records)
+        }
+    }
+
+    
+    static func getById(_ id: String) -> Record? {
+        return self.realm.objects(Record.self).filter("id == %@", id).first
+    }
+    
+    
+    static func seed() {
+        var records:[Record] = []
+        for i in 1...10000 {
+            for j in 1...10 {
+                records.append(Record(value: [
+                                        "date"     : Calendar.current.date(byAdding: .day, value: -i, to: Date())!,
+                                        "category" : Category.all()[j % 9],
+                                        "amount"   : 1234,
+                                        "memo"     : "テスト"
+                ]))
+            }
+        }
+        try! realm.write {
+            realm.add(records)
         }
     }
     

@@ -13,8 +13,9 @@ extension Color {
     static let text        = Color(hex: "707070")
     static let nonActive   = Color(hex: "C6C6C6")
     static let main        = Color(hex: "89baca")
-    static let darkMain     = Color(hex: "548ea0")
-    static let accent      = Color(hex: "EECE45")
+    static let darkMain    = Color(hex: "548ea0")
+    static let accent      = Color(hex: "F4D03A")
+    static let warning     = Color(hex: "DC143C")
 
 }
 
@@ -29,6 +30,36 @@ extension Color {
         let b = rgbValue & 0xff
         
         self.init(red: Double(r) / 0xff, green: Double(g) / 0xff, blue: Double(b) / 0xff)
+    }
+}
+
+extension Text {
+    func planeStyle(size: CGFloat) -> some View {
+        self
+            .tracking(2)
+            .font(Font.custom("NotoSansJP-Regular", size: size))
+            .foregroundColor(.text)
+    }
+    
+    func mainStyle(size: CGFloat) -> some View {
+        self
+            .tracking(2)
+            .font(Font.custom("NotoSansJP-Regular", size: size))
+            .foregroundColor(.main)
+    }
+    
+    func outlineStyle(size: CGFloat) -> some View {
+        self
+            .tracking(2)
+            .font(Font.custom("NotoSansJP-Regular", size: size))
+            .foregroundColor(.white)
+    }
+    
+    func warningStyle(size: CGFloat) -> some View {
+        self
+            .tracking(2)
+            .font(Font.custom("NotoSansJP-Regular", size: size))
+            .foregroundColor(.warning)
     }
 }
 

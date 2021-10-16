@@ -9,7 +9,7 @@ import RealmSwift
 
 class Theme: Object, Identifiable {
     
-    @objc dynamic var id = UUID()
+    @objc dynamic var id = UUID().uuidString
     @objc dynamic var name: String = ""
     @objc dynamic var color1: String = ""
     @objc dynamic var color2: String = ""

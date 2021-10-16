@@ -15,6 +15,14 @@ enum RecordType: Int {
         return [self.expense, self.income]
     }
     
+    static func of(_ value: Int) -> RecordType {
+        switch(value) {
+            case 1: return .expense
+            case 2: return .income
+            default: return .expense
+        }
+    }
+    
     var name: String {
         switch self {
         case .expense: return "支出"

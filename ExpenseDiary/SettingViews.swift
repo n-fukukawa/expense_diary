@@ -25,22 +25,22 @@ struct SettingMenuView: View {
                     Spacer()
                     VStack(spacing: 40){
                         NavigationLink(destination: CategoryMenuView()) {
-                            Text("費目の登録／編集").tracking(2).modifier(NormalText(size: 18))
+                            Text("カテゴリーの登録／編集").outlineStyle(size: 18)
                         }
-                        NavigationLink(destination: SettingStartDayView()) {
-                            Text("月の開始日の変更").tracking(2).modifier(NormalText(size: 18))
+                        NavigationLink(destination: EditStartDayView()) {
+                            Text("月の開始日の変更").outlineStyle(size: 18)
                         }
                         NavigationLink(destination: PresetMenuView()) {
-                            Text("プリセットの登録／編集").tracking(2).modifier(NormalText(size: 18))
+                            Text("プリセットの登録／編集").outlineStyle(size: 18)
                         }
-                        NavigationLink(destination: SettingThemeView()) {
-                            Text("テーマカラーの変更").tracking(2).modifier(NormalText(size: 18))
+                        NavigationLink(destination: EditThemeView()) {
+                            Text("テーマカラーの変更").outlineStyle(size: 18)
                         }
                         NavigationLink(destination: BackUpMenuView()) {
-                            Text("バックアップ＆引継ぎ").tracking(2).modifier(NormalText(size: 18))
+                            Text("バックアップ＆引継ぎ").outlineStyle(size: 18)
                         }
                         NavigationLink(destination: Text("AppStore").foregroundColor(.text)) {
-                            Text("レビュー").tracking(2).modifier(NormalText(size: 18))
+                            Text("レビュー").outlineStyle(size: 18)
                         }
                     }
                     
@@ -59,24 +59,9 @@ struct SettingMenuView: View {
     }
 }
 
-struct CategoryMenuView: View {
-    var body: some View {
-        ZStack {
-            Color.backGround
-            VStack {
-                Form {
-                    List {
-                        ForEach(Category.all(), id: \.self) { category in
-                            Text(category.name).modifier(NormalText(size: 16))
-                        }.foregroundColor(.text)
-                    }
-                }
-            }
-        }
-    }
-}
 
-struct SettingStartDayView: View {
+
+struct EditStartDayView: View {
     @State var day = 1
     var body: some View {
         ZStack {
@@ -85,7 +70,7 @@ struct SettingStartDayView: View {
                 Form {
                     Picker("月の開始日", selection: $day) {
                         ForEach(1..<32, id: \.self) { index in
-                            Text("\(index) 日").modifier(NormalText(size: 16))
+                            Text("\(index) 日").planeStyle(size: 16)
                                 .padding(.trailing, 10)
                         }
                     }
@@ -96,28 +81,9 @@ struct SettingStartDayView: View {
     }
 }
 
-struct PresetMenuView: View {
-    var body: some View {
-        ZStack {
-            Color.backGround
-            VStack {
-                List {
-                    ForEach(Preset.all(), id: \.self) { preset in
-                        HStack {
-                            Text(preset.category?.name ?? "").modifier(NormalText(size: 16))
-                            Text(preset.memo).modifier(NormalText(size: 14))
-                            Spacer()
-                            Text("\(preset.amount) 円").modifier(NormalText(size: 16))
-                        }
-                    }.foregroundColor(.text)
-                }
-                .padding(.top, 40)
-            }
-        }
-    }
-}
 
-struct SettingThemeView: View {
+
+struct EditThemeView: View {
     @State var theme: Theme = Theme()
     var body: some View {
         ZStack {
@@ -126,7 +92,7 @@ struct SettingThemeView: View {
                 Picker("", selection: $theme) {
                     ForEach(Theme.all(), id: \.self) { theme in
                         HStack {
-                            Text(theme.name).modifier(NormalText(size: 16))
+                            Text(theme.name).planeStyle(size: 16)
                             Spacer()
                             HStack(spacing: 0) {
                                 Rectangle()
