@@ -15,7 +15,7 @@ extension Color {
     static let main        = Color(hex: "89baca")
     static let darkMain    = Color(hex: "548ea0")
     static let accent      = Color(hex: "F4D03A")
-    static let warning     = Color(hex: "DC143C")
+    static let warning     = Color(hex: "CC1030")
 
 }
 

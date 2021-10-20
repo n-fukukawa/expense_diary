@@ -9,7 +9,7 @@ import RealmSwift
 
 class Theme: Object, Identifiable {
     
-    @objc dynamic var id = UUID().uuidString
+    @objc dynamic var id: Int = 1
     @objc dynamic var name: String = ""
     @objc dynamic var color1: String = ""
     @objc dynamic var color2: String = ""
@@ -24,7 +24,7 @@ class Theme: Object, Identifiable {
         return "id"
     }
     
-//    private static var realm = try! Realm()
+    private static var realm = try! Realm()
 //
 //    private static var calendar = JPCalendar.getJPCalendar()
     
@@ -32,11 +32,37 @@ class Theme: Object, Identifiable {
 //        realm.objects(Category.self)
 //    }
     
-    static func all() -> Array<Theme> {
-       return [
-        Theme(value: ["name" : "シチリア","color1": "fcfcfc", "color2" : "89baca", "color3" : "e3c342", "order" : 1]),
-        Theme(value: ["name" : "ヴォルケイノ", "color1": "202020", "color2" : "A7170B", "color3" : "DB9800", "order" : 2]),
-        ]
+    static func seed() {
+        try! realm.write {
+            let themes = [
+                Theme(value: ["id" : 1,
+                              "name" : "シチリア",
+                              "color1": "fcfcfc",
+                              "color2" : "89baca",
+                              "color3" : "e3c342",
+                              "order" : 1]),
+                Theme(value: ["id" : 2,
+                              "name" : "ヴォルケイノ",
+                              "color1": "202020",
+                              "color2" : "A7170B",
+                              "color3" : "DB9800",
+                              "order" : 2]),
+            ]
+            
+            realm.add(themes)
+        }
+    }
+    
+    static func all() -> Results<Theme> {
+        realm.objects(Theme.self).sorted(byKeyPath: "id", ascending: true)
+    }
+    
+    static func find(id: Int) -> Theme? {
+        realm.objects(Theme.self).filter("id == %@", id).first
+    }
+    
+    static func standard() -> Theme {
+        realm.objects(Theme.self).first!
     }
 
 }

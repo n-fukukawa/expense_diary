@@ -21,10 +21,10 @@ class Record: Object, Identifiable  {
     override static func primaryKey() -> String? {
         return "id"
     }
-    
-    var identity: String {
-        return isInvalidated ? "deleted-object-\(UUID().uuidString)" : id
-    }
+//
+//    var identity: String {
+//        return isInvalidated ? "deleted-object-\(UUID().uuidString)" : id
+//    }
     
     private static var realm = try! Realm()
     
@@ -50,7 +50,7 @@ class Record: Object, Identifiable  {
     
     
     // 年間の月毎のカテゴリー別合計
-    static func getYearly(dates: [Date: Date], type: RecordType, category: Category? = nil) -> [Int] {
+    static func getYearly(dates: [Date : Date], type: RecordType, category: Category? = nil) -> [Int] {
         var results: [Int] = []
         
         dates.forEach({start, end in
@@ -109,7 +109,7 @@ class Record: Object, Identifiable  {
     
     static func seed() {
         var records:[Record] = []
-        for i in 1...10000 {
+        for i in 1...100 {
             for j in 1...10 {
                 records.append(Record(value: [
                                         "date"     : Calendar.current.date(byAdding: .day, value: -i, to: Date())!,

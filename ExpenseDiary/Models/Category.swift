@@ -13,7 +13,7 @@ class Category: Object, Identifiable {
     @objc dynamic var type: Int = RecordType.expense.rawValue
     @objc dynamic var name: String = ""
     @objc dynamic var icon: Icon!
-    @objc dynamic var order: Int = 0
+    @objc dynamic var order: Int = 1
     @objc dynamic var created_at: Date = Date()   // 作成日
     @objc dynamic var updated_at: Date = Date()   // 更新日
     
@@ -46,16 +46,21 @@ class Category: Object, Identifiable {
     }
     
     static func all() -> Results<Category> {
-        return self.realm.objects(Category.self)
+        return self.realm.objects(Category.self).sorted(byKeyPath: "order", ascending: true)
     }
     
     static func getByType(_ type: RecordType) -> Results<Category> {
-        return self.realm.objects(Category.self).filter("type == %@", type.rawValue)
+        return self.realm.objects(Category.self)
+            .filter("type == %@", type.rawValue)
+            .sorted(byKeyPath: "order", ascending: true)
     }
     
     static func create(type: RecordType, name: String, icon: Icon) -> Category {
         try! realm.write {
-            let category = Category(value: ["type" : type.rawValue, "name" : name, "icon" : icon])
+            let order = self.getMaxOrder() + 1
+            print(order)
+            let category = Category(value: ["type" : type.rawValue, "name" : name, "icon" : icon, "order": order])
+            print(category)
             realm.add(category)
             
             return category
@@ -71,6 +76,12 @@ class Category: Object, Identifiable {
         }
     }
     
+    static func updateOrder(category: Category, order: Int) {
+        try! realm.write {
+            category.setValue(order, forKey: "order")
+        }
+    }
+    
     static func delete(_ category: Category) {
         Record.deleteByCategory(category)
         Preset.deleteByCategory(category)
@@ -81,5 +92,9 @@ class Category: Object, Identifiable {
     
     static func getById(_ id: String) -> Category? {
         return self.realm.objects(Category.self).filter("id == %@", id).first
+    }
+    
+    static func getMaxOrder() -> Int {
+        self.realm.objects(Category.self).value(forKeyPath: "@max.order")! as! Int
     }
 }

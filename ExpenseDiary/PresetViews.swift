@@ -38,6 +38,10 @@ class PresetViewModel: ObservableObject {
         }
     }
     
+    func getPresetCells(type: RecordType) -> [PresetCell] {
+        self.presetCells.filter{$0.category.type == type.rawValue}
+    }
+    
     func save(presetCell: PresetCell?, category: Category?, amount: String, memo: String)
         -> Result<Preset, EditPresetError>
     {
@@ -87,6 +91,37 @@ class PresetViewModel: ObservableObject {
             }
         }
     }
+    
+    func move(type: RecordType, _ from: IndexSet, _ to: Int) {
+        let presets = self.getPresetCells(type: type)
+        guard let source = from.first else {
+            return
+        }
+        
+        if source < to {
+            print(source, to)
+            for i in (source + 1)...(to - 1) {
+                if let preset = Preset.getById(presets[i].id) {
+                    Preset.updateOrder(preset: preset, order: i)
+                }
+            }
+            if let preset = Preset.getById(presets[source].id) {
+                Preset.updateOrder(preset: preset, order: to)
+            }
+        } else if source > to {
+            print(source, to)
+            var count = 0
+            for i in (to...(source - 1)).reversed() {
+                if let preset = Preset.getById(presets[i].id) {
+                    Preset.updateOrder(preset: preset, order: source + 1 - count)
+                }
+                count += 1
+            }
+            if let preset = Preset.getById(presets[source].id) {
+                Preset.updateOrder(preset: preset, order: to + 1)
+            }
+        }
+    }
 }
 
 enum EditPresetError : Error {
@@ -109,53 +144,89 @@ enum EditPresetError : Error {
 
 struct PresetMenuView: View {
     @ObservedObject var viewModel = PresetViewModel()
+    let screen = UIScreen.main.bounds
+    
     @State var type = RecordType.expense
     @State var isShowing = false
     
     @State var selectedPresetCell: PresetCell?
     
+    @State var showingAlert: AlertItem?
+    @State var deleteTarget: PresetCell?
+    
+    private func move(_ from: IndexSet, _ to: Int) {
+        self.viewModel.move(type: self.type, from, to)
+    }
+    
     var body: some View {
         ZStack {
-            Color.backGround
-            VStack {
-                HStack {
-                    Picker(selection: $type, label: Text("支出収入区分")) {
-                        ForEach(RecordType.all(), id: \.self) { recordType in
-                            Text(recordType.name).planeStyle(size: 16)
+            ZStack {
+                Color.backGround
+                VStack {
+                    HStack {
+                        Picker(selection: $type, label: Text("支出収入区分")) {
+                            ForEach(RecordType.all(), id: \.self) { recordType in
+                                Text(recordType.name).planeStyle(size: 16)
+                            }
                         }
+                        .labelsHidden()
+                        .pickerStyle(SegmentedPickerStyle())
                     }
-                    .labelsHidden()
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                .padding(.horizontal, 40)
-                .padding(.top, 20)
-                .padding(.bottom, 16)
-                List {
-                    ForEach(viewModel.presetCells.filter{$0.category.type == type.rawValue}, id: \.id) { presetCell in
-                        HStack {
-                            Text(presetCell.category.name).planeStyle(size: 16)
-                            Text(presetCell.memo).planeStyle(size: 14)
-                            Spacer()
-                            Text("\(presetCell.amount) 円").planeStyle(size: 16)
+                    .padding(.horizontal, 40)
+                    .padding(.top, 20)
+                    .padding(.bottom, 16)
+                    List {
+                        let presetCells = viewModel.getPresetCells(type: type)
+                        ForEach(presetCells, id: \.id) { presetCell in
+                            HStack {
+                                Text(presetCell.category.name).planeStyle(size: 16)
+                                Text(presetCell.memo).planeStyle(size: 14)
+                                Spacer()
+                                Text("\(presetCell.amount) 円").planeStyle(size: 16)
+                            }
+                            .padding(6)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                self.selectedPresetCell = presetCell
+                            }
                         }
-                        .padding(6)
-                        .onTapGesture {
-                            self.selectedPresetCell = presetCell
-                        }
+                        .onMove(perform: move)
+                        .onDelete(perform: { indexSet in
+                            guard let index = indexSet.first else {
+                                return
+                            }
+                            self.deleteTarget = presetCells[index]
+                            self.showingAlert = AlertItem(alert: Alert(
+                                  title: Text(""),
+                                  message:Text("削除しますか？"),
+                                  primaryButton: .cancel(Text("キャンセル")),
+                                  secondaryButton: .destructive(Text("削除"),
+                                  action: {
+                                       self.viewModel.delete(presetCell: self.deleteTarget)
+                                  })))
+                        })
+                    }
+                    .sheet(item: $selectedPresetCell) { presetCell in
+                        EditPresetView(presetCell: presetCell)
+                    }
+                    .alert(item: $showingAlert) { item in
+                        item.alert
                     }
                 }
-                .sheet(item: $selectedPresetCell) { presetCell in
-                    EditPresetView(presetCell: presetCell)
+                .padding(.horizontal, 16)
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button(action: { self.isShowing = true }) {
+                        Text("作成").planeStyle(size: 14)
+                    }
+
+                    MyEditButton().foregroundColor(.text)
+                        .padding(.trailing, 20)
                 }
-                
-                Button(action: {self.isShowing = true}) {
-                    Text("プリセットを作成").outlineStyle(size: 20)
-                }
-                .buttonStyle(PrimaryButtonStyle())
-                .sheet(isPresented: $isShowing) {
-                    EditPresetView(presetCell: nil)
-                }
-                .padding(30)
+            }
+            .sheet(isPresented: $isShowing) {
+                EditPresetView(presetCell: nil)
             }
         }
     }
@@ -164,9 +235,10 @@ struct PresetMenuView: View {
 struct EditPresetView: View {
     let presetCell: PresetCell?
     @ObservedObject var viewModel = PresetViewModel()
+    let screen = UIScreen.main.bounds
     
     @Environment(\.presentationMode) var presentationMode
-    let screen = UIScreen.main.bounds
+
     
     @State var type: RecordType = .expense
     @State var category: Category?
@@ -174,17 +246,8 @@ struct EditPresetView: View {
     @State var amount = ""
     @State var memo = ""
     
-    @State var error: EditPresetError?
-    
-    @State var showError       = false
-    @State var showConfirm     = false
-    
-    @State var deleteTarget: PresetCell?
-    
-    var showModal: Bool {
-        self.showError || self.showConfirm
-    }
-    
+    @State var showingAlert: AlertItem?
+
     var body: some View {
         ZStack {
             Color.backGround.ignoresSafeArea(.all)
@@ -278,72 +341,24 @@ struct EditPresetView: View {
                         case .success(_):
                             self.presentationMode.wrappedValue.dismiss()
                         case .failure(let error):
-                            self.error = error
-                            self.showError = true
+                            self.showingAlert = AlertItem(
+                                alert: Alert(
+                                    title: Text(""),
+                                    message: Text(error.message),
+                                    dismissButton: .default(Text("OK"))))
                     }
                 }) {
-                    Text("プリセットを保存する").outlineStyle(size: 20)
+                    Text("プリセットを保存する").outlineStyle(size: 18)
                 }
                 .buttonStyle(PrimaryButtonStyle())
                 .padding(.horizontal, 20)
                 .padding(.bottom, 30)
+                .alert(item: $showingAlert) { item in
+                    item.alert
+                }
             }
             .padding(.top, 30)
             .padding(16)
-            
-            // モーダル背景
-            ZStack {
-                Color.black.opacity(self.showModal ? 0.3 : 0).ignoresSafeArea(.all)
-                    .animation(Animation.easeIn)
-            }
-            .onTapGesture {
-                self.showError = false
-                self.showConfirm = false
-            }
-            
-            // エラー
-            if let error = self.error {
-                VStack(spacing: 0) {
-                    Text(error.message).planeStyle(size: 18)
-                        .padding(.horizontal, 30)
-                        .padding(.vertical, 30)
-                    Divider()
-                    Button(action: { self.showError = false }) {
-                        Text("OK").planeStyle(size: 18)
-                            .padding(.vertical, 20)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .frame(width: screen.width * 0.9)
-                .modifier(ModalCardModifier(active: showError))
-            }
-            
-            // 削除確認
-            VStack(spacing: 0) {
-                Text("このカテゴリーで登録した記録もすべて削除されます。削除しますか？").planeStyle(size: 18)
-                    .lineSpacing(5)
-                    .padding(.horizontal, 30)
-                    .padding(.vertical, 40)
-                Divider()
-                HStack(spacing: 0) {
-                    Button(action: { self.showConfirm = false }) {
-                        Text("キャンセル").bold().outlineStyle(size: 20)
-                            .padding(.vertical, 16)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .background(Color.nonActive)
-                    Button(action: {
-                        self.viewModel.delete(presetCell: self.deleteTarget)
-                    }) {
-                        Text("削除する").bold().outlineStyle(size: 20)
-                            .padding(.vertical, 16)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .background(Color.main)
-                }
-            }
-            .frame(width: screen.width * 0.9)
-            .modifier(ModalCardModifier(active: showConfirm))
         }
         .onAppear {
             if let presetCell = self.presetCell {

@@ -10,7 +10,7 @@ import SwiftUI
 struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
-            .padding()
+            .padding(10)
             .frame(maxWidth: .infinity)
             .background(Color.main.opacity(configuration.isPressed ? 0.3 : 1))
             .cornerRadius(5)

@@ -15,7 +15,7 @@ class Preset: Object, Identifiable  {
     @objc dynamic var category: Category!
     @objc dynamic var amount: Int = 0
     @objc dynamic var memo: String = ""
-    @objc dynamic var order: Int = 0
+    @objc dynamic var order: Int = 1
     @objc dynamic var created_at: Date = Date()
     @objc dynamic var updated_at: Date = Date()
     
@@ -26,11 +26,7 @@ class Preset: Object, Identifiable  {
     private static var realm = try! Realm()
     
     static func all() -> Results<Preset> {
-        self.realm.objects(Preset.self)
-    }
-    
-    static func getByCategory(category: Category) -> Array<Preset> {
-        return []
+        self.realm.objects(Preset.self).sorted(byKeyPath: "order", ascending: true)
     }
     
     static func create(category: Category, amount: Int, memo: String) -> Preset {
@@ -58,6 +54,12 @@ class Preset: Object, Identifiable  {
         }
     }
     
+    static func updateOrder(preset: Preset, order: Int) {
+        try! realm.write {
+            preset.setValue(order, forKey: "order")
+        }
+    }
+    
     static func delete(_ preset: Preset) {
         try! realm.write {
             realm.delete(preset)
@@ -73,5 +75,9 @@ class Preset: Object, Identifiable  {
     
     static func getById(_ id: String) -> Preset? {
         return self.realm.objects(Preset.self).filter("id == %@", id).first
+    }
+    
+    static func getMaxOrder() -> Int {
+        self.realm.objects(Preset.self).value(forKeyPath: "@max.order")! as! Int
     }
 }

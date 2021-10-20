@@ -8,12 +8,15 @@
 import SwiftUI
 
 struct SettingMenuView: View {
+    @EnvironmentObject var env: StatusObject
     @Binding var isActive: Bool
+    let screen = UIScreen.main.bounds
     
     var body: some View {
-        NavigationView {
+        HStack {
             ZStack {
-                Color.main.ignoresSafeArea(.all)
+                Color.white.ignoresSafeArea(.all)
+                    .shadow(color: .black.opacity(0.1), radius: 20, x: 10, y: 20)
                 VStack {
                     HStack {
                         Spacer()
@@ -25,56 +28,100 @@ struct SettingMenuView: View {
                     Spacer()
                     VStack(spacing: 40){
                         NavigationLink(destination: CategoryMenuView()) {
-                            Text("カテゴリーの登録／編集").outlineStyle(size: 18)
+                            HStack {
+                                Text("カテゴリーの登録／編集").planeStyle(size: 15)
+                                Spacer()
+                            }
                         }
                         NavigationLink(destination: EditStartDayView()) {
-                            Text("月の開始日の変更").outlineStyle(size: 18)
+                            HStack {
+                                Text("月の開始日の変更").planeStyle(size: 15)
+                                Spacer()
+                            }
                         }
                         NavigationLink(destination: PresetMenuView()) {
-                            Text("プリセットの登録／編集").outlineStyle(size: 18)
+                            HStack {
+                                Text("プリセットの登録／編集").planeStyle(size: 15)
+                                Spacer()
+                            }
                         }
                         NavigationLink(destination: EditThemeView()) {
-                            Text("テーマカラーの変更").outlineStyle(size: 18)
+                            HStack {
+                                Text("テーマカラーの変更").planeStyle(size: 15)
+                                Spacer()
+                            }
                         }
                         NavigationLink(destination: BackUpMenuView()) {
-                            Text("バックアップ＆引継ぎ").outlineStyle(size: 18)
+                            HStack {
+                                Text("バックアップ＆引継ぎ").planeStyle(size: 15)
+                                Spacer()
+                            }
                         }
                         NavigationLink(destination: Text("AppStore").foregroundColor(.text)) {
-                            Text("レビュー").outlineStyle(size: 18)
+                            HStack {
+                                Text("レビュー").planeStyle(size: 15)
+                                Spacer()
+                            }
                         }
                     }
-                    
                     Spacer()
                     Spacer()
-                    Text("©︎fukulab 2021")
+//                            Text("©︎fukulab 2021")
                 }
-                .foregroundColor(.white)
+                .foregroundColor(.text)
                 .padding(30)
             }
-            .navigationBarHidden(true)
-            .navigationBarBackButtonHidden(true)
-            .navigationBarTitleDisplayMode(.inline)
+
+            .frame(width: screen.width * 0.8)
+            
+            Spacer()
         }
-        
+        .offset(x: self.isActive ? 0 : -screen.width)
+        //.animation(.easeIn(duration: 0.25))
     }
 }
 
 
 
 struct EditStartDayView: View {
-    @State var day = 1
+    @EnvironmentObject var env: StatusObject
+    
+    func change() {
+        self.env.refreshActive()
+    }
+    
     var body: some View {
         ZStack {
             Color.backGround
             VStack {
                 Form {
-                    Picker("月の開始日", selection: $day) {
-                        ForEach(1..<32, id: \.self) { index in
-                            Text("\(index) 日").planeStyle(size: 16)
+                    Picker("月の開始日", selection: $env.startDay) {
+                        ForEach(1...28, id: \.self) { day in
+                            Text("\(day) 日")
                                 .padding(.trailing, 10)
                         }
                     }
                     .foregroundColor(.text)
+                    .onChange(of: env.startDay) { day in
+                        self.change()
+                    }
+                    
+                    if env.startDay != 1 {
+                        Picker("\(env.month)月度", selection: $env.forward) {
+                            ForEach((0...1).reversed(), id: \.self) { index in
+                                let nextMonth = env.month + 1 > 12 ? 1  : env.month + 1
+                                let prevMonth = env.month - 1 < 1  ? 12 : env.month - 1
+                                    Text(index == 0
+                                            ? "\(env.month)月\(env.startDay)日〜\(nextMonth)月\(env.startDay - 1)日"
+                                            : "\(prevMonth)月\(env.startDay)日〜\(env.month)月\(env.startDay - 1)日" )
+                                    .padding(.trailing, 10)
+                            }
+                        }
+                        .foregroundColor(.text)
+                        .onChange(of: env.forward) { bool in
+                            self.change()
+                        }
+                    }
                 }
             }
         }
@@ -84,34 +131,39 @@ struct EditStartDayView: View {
 
 
 struct EditThemeView: View {
-    @State var theme: Theme = Theme()
+    @EnvironmentObject var env: StatusObject
+    
+    init() {
+        
+    }
     var body: some View {
         ZStack {
             Color.backGround
             Form {
-                Picker("", selection: $theme) {
-                    ForEach(Theme.all(), id: \.self) { theme in
-                        HStack {
-                            Text(theme.name).planeStyle(size: 16)
-                            Spacer()
-                            HStack(spacing: 0) {
-                                Rectangle()
-                                    .frame(width: 14, height: 14)
-                                    .foregroundColor(Color(hex: theme.color1))
-                                Rectangle()
-                                    .frame(width: 14, height: 14)
-                                    .foregroundColor(Color(hex: theme.color2))
-                                Rectangle()
-                                    .frame(width: 14, height: 14)
-                                    .foregroundColor(Color(hex: theme.color3))
+                Picker("", selection: $env.themeId) {
+                    ForEach(Theme.all().map{$0.id}, id: \.self) { themeId in
+                        if let theme = Theme.find(id: themeId) {
+                            HStack {
+                                Text(theme.name).planeStyle(size: 16)
+                                Spacer()
+                                HStack(spacing: 0) {
+                                    Rectangle()
+                                        .frame(width: 14, height: 14)
+                                        .foregroundColor(Color(hex: theme.color1))
+                                    Rectangle()
+                                        .frame(width: 14, height: 14)
+                                        .foregroundColor(Color(hex: theme.color2))
+                                    Rectangle()
+                                        .frame(width: 14, height: 14)
+                                        .foregroundColor(Color(hex: theme.color3))
+                                }
+                                .border(Color(hex: "cccccc"), width: 1)
                             }
-                            .border(Color(hex: "cccccc"), width: 1)
                         }
                     }
                 }
                 .labelsHidden()
                 .foregroundColor(.text)
-                
             }
         }
     }

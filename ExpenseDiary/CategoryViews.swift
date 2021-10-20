@@ -34,8 +34,12 @@ class CategoryViewModel: ObservableObject {
     
     private func setCategoryCells(categories: Results<Category>) {
         self.categoryCells = categories.map {
-            CategoryCell(id: $0.id, type: $0.type, name: $0.name, icon: $0.icon, order: $0.order, created_at: $0.created_at, updated_at: $0.updated_at)
-        }
+                CategoryCell(id: $0.id, type: $0.type, name: $0.name, icon: $0.icon, order: $0.order, created_at: $0.created_at, updated_at: $0.updated_at)
+                }
+    }
+    
+    func getCategoryCells(type: RecordType) -> [CategoryCell] {
+        self.categoryCells.filter{$0.type == type.rawValue}
     }
     
     func save(categoryCell: CategoryCell?, type: RecordType, name: String, icon: Icon?)
@@ -75,6 +79,37 @@ class CategoryViewModel: ObservableObject {
             }
         }
     }
+    
+    func move(type: RecordType, _ from: IndexSet, _ to: Int) {
+        let categories = self.getCategoryCells(type: type)
+        guard let source = from.first else {
+            return
+        }
+        
+        if source < to {
+            print(source, to)
+            for i in (source + 1)...(to - 1) {
+                if let category = Category.getById(categories[i].id) {
+                    Category.updateOrder(category: category, order: i)
+                }
+            }
+            if let category = Category.getById(categories[source].id) {
+                Category.updateOrder(category: category, order: to)
+            }
+        } else if source > to {
+            print(source, to)
+            var count = 0
+            for i in (to...(source - 1)).reversed() {
+                if let category = Category.getById(categories[i].id) {
+                    Category.updateOrder(category: category, order: source + 1 - count)
+                }
+                count += 1
+            }
+            if let category = Category.getById(categories[source].id) {
+                Category.updateOrder(category: category, order: to + 1)
+            }
+        }
+    }
 }
 
 enum EditCategoryError : Error {
@@ -106,23 +141,29 @@ struct MyEditButton: View {
                 }
             }
         }) {
-            Image(systemName: editMode?.wrappedValue.isEditing == true
-                    ? "checkmark" : "arrow.up.arrow.down")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 24, height: 24)
+            Text(editMode?.wrappedValue.isEditing == true ? "完了" : "編集").planeStyle(size: 14)
         }
     }
 }
 
 struct CategoryMenuView: View {
     @ObservedObject var viewModel = CategoryViewModel()
-    @State var type = RecordType.expense
+    let screen = UIScreen.main.bounds
+    
+    @State var type: RecordType = .expense
     @State var isShowing = false
     @State var selectedCategoryCell: CategoryCell?
     
-    private func rowReplace(_ from: IndexSet, _ to: Int) {
-        self.viewModel.categoryCells.move(fromOffsets: from, toOffset: to)
+    @State var showingAlert: AlertItem?
+    @State var deleteTarget: CategoryCell?
+    
+    private func move(_ from: IndexSet, _ to: Int) {
+        self.viewModel.move(type: self.type, from, to)
+    }
+    
+    private func delete()
+    {
+        return
     }
     
     var body: some View {
@@ -135,22 +176,17 @@ struct CategoryMenuView: View {
                             Text(recordType.name).planeStyle(size: 16)
                         }
                     }
+
                     .labelsHidden()
                     .pickerStyle(SegmentedPickerStyle())
                 }
                 .padding(.horizontal, 40)
                 .padding(.top, 20)
                 .padding(.bottom, 16)
-                
-                HStack {
-                    Spacer()
-                    MyEditButton().foregroundColor(.text)
-                        .padding(.trailing, 20)
-                }
-                
-                
+                                
                 List {
-                    ForEach(viewModel.categoryCells.filter{$0.type == self.type.rawValue}, id: \.id) { categoryCell in
+                    let categoryCells = viewModel.getCategoryCells(type: type)
+                    ForEach(categoryCells, id: \.id) { categoryCell in
                         HStack {
                             Image(categoryCell.icon.name)
                                 .resizable()
@@ -159,28 +195,52 @@ struct CategoryMenuView: View {
                                 .foregroundColor(.nonActive)
                                 .padding(.trailing, 2)
                             Text(categoryCell.name).planeStyle(size: 16)
+                            Spacer()
                         }
                         .padding(6)
+                        .contentShape(Rectangle())
                         .onTapGesture {
                             self.selectedCategoryCell = categoryCell
                         }
+                       // .deleteDisabled(true)
                     }
-                    .onMove(perform: rowReplace)
+                    .onMove(perform: move)
+                    .onDelete(perform: { indexSet in
+                        guard let index = indexSet.first else {
+                            return
+                        }
+                        self.deleteTarget = categoryCells[index]
+                        self.showingAlert = AlertItem(alert: Alert(
+                              title: Text("削除しますか?"),
+                              message:Text("このカテゴリーで登録した記録やプリセットもすべて削除されます。"),
+                              primaryButton: .cancel(Text("キャンセル")),
+                              secondaryButton: .destructive(Text("削除"),
+                              action: {
+                                   self.viewModel.delete(categoryCell: self.deleteTarget)
+                              })))
+                    })
                 }
-                //.padding(.horizontal, 20)
                 .sheet(item: $selectedCategoryCell) { categoryCell in
                     EditCategoryView(type: type, categoryCell: categoryCell)
                 }
-                
-                Button(action: {self.isShowing = true}) {
-                    Text("\(type.name)カテゴリーを作成").bold().outlineStyle(size: 18)
+                .alert(item: $showingAlert) { item in
+                    item.alert
                 }
-                .buttonStyle(PrimaryButtonStyle())
-                .sheet(isPresented: $isShowing) {
-                    EditCategoryView(type: type, categoryCell: nil)
-                }
-                .padding(30)
+                .padding(.horizontal, 16)
             }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                Button(action: { self.isShowing = true }) {
+                    Text("作成").planeStyle(size: 14)
+                }
+
+                MyEditButton().foregroundColor(.text)
+                    .padding(.trailing, 20)
+            }
+        }
+        .sheet(isPresented: $isShowing) {
+            EditCategoryView(type: type, categoryCell: nil)
         }
     }
 }
@@ -195,18 +255,7 @@ struct EditCategoryView: View {
     
     @State var icon: Icon?
     @State var name = ""
-    
-    @State var error: EditCategoryError?
-    
-    @State var showError       = false
-    @State var showConfirm     = false
-    @State var showConfirmMore = false
-    
-    @State var deleteTarget: CategoryCell?
-    
-    var showModal: Bool {
-        self.showError || self.showConfirm || self.showConfirmMore
-    }
+    @State var showingAlert: AlertItem?
     
     var body: some View {
         ZStack {
@@ -218,28 +267,13 @@ struct EditCategoryView: View {
                         .foregroundColor(.text)
                         .padding(10)
                         .background(Color.white)
-                        .deleteDisabled(true)
 
                     Divider().frame(height: 1).background(Color.nonActive)
                 }
                 .padding(.horizontal, 40)
                 .padding(.top, 40)
                 .padding(.bottom, 50)
-                
-//                HStack {
-//                    Picker(selection: $type, label: Text("支出収入区分")) {
-//                        ForEach(RecordType.all(), id: \.self) { recordType in
-//                            Text(recordType.name).planeStyle(size: 16)
-//                        }
-//                    }
-//                    .labelsHidden()
-//                    .pickerStyle(SegmentedPickerStyle())
-//                }
-//                .padding(.horizontal, 40)
-//                .padding(.bottom, 50)
-                
 
-                
                 ScrollView(showsIndicators: false) {
                     let columns: [GridItem] = Array(repeating: .init(.fixed(50), spacing: 20), count: 5)
                     
@@ -273,114 +307,21 @@ struct EditCategoryView: View {
                         case .success(_):
                             self.presentationMode.wrappedValue.dismiss()
                         case .failure(let error):
-                            self.error = error
-                            self.showError = true
+                            self.showingAlert = AlertItem(
+                                alert: Alert(
+                                    title: Text(""),
+                                    message: Text(error.message),
+                                    dismissButton: .default(Text("OK"))))
                     }
                 }) {
-                    Text("保存する").outlineStyle(size: 20)
+                    Text("保存する").outlineStyle(size: 18)
                 }
                 .buttonStyle(PrimaryButtonStyle())
                 .padding(.horizontal, 20)
-                .padding(.bottom, 30)
-                // 削除ボタン
-                if let categoryCell = categoryCell {
-                    Button(action: {
-                        self.showConfirm = true
-                        self.deleteTarget = categoryCell
-                    }) {
-                        Text("削除する").bold().planeStyle(size: 16)
-                    }
-                    .padding(.horizontal, 20)
+                .alert(item: $showingAlert) { item in
+                    item.alert
                 }
             }
-            .padding(.vertical, 30)
-            
-            // モーダル背景
-            ZStack {
-                Color.black.opacity(self.showModal ? 0.3 : 0).ignoresSafeArea(.all)
-                    .animation(Animation.easeIn)
-            }
-            .onTapGesture {
-                self.showError = false
-                self.showConfirm = false
-                self.showConfirmMore = false
-            }
-            
-            // エラー
-            if let error = self.error {
-                VStack(spacing: 0) {
-                    Text(error.message).planeStyle(size: 18)
-                        .padding(.horizontal, 30)
-                        .padding(.vertical, 30)
-                    Divider()
-                    Button(action: { self.showError = false }) {
-                        Text("OK").planeStyle(size: 18)
-                            .padding(.vertical, 20)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .frame(width: screen.width * 0.9)
-                .modifier(ModalCardModifier(active: showError))
-            }
-            
-            // 削除確認
-            VStack(spacing: 0) {
-                Text("このカテゴリーで登録した記録もすべて削除されます。削除しますか？").planeStyle(size: 18)
-                    .lineSpacing(5)
-                    .padding(.horizontal, 30)
-                    .padding(.vertical, 40)
-                Divider()
-                HStack(spacing: 0) {
-                    Button(action: { self.showConfirm = false }) {
-                        Text("キャンセル").bold().outlineStyle(size: 20)
-                            .padding(.vertical, 16)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .background(Color.nonActive)
-                    Button(action: {
-                        self.showConfirm = false
-                        self.showConfirmMore = true
-                    }) {
-                        Text("削除する").bold().outlineStyle(size: 20)
-                            .padding(.vertical, 16)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .background(Color.main)
-                }
-            }
-            .frame(width: screen.width * 0.9)
-            .modifier(ModalCardModifier(active: showConfirm))
-            
-            // 削除再確認
-            VStack(spacing: 0) {
-                Text("削除後はもとに戻せません。本当に削除しますか？").planeStyle(size: 18)
-                    .lineSpacing(5)
-                    .padding(.horizontal, 30)
-                    .padding(.vertical, 40)
-                Divider()
-                HStack(spacing: 0) {
-                    Button(action: {
-                            self.showConfirmMore = false
-                        
-                    }) {
-                        Text("キャンセル").bold().outlineStyle(size: 20)
-                            .padding(.vertical, 16)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .background(Color.nonActive)
-                    Button(action: {
-                        self.viewModel.delete(categoryCell: self.deleteTarget)
-                        self.presentationMode.wrappedValue.dismiss()
-                    }) {
-                        Text("削除する").bold().outlineStyle(size: 20)
-                            .padding(.vertical, 16)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .background(Color.main)
-                }
-            }
-            .frame(width: screen.width * 0.9)
-            .modifier(ModalCardModifier(active: showConfirmMore))
         }
         .onAppear {
             if let categoryCell = self.categoryCell {

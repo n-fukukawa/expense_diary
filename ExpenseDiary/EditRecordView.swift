@@ -71,26 +71,22 @@ enum EditRecordError : Error {
     }
 }
 
+struct AlertItem: Identifiable {
+    var id = UUID()
+    var alert: Alert
+}
+
 struct EditRecordView: View {
     @ObservedObject var viewModel = EditRecordViewModel()
-    // @Binding var isActive: Bool
     let recordCell: RecordCell?
 
     @Environment(\.presentationMode) var presentationMode
     let screen = UIScreen.main.bounds
     let formatter = DateFormatter()
-    
-    @State var showAlert = false
+
     @State var showDatePicker = false
-    @State var showError = false
-    @State var showConfirm = false
     @State var deleteTarget: RecordCell?
-    
-    var showModal: Bool {
-        self.showDatePicker || self.showError || self.showConfirm
-    }
-    
-    @State var error: EditRecordError?
+    @State var showingAlert: AlertItem?
 
     @State var type: RecordType = .expense
     @State var date = Date()
@@ -100,7 +96,6 @@ struct EditRecordView: View {
     @State var memo = ""
     
     init(record: RecordCell? = nil) {
-        // self._isActive = isActive
         self.recordCell = record
         
         formatter.locale = Locale(identifier: "ja_JP")
@@ -158,9 +153,8 @@ struct EditRecordView: View {
                             Text(formatter.string(from: date))
                                 .bold()
                                 .planeStyle(size: 22)
-
                                 .onTapGesture {
-                                    self.showDatePicker = true
+                                    withAnimation {self.showDatePicker = true}
                             }
                             Button(action:{ self.addDay(1)}) {
                                 Image(systemName: "chevron.right")
@@ -192,20 +186,12 @@ struct EditRecordView: View {
                                             .frame(width: 26, height: 26)
                                             .foregroundColor(is_active ? .white : .nonActive)
                                     }
-                                    Text(category.name).planeStyle(size: 14)
+                                    Text(category.name).planeStyle(size: 14).lineLimit(1)
                                         .foregroundColor(.text)
-                                }
-                                .alert(isPresented: $showAlert){
-                                    Alert(title: Text("ロングタップ"))
                                 }
                                 .onTapGesture {
                                     self.category = category
                                 }
-                                .onLongPressGesture(minimumDuration: 0.7) {
-                                    self.category = category
-                                    self.showAlert = true
-                                }
-
                             }
                         }
                         .padding(.vertical, 20)
@@ -245,21 +231,33 @@ struct EditRecordView: View {
                             case .success(_):
                                 self.presentationMode.wrappedValue.dismiss()
                             case .failure(let error):
-                                self.error = error
-                                self.showError = true
+                                self.showingAlert = AlertItem(
+                                    alert: Alert(
+                                        title: Text(""),
+                                        message: Text(error.message),
+                                        dismissButton: .default(Text("OK"))))
                         }
                     }) {
-                        Text("保存する").bold().outlineStyle(size: 20)
+                        Text("保存する").bold().outlineStyle(size: 18)
                     }
                     .buttonStyle(PrimaryButtonStyle())
                     .padding(.horizontal, 20)
                     .padding(.bottom, 30)
 
                     // 削除ボタン
-                    if let _recordCell = recordCell {
+                    if let recordCell = recordCell {
                         Button(action: {
-                            self.showConfirm = true
-                            self.deleteTarget = _recordCell
+                            self.showingAlert = AlertItem(
+                                alert: Alert(
+                                     title: Text(""),
+                                     message: Text("削除しますか?"),
+                                     primaryButton: .cancel(Text("キャンセル")),
+                                     secondaryButton: .destructive(Text("削除"),
+                                     action: {
+                                        self.viewModel.delete(recordCell: self.deleteTarget)
+                                        self.presentationMode.wrappedValue.dismiss()
+                                   })))
+                            self.deleteTarget = recordCell
                         }) {
                             Text("削除する").bold().planeStyle(size: 16)
                         }
@@ -269,21 +267,17 @@ struct EditRecordView: View {
                 .padding(.top, 30)
                 .padding(16)
                 .background(Color.backGround)
-//                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-//                .shadow(color: Color(.black).opacity(showDatePicker ? 0.2 : 0), radius: 20, x: 0, y: 20)
-                .scaleEffect(showModal ? 1 : 1)
-                .animation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0))
+                .alert(item: $showingAlert) { item in
+                    item.alert
+                }
             
-            // モーダル背景
-            ZStack {
-                Color.black.opacity(self.showModal ? 0.3 : 0).ignoresSafeArea(.all)
-                    .animation(Animation.easeIn)
-            }
-            .onTapGesture {
-                self.showDatePicker = false
-                self.showError = false
-                self.showConfirm = false
-            }
+            //モーダル背景
+               ZStack {
+                   Color.black.opacity(self.showDatePicker ? 0.16 : 0).ignoresSafeArea(.all)
+               }
+               .onTapGesture {
+                    self.showDatePicker = false
+               }
                 
             // カレンダー
                 VStack {
@@ -306,50 +300,6 @@ struct EditRecordView: View {
                 .offset(y: showDatePicker ? 0 : screen.height)
                 .scaleEffect(showDatePicker ? 0.9 : 1)
                 .animation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0))
-            
-            // エラー
-            if let error = self.error {
-                VStack(spacing: 0) {
-                    Text(error.message).planeStyle(size: 18)
-                        .padding(.horizontal, 30)
-                        .padding(.vertical, 40)
-                    Divider()
-                    Button(action: { self.showError = false }) {
-                        Text("OK").planeStyle(size: 18)
-                            .padding(.vertical, 16)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .frame(width: screen.width * 0.9)
-                .modifier(ModalCardModifier(active: showError))
-            }
-            
-            // 削除確認
-            VStack(spacing: 0) {
-                Text("削除しますか？").planeStyle(size: 18)
-                    .padding(.vertical, 40)
-                Divider()
-                HStack(spacing: 0) {
-                    Button(action: { self.showConfirm = false }) {
-                        Text("キャンセル").bold().outlineStyle(size: 20)
-                            .padding(.vertical, 16)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .background(Color.nonActive)
-                    Button(action: {
-                        self.viewModel.delete(recordCell: self.deleteTarget)
-                        self.presentationMode.wrappedValue.dismiss()
-                    }) {
-                        Text("削除する").bold().outlineStyle(size: 20)
-                            .padding(.vertical, 16)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .background(Color.main)
-                }
-            }
-            .frame(width: screen.width * 0.9)
-            .modifier(ModalCardModifier(active: showConfirm))
-
         }
         .onAppear {
             if let _recordCell = self.recordCell {
@@ -358,18 +308,6 @@ struct EditRecordView: View {
                 self.memo     = _recordCell.memo
                 self.date     = _recordCell.date
             }
-        }
-    }
-}
-
-struct EditRecordView_Previews: PreviewProvider {
-    static var previews: some View {
-//        let devices = ["iPhone 12", "iPhone 8 Plus", "iPad Air(4th generation)"]
-        let devices = ["iPhone 12"]
-        ForEach(devices, id: \.self) { device in
-            EditRecordView().environmentObject(StatusObject())
-                       .previewDevice(.init(rawValue: device))
-                        .environment(\.locale, Locale(identifier: "ja_JP"))
         }
     }
 }

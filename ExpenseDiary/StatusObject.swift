@@ -6,64 +6,97 @@
 //
 
 import Foundation
+import RealmSwift
+import SwiftUI
 
 class StatusObject: ObservableObject {
-    let settingDay = 25
-    let forward    = true
+    let year  = Calendar.current.component(.year, from: Date())
+    let month = Calendar.current.component(.month, from: Date())
+    let day   = Calendar.current.component(.day, from: Date())
+    
     @Published var navItem: GlobalNavItem = .list
     @Published var activeYear: Int = 0
     @Published var activeMonth: Int = 0
+    
+    @Published var startDay: Int {
+        didSet {
+            UserDefaults.standard.set(startDay, forKey: "startDay")
+        }
+    }
+    
+    @Published var forward: Int {
+        didSet {
+            UserDefaults.standard.set(forward, forKey: "forward")
+        }
+    }
+    
+    @Published var themeId: Int {
+        didSet {
+            UserDefaults.standard.set(themeId, forKey: "themeId")
+        }
+    }
+
+    init() {
+        UserDefaults.standard.register(defaults: ["startDay" : 1,
+                                                  "forward"  : 0,
+                                                  "themeId"  : 1])
+        self.startDay = UserDefaults.standard.integer(forKey: "startDay")
+        self.forward  = UserDefaults.standard.integer(forKey: "forward")
+        self.themeId  = UserDefaults.standard.integer(forKey: "themeId")
+
+        self.refreshActive()
+    }
     
     var startDateYear: Int {
         Calendar.current.component(.year, from: self.startDate)
     }
     
     var startDate: Date {
-        if forward {
-            return Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth - 1, day: settingDay))!
+        if forward == 1 {
+            return Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth - 1, day: startDay))!
         } else {
-            return Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth, day: settingDay))!
+            return Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth, day: startDay))!
         }
     }
     
     var endDate: Date {
-        if forward {
-            return Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth, day: settingDay - 1))!
+        if forward == 1 {
+            return Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth, day: startDay - 1))!
         } else {
-            return Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth + 1, day: settingDay - 1))!
+            return Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth + 1, day: startDay - 1))!
         }
     }
-    
-    init() {
-        let year  = Calendar.current.component(.year, from: Date())
-        let month = Calendar.current.component(.month, from: Date())
-        let day   = Calendar.current.component(.day, from: Date())
-        
-        let _date: Date
-        
-        if day >= settingDay {
-            if forward {
-                _date = Calendar.current.date(from: DateComponents(year: year, month: month + 1))!
-            } else {
-                _date = Calendar.current.date(from: DateComponents(year: year, month: month))!
-            }
-        } else {
-            if forward {
-                _date = Calendar.current.date(from: DateComponents(year: year, month: month))!
-            } else {
-                _date = Calendar.current.date(from: DateComponents(year: year, month: month - 1))!
-            }
-        }
-        
-        self.activeYear = Calendar.current.component(.year, from: _date)
-        self.activeMonth = Calendar.current.component(.month, from: _date)
-    }
-    
-    
-    func addMonth() {
-        let _date = Calendar.current.date(from: DateComponents(year: activeYear, month: activeMonth + 1))!
 
-        self.activeYear = Calendar.current.component(.year, from: _date)
-        self.activeMonth = Calendar.current.component(.month, from: _date)
+    func refreshActive() {        
+        let date: Date
+        
+        if startDay == 1 {
+            forward = 0
+        }
+        
+        if day >= startDay {
+            if forward == 1 {
+                date = Calendar.current.date(from: DateComponents(year: year, month: month + 1))!
+            } else {
+                date = Calendar.current.date(from: DateComponents(year: year, month: month))!
+            }
+        } else {
+            if forward == 1 {
+                date = Calendar.current.date(from: DateComponents(year: year, month: month))!
+            } else {
+                date = Calendar.current.date(from: DateComponents(year: year, month: month - 1))!
+            }
+        }
+        
+        self.activeYear = Calendar.current.component(.year, from: date)
+        self.activeMonth = Calendar.current.component(.month, from: date)
+    }
+    
+    
+    func setActive(year: Int, month: Int) {
+        let date = Calendar.current.date(from: DateComponents(year: year, month: month))!
+
+        self.activeYear = Calendar.current.component(.year, from: date)
+        self.activeMonth = Calendar.current.component(.month, from: date)
     }
 }

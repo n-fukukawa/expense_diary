@@ -10,25 +10,59 @@ import RealmSwift
 
 struct RootView: View {
     @EnvironmentObject var env: StatusObject
-    
-    init() {
-//        let realm = try! Realm()
-//
-//        try! realm.write {
-//             realm.deleteAll()
-//        }
-//        Icon.seed()
-//        Category.seed()
-//        Record.seed()
+    @State var showSettingMenu = false
+    @State var showPicker = false
+    var showModal: Bool {
+        self.showSettingMenu || self.showPicker
     }
-    
+    init() {
+        let realm = try! Realm()
+
+        try! realm.write {
+             realm.deleteAll()
+        }
+        Icon.seed()
+        Theme.seed()
+
+        Category.seed()
+        //Record.seed()
+    }
+
     var body: some View {
-        ZStack {
-            Color.main.ignoresSafeArea(.all)
-            VStack(spacing: 0) {
-                HeaderView().padding(.horizontal, 30).padding(.bottom, 16)
-                MainView()
+        NavigationView {
+            ZStack {
+                Color.main.ignoresSafeArea(.all)
+                VStack(spacing: 0) {
+                    HeaderView(showSettingMenu: $showSettingMenu, showPicker: $showPicker)
+                        .padding(.horizontal, 30).padding(.bottom, 16)
+                    MainView()
+                }
+                
+                 //モーダル背景
+                ZStack {
+                    Color.black.opacity(self.showModal ? 0.1 : 0).ignoresSafeArea(.all)
+                }
+                .onTapGesture {
+                    withAnimation() {
+                        self.showSettingMenu = false
+                        self.showPicker = false
+                    }
+                }
+
+                if showSettingMenu {
+                    SettingMenuView(isActive: $showSettingMenu)
+                       // .transition(.slide)
+                }
+                
+                if showPicker {
+                    VStack {
+                        Text("a").padding()
+                    }.modifier(ModalCardModifier(active: showPicker))
+                }
             }
+            .navigationBarHidden(true)
+            .navigationBarBackButtonHidden(true)
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
@@ -47,49 +81,52 @@ struct ContentView_Previews: PreviewProvider {
 
 struct HeaderView: View {
     @EnvironmentObject var env: StatusObject
-    @State var showSettingMenu = false
-    @State var showPicker = false
+    @Binding var showSettingMenu: Bool
+    @Binding var showPicker: Bool
     let formatter = DateFormatter()
     
-    init() {
+    init(showSettingMenu: Binding<Bool>, showPicker: Binding<Bool>) {
+        self._showSettingMenu = showSettingMenu
+        self._showPicker = showPicker
         formatter.dateFormat = "M/d"
     }
     var body: some View {
-        HStack {
-            if env.navItem == .list {
-                HStack {
-                    Button(action: { self.showPicker = true }) {
-                        Text("\(env.activeMonth)").outlineStyle(size: 36)
+        ZStack {
+            HStack {
+                if env.navItem == .list {
+                    HStack {
+                        Button(action: { self.showPicker = true }) {
+                            Text("\(env.activeMonth)").outlineStyle(size: 36)
+                        }
+                        VStack(alignment: .leading) {
+                            Text(String(describing: env.startDateYear)).outlineStyle(size: 14)
+                            HStack(spacing: 3) {
+                                Text("\(formatter.string(from: env.startDate))").outlineStyle(size: 14)
+                                Text("-").outlineStyle(size: 14)
+                                Text("\(formatter.string(from: env.endDate))").outlineStyle(size: 14)
+                            }
+                        }
                     }
-                    VStack(alignment: .leading) {
-                        Text(String(describing: env.startDateYear)).outlineStyle(size: 14)
-                        HStack(spacing: 3) {
-                            Text("\(formatter.string(from: env.startDate))").outlineStyle(size: 14)
-                            Text("-").outlineStyle(size: 14)
-                            Text("\(formatter.string(from: env.endDate))").outlineStyle(size: 14)
+                } else {
+                    HStack {
+                        Button(action: { self.showPicker = true }) {
+                            Text("\(String(describing: env.activeYear))").outlineStyle(size: 36)
                         }
                     }
                 }
-            } else {
-                HStack {
-                    Button(action: { self.showPicker = true }) {
-                        Text("\(String(describing: env.activeYear))").outlineStyle(size: 36)
-                    }
+                
+                Spacer()
+                Button(action: { withAnimation() {
+                    self.showSettingMenu = true
+                }}){
+                    Image(systemName: "gearshape")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 30, height: 30)
                 }
             }
-            
-            Spacer()
-            Button(action: { self.showSettingMenu = true }){
-                Image(systemName: "gearshape")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 30, height: 30)
-            }
-            .fullScreenCover(isPresented: $showSettingMenu) {
-                SettingMenuView(isActive: $showSettingMenu)
-            }
+            .foregroundColor(.white)
         }
-        .foregroundColor(.white)
     }
 }
 
