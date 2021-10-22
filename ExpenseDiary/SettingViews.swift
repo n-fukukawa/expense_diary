@@ -13,71 +13,81 @@ struct SettingMenuView: View {
     let screen = UIScreen.main.bounds
     
     var body: some View {
-        HStack {
-            ZStack {
-                Color.white.ignoresSafeArea(.all)
-                    .shadow(color: .black.opacity(0.1), radius: 20, x: 10, y: 20)
-                VStack {
-                    HStack {
+        if isActive {
+            HStack {
+                ZStack {
+                    Color.backGround.ignoresSafeArea(.all)
+                        .shadow(color: .black.opacity(0.1), radius: 20, x: 10, y: 20)
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button(action: { self.isActive = false }){
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 24, weight: .medium))
+                            }
+                        }
+                        HStack {
+                            Image(systemName: "gearshape.2")
+                                .font(.system(size: 110, weight: .thin))
+                                .foregroundColor(.nonActive)
+                                .opacity(0.5)
+                                .offset(x: -10)
+                            Spacer()
+                        }
+                        .padding(.bottom, 30)
+                        
+                        VStack (spacing: 40) {
+                            NavigationLink(destination: CategoryMenuView()) {
+                                HStack {
+                                    Text("カテゴリーの登録／編集").planeStyle(size: 15)
+                                    Spacer()
+                                }
+                            }
+                            NavigationLink(destination: EditStartDayView()) {
+                                HStack {
+                                    Text("月の開始日の変更").planeStyle(size: 15)
+                                    Spacer()
+                                }
+                            }
+                            NavigationLink(destination: PresetMenuView()) {
+                                HStack {
+                                    Text("プリセットの登録／編集").planeStyle(size: 15)
+                                    Spacer()
+                                }
+                            }
+                            NavigationLink(destination: EditThemeView()) {
+                                HStack {
+                                    Text("テーマカラーの変更").planeStyle(size: 15)
+                                    Spacer()
+                                }
+                            }
+                            NavigationLink(destination: BackUpMenuView()) {
+                                HStack {
+                                    Text("バックアップ＆引継ぎ").planeStyle(size: 15)
+                                    Spacer()
+                                }
+                            }
+                            NavigationLink(destination: Text("AppStore").foregroundColor(.text)) {
+                                HStack {
+                                    Text("レビュー").planeStyle(size: 15)
+                                    Spacer()
+                                }
+                            }
+                        }
                         Spacer()
-                        Button(action: { self.isActive = false }){
-                            Image(systemName: "xmark")
-                                .font(.system(size: 24, weight: .medium))
-                        }
+                        Spacer()
+    //                            Text("©︎fukulab 2021")
                     }
-                    Spacer()
-                    VStack(spacing: 40){
-                        NavigationLink(destination: CategoryMenuView()) {
-                            HStack {
-                                Text("カテゴリーの登録／編集").planeStyle(size: 15)
-                                Spacer()
-                            }
-                        }
-                        NavigationLink(destination: EditStartDayView()) {
-                            HStack {
-                                Text("月の開始日の変更").planeStyle(size: 15)
-                                Spacer()
-                            }
-                        }
-                        NavigationLink(destination: PresetMenuView()) {
-                            HStack {
-                                Text("プリセットの登録／編集").planeStyle(size: 15)
-                                Spacer()
-                            }
-                        }
-                        NavigationLink(destination: EditThemeView()) {
-                            HStack {
-                                Text("テーマカラーの変更").planeStyle(size: 15)
-                                Spacer()
-                            }
-                        }
-                        NavigationLink(destination: BackUpMenuView()) {
-                            HStack {
-                                Text("バックアップ＆引継ぎ").planeStyle(size: 15)
-                                Spacer()
-                            }
-                        }
-                        NavigationLink(destination: Text("AppStore").foregroundColor(.text)) {
-                            HStack {
-                                Text("レビュー").planeStyle(size: 15)
-                                Spacer()
-                            }
-                        }
-                    }
-                    Spacer()
-                    Spacer()
-//                            Text("©︎fukulab 2021")
+                    .foregroundColor(.text)
+                    .padding(30)
                 }
-                .foregroundColor(.text)
-                .padding(30)
+                .frame(width: screen.width * 0.8)
+                
+                Spacer()
             }
-
-            .frame(width: screen.width * 0.8)
-            
-            Spacer()
+            .offset(x: self.isActive ? 0 : -screen.width)
+            .animation(.default)
         }
-        .offset(x: self.isActive ? 0 : -screen.width)
-        //.animation(.easeIn(duration: 0.25))
     }
 }
 
@@ -101,6 +111,7 @@ struct EditStartDayView: View {
                                 .padding(.trailing, 10)
                         }
                     }
+                    //.pickerStyle(WheelPickerStyle())
                     .foregroundColor(.text)
                     .onChange(of: env.startDay) { day in
                         self.change()
@@ -117,6 +128,7 @@ struct EditStartDayView: View {
                                     .padding(.trailing, 10)
                             }
                         }
+                        //.pickerStyle(WheelPickerStyle())
                         .foregroundColor(.text)
                         .onChange(of: env.forward) { bool in
                             self.change()

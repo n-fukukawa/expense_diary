@@ -7,74 +7,6 @@
 
 import SwiftUI
 
-class EditRecordViewModel: ObservableObject {
-    func save(recordCell: RecordCell?, date: Date, category: Category?, amount: String, memo: String)
-        -> Result<Record, EditRecordError>
-    {
-        // バリデーション
-        guard let category = category else {
-            return .failure(.categoryIsEmpty)
-        }
-        if amount.isEmpty {
-            return .failure(.amountIsEmpty)
-        }
-        guard let amount = Int(amount) else {
-            return .failure(.amountNotNumeric)
-        }
-        if amount < 0  {
-            return .failure(.amountNotNumeric)
-        }
-        if memo.count > Config.RECORD_MEMO_MAX  {
-            return .failure(.memoTooLong)
-        }
-        
-        // 更新
-        if let recordCell = recordCell {
-            if let record = Record.getById(recordCell.id) {
-                let updatedRecord = Record.update(record: record, date: date, category: category, amount: amount, memo: memo)
-                return .success(updatedRecord)
-            }
-            
-            return .failure(.recordNotFound)
-        }
-        
-        // 新規作成
-        let record = Record.create(date: date, category: category, amount: amount, memo: memo)
-
-        return .success(record)
-    }
-    
-    func delete(recordCell: RecordCell?) {
-        if let recordCell = recordCell {
-            if let record = Record.getById(recordCell.id) {
-                Record.delete(record)
-            }
-        }
-    }
-}
-
-enum EditRecordError : Error {
-    case amountIsEmpty
-    case amountNotNumeric
-    case categoryIsEmpty
-    case memoTooLong
-    case recordNotFound
-    
-    var message: String {
-        switch self {
-        case .amountIsEmpty     : return "金額を入力してください"
-        case .amountNotNumeric  : return "金額には正の整数を入力してください"
-        case .categoryIsEmpty   : return "カテゴリーを選択してください"
-        case .memoTooLong       : return "メモは\(Config.RECORD_MEMO_MAX)文字以内で入力してください"
-        case .recordNotFound    : return "記録がみつかりませんでした"
-        }
-    }
-}
-
-struct AlertItem: Identifiable {
-    var id = UUID()
-    var alert: Alert
-}
 
 struct EditRecordView: View {
     @ObservedObject var viewModel = EditRecordViewModel()
@@ -116,9 +48,10 @@ struct EditRecordView: View {
     
         ZStack {
             // 背景
-            Color.backGround.ignoresSafeArea(.all)
+            Color.neuBackGround.ignoresSafeArea(.all)
             
                 VStack(spacing: 0) {
+
                     // タブ
                     HStack(spacing: 0) {
                         ForEach(RecordType.all(), id: \.self) { recordType in
@@ -126,15 +59,14 @@ struct EditRecordView: View {
                                 self.changeType(recordType)
                             }){
                                 let is_active = self.type == recordType
-                                VStack(spacing: 8) {
-                                    if is_active {
-                                        Text(recordType.name).planeStyle(size: 16)
-                                        Rectangle().frame(height: 3).offset(x: 0, y: -1)
-                                    } else {
-                                        Text(recordType.name).planeStyle(size: 16)
-                                        Rectangle().frame(height: 1)
-                                    }
-                                }.foregroundColor(.text)
+                                VStack(spacing: 4) {
+                                    Text(recordType.name).planeStyle(size: 16)
+                                    RoundedRectangle(cornerRadius: 10)
+                                    .frame(width: 20, height: 2)
+                                    .opacity(is_active ? 1 : 0)
+                                    .foregroundColor(.sub)
+                                }
+                                .frame(maxWidth: .infinity)
                             }
                         }
                     }
@@ -165,25 +97,26 @@ struct EditRecordView: View {
                         }
                         .padding(.bottom, 24)
                     }
-                        
-                    Divider()
                     
+
+                        
                     // カテゴリー選択
-                    ScrollView(showsIndicators: false) {
-                        let columns: [GridItem] = Array(repeating: .init(.fixed(90), spacing: 20), count: 3)
-                        LazyVGrid(columns: columns, alignment: .center, spacing: 30) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        let rows: [GridItem] = Array(repeating: .init(.fixed(100), spacing: 30), count: 2)
+                        LazyHGrid(rows: rows, alignment: .center, spacing: 40) {
                             ForEach(categories, id: \.self) { category in
                                 VStack(spacing: 4) {
                                     ZStack {
                                         let is_active = category.id == self.category?.id
                                         
-                                        Circle().foregroundColor(is_active ? .accent : .white)
-                                            .frame(width: 52, height: 52)
-                                            .shadow(color: .nonActive.opacity(is_active ? 0.4 : 1), radius: is_active ? 6 : 1)
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .foregroundColor(is_active ? .main : .neuBackGround)
+                                            .frame(width: 72, height: 72)
+                                            .modifier(neuShadowModifier())
                                         Image(category.icon.name)
                                             .resizable()
                                             .aspectRatio(contentMode: .fit)
-                                            .frame(width: 26, height: 26)
+                                            .frame(width: 36, height: 36)
                                             .foregroundColor(is_active ? .white : .nonActive)
                                     }
                                     Text(category.name).planeStyle(size: 14).lineLimit(1)
@@ -194,7 +127,7 @@ struct EditRecordView: View {
                                 }
                             }
                         }
-                        .padding(.vertical, 20)
+                        .padding(.vertical, 30)
                         .padding(.horizontal, 20)
                     }
                     
@@ -266,7 +199,6 @@ struct EditRecordView: View {
                 }
                 .padding(.top, 30)
                 .padding(16)
-                .background(Color.backGround)
                 .alert(item: $showingAlert) { item in
                     item.alert
                 }
@@ -293,7 +225,7 @@ struct EditRecordView: View {
                         }
                 }
                 .padding(10)
-                .background(Color.backGround)
+                .background(Color.neuBackGround)
                 .cornerRadius(10)
                 .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
                 .shadow(color: Color(#colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)).opacity(0.2), radius: 20, x: 0, y: 20)
@@ -310,4 +242,74 @@ struct EditRecordView: View {
             }
         }
     }
+}
+
+
+class EditRecordViewModel: ObservableObject {
+    func save(recordCell: RecordCell?, date: Date, category: Category?, amount: String, memo: String)
+        -> Result<Record, EditRecordError>
+    {
+        // バリデーション
+        guard let category = category else {
+            return .failure(.categoryIsEmpty)
+        }
+        if amount.isEmpty {
+            return .failure(.amountIsEmpty)
+        }
+        guard let amount = Int(amount) else {
+            return .failure(.amountNotNumeric)
+        }
+        if amount < 0  {
+            return .failure(.amountNotNumeric)
+        }
+        if memo.count > Config.RECORD_MEMO_MAX  {
+            return .failure(.memoTooLong)
+        }
+        
+        // 更新
+        if let recordCell = recordCell {
+            if let record = Record.getById(recordCell.id) {
+                let updatedRecord = Record.update(record: record, date: date, category: category, amount: amount, memo: memo)
+                return .success(updatedRecord)
+            }
+            
+            return .failure(.recordNotFound)
+        }
+        
+        // 新規作成
+        let record = Record.create(date: date, category: category, amount: amount, memo: memo)
+
+        return .success(record)
+    }
+    
+    func delete(recordCell: RecordCell?) {
+        if let recordCell = recordCell {
+            if let record = Record.getById(recordCell.id) {
+                Record.delete(record)
+            }
+        }
+    }
+}
+
+enum EditRecordError : Error {
+    case amountIsEmpty
+    case amountNotNumeric
+    case categoryIsEmpty
+    case memoTooLong
+    case recordNotFound
+    
+    var message: String {
+        switch self {
+        case .amountIsEmpty     : return "金額を入力してください"
+        case .amountNotNumeric  : return "金額には正の整数を入力してください"
+        case .categoryIsEmpty   : return "カテゴリーを選択してください"
+        case .memoTooLong       : return "メモは\(Config.RECORD_MEMO_MAX)文字以内で入力してください"
+        case .recordNotFound    : return "記録がみつかりませんでした"
+        }
+    }
+}
+
+struct AlertItem: Identifiable {
+    var id = UUID()
+    var alert: Alert
 }

@@ -9,13 +9,19 @@ import SwiftUI
 
 
 extension Color {
-    static let backGround  = Color(hex: "F8F8F8")
-    static let text        = Color(hex: "707070")
-    static let nonActive   = Color(hex: "C6C6C6")
-    static let main        = Color(hex: "89baca")
-    static let darkMain    = Color(hex: "548ea0")
-    static let accent      = Color(hex: "F4D03A")
-    static let warning     = Color(hex: "CC1030")
+    static let backGround    = Color(hex: "FCFCFE")
+    static let text          = Color(hex: "707076")
+    static let nonActive     = Color(hex: "C6C6CC")
+    
+    static let main          = Color(hex: "90c8da")
+    static let darkMain      = Color(hex: "548ea0")
+    static let sub           = Color(hex: "6a4e2d") //バーントアンバー
+    static let accent        = Color(hex: "536078")
+    static let warning       = Color(hex: "CC1030")
+
+    static let neuBackGround = Color(hex: "F3F4F9")
+    static let dropShadow    = Color(hex: "707079")
+    static let dropLight     = Color(hex: "FFFFFF")
 
 }
 
@@ -34,30 +40,44 @@ extension Color {
 }
 
 extension Text {
-    func planeStyle(size: CGFloat) -> some View {
+    func planeStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
         self
-            .tracking(2)
+            .tracking(tracking)
             .font(Font.custom("NotoSansJP-Regular", size: size))
             .foregroundColor(.text)
     }
     
-    func mainStyle(size: CGFloat) -> some View {
+    func mainStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
         self
-            .tracking(2)
+            .tracking(tracking)
             .font(Font.custom("NotoSansJP-Regular", size: size))
             .foregroundColor(.main)
     }
     
-    func outlineStyle(size: CGFloat) -> some View {
+    func nonActiveStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
         self
-            .tracking(2)
+            .tracking(tracking)
+            .font(Font.custom("NotoSansJP-Regular", size: size))
+            .foregroundColor(.nonActive)
+    }
+    
+    func subStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
+        self
+            .tracking(tracking)
+            .font(Font.custom("NotoSansJP-Regular", size: size))
+            .foregroundColor(.sub)
+    }
+    
+    func outlineStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
+        self
+            .tracking(tracking)
             .font(Font.custom("NotoSansJP-Regular", size: size))
             .foregroundColor(.white)
     }
     
-    func warningStyle(size: CGFloat) -> some View {
+    func warningStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
         self
-            .tracking(2)
+            .tracking(tracking)
             .font(Font.custom("NotoSansJP-Regular", size: size))
             .foregroundColor(.warning)
     }

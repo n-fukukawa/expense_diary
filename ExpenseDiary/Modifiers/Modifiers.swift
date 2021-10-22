@@ -19,6 +19,15 @@ struct ModalCardModifier: ViewModifier {
             .animation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0))
     }
 }
+
+struct neuShadowModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .shadow(color: .dropShadow.opacity(0.1), radius: 2, x: 3, y: 3)
+            .shadow(color: .dropLight, radius: 2, x: -3, y: -3)
+    }
+}
+
 //struct FontModifier: ViewModifier {
 //    let size: CGFloat
 //    func body(content: Content) -> some View {
