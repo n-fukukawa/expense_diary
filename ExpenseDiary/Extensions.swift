@@ -9,7 +9,7 @@ import SwiftUI
 
 
 extension Color {
-    static let backGround    = Color(hex: "FCFCFE")
+    static let backGround    = Color(hex: "FFFFFF")
     static let text          = Color(hex: "707076")
     static let nonActive     = Color(hex: "C6C6CC")
     
@@ -20,7 +20,8 @@ extension Color {
     static let warning       = Color(hex: "CC1030")
 
     static let neuBackGround = Color(hex: "F3F4F9")
-    static let dropShadow    = Color(hex: "707079")
+    
+    static let dropShadow    = Color(hex: "000000")
     static let dropLight     = Color(hex: "FFFFFF")
 
 }
@@ -36,6 +37,12 @@ extension Color {
         let b = rgbValue & 0xff
         
         self.init(red: Double(r) / 0xff, green: Double(g) / 0xff, blue: Double(b) / 0xff)
+    }
+}
+
+extension Font {
+    static func appFont(size: CGFloat) -> UIFont {
+        return UIFont(name: "NotoSansJP-Regular", size: size)!
     }
 }
 

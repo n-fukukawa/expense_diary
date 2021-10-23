@@ -109,8 +109,8 @@ class Record: Object, Identifiable  {
     
     static func seed() {
         var records:[Record] = []
-        for i in 1...100 {
-            for j in 1...10 {
+        for i in 1...60 {
+            for j in 1...3 {
                 records.append(Record(value: [
                                         "date"     : Calendar.current.date(byAdding: .day, value: -i, to: Date())!,
                                         "category" : Category.all()[j % 9],
