@@ -66,6 +66,27 @@ class StatusObject: ObservableObject {
             return Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth + 1, day: startDay - 1))!
         }
     }
+    
+    func getStartAndEndDate(activeYear: Int, activeMonth: Int) -> [Date] {
+        let start: Date
+        let end:   Date
+        
+        if forward == 1 {
+            start = Calendar.current.date(from: DateComponents(year: activeYear, month: activeMonth - 1, day: startDay))!
+        } else {
+            start = Calendar.current.date(from: DateComponents(year: activeYear, month: activeMonth, day: startDay))!
+        }
+        
+        if forward == 1 {
+            end = Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth, day: startDay - 1))!
+        } else {
+            end = Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth + 1, day: startDay - 1))!
+        }
+        
+        return [start, end]
+    }
+    
+    
 
     func refreshActive() {        
         let date: Date

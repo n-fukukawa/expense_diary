@@ -9,47 +9,55 @@ import SwiftUI
 import Charts
 
 struct ChartView: UIViewRepresentable {
+    
     typealias UIViewType = LineChartView
     
+    let dataSet: [(key: YearMonth, value: Int)]
+    let colorSet: ColorSet
     let preview: Bool
-    let months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
     
+    var data: [ChartDataEntry] = []
+    var descs: [String] = []
     
-    let data: [ChartDataEntry] = [
-        ChartDataEntry(x: 0, y: 2900),
-        ChartDataEntry(x: 1, y: 3500),
-        ChartDataEntry(x: 2, y: 3200),
-        ChartDataEntry(x: 3, y: 1800),
-        ChartDataEntry(x: 4, y: 2600),
-        ChartDataEntry(x: 5, y: 4600),
-    ]
+    init(dataSet: [(key: YearMonth, value: Int)], colorSet: ColorSet, preview: Bool) {
+        self.dataSet = dataSet
+        self.colorSet = colorSet
+        self.preview = preview
+
+        var count: Double = 0
+        self.dataSet.forEach({ set in
+            self.data.append(ChartDataEntry(x: count, y: Double(set.value)))
+            self.descs.append("\(set.key.monthDesc)")
+            count += 1
+        })
+    }
     
-    func getData() -> LineChartData {
+    func setData() -> LineChartData {
         let dataSet = LineChartDataSet(entries: data)
         
         let gradientColors = [
-                              UIColor(Color(hex: "a0d8ea")).cgColor,
-                              UIColor(Color(hex: "35a0ce")).cgColor,
-                             // UIColor(.purple).cgColor
-        ] as CFArray // Colors of the gradient
+            UIColor(colorSet.getColor1()).withAlphaComponent(0.5).cgColor,
+            UIColor(colorSet.getColor2()).withAlphaComponent(1).cgColor,
+        ] as CFArray
         let colorLocations:[CGFloat] = [0.0, 0.8, 0.95] // Positioning of the gradient
         let gradient = CGGradient.init(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: gradientColors, locations: colorLocations) // Gradient Object
 //        dataSet.mode = .cubicBeziers
         dataSet.fill = Fill(linearGradient: gradient!, angle: 90)
         dataSet.fillAlpha = 0.2
         dataSet.drawFilledEnabled = true
-        dataSet.setCircleColor(UIColor(Color(hex: "35a0ce")).withAlphaComponent(0.5))
+        dataSet.setCircleColor(UIColor(colorSet.getColor1()).withAlphaComponent(0.5))
         dataSet.circleRadius = 5
-        dataSet.setColor(UIColor(Color(hex: "35a0ce")), alpha: 0.5)
+        dataSet.setColor(UIColor(colorSet.getColor1()), alpha: 0.5)
 //        dataSet.drawCirclesEnabled = false
         
 
         return LineChartData(dataSet: dataSet)
     }
     
+    
     func makeUIView(context: Context) -> LineChartView {
         let lineChart = LineChartView()
-        lineChart.data = self.getData()
+        lineChart.data = self.setData()
         
         // 振る舞い
         lineChart.pinchZoomEnabled = false
@@ -58,10 +66,11 @@ struct ChartView: UIViewRepresentable {
         lineChart.scaleXEnabled = false
         lineChart.scaleYEnabled = false
         
-        if preview {
+        //if preview {
             lineChart.highlightPerTapEnabled = false
-        }
+        //}
         
+        lineChart.animate(yAxisDuration: 0.8)
         
         lineChart.backgroundColor = UIColor(.backGround)
         lineChart.legend.enabled = false
@@ -70,17 +79,15 @@ struct ChartView: UIViewRepresentable {
         lineChart.data!.setDrawValues(false)
         lineChart.leftAxis.axisMinimum = 0
         
-        lineChart.animate(yAxisDuration: 1)
-        
         let xAxis = lineChart.xAxis
         xAxis.axisLineColor = UIColor(.text)
         xAxis.gridLineWidth = 0
         xAxis.labelPosition = .bottom
         xAxis.labelCount = 5
-        xAxis.labelFont = Font.appFont(size: 11)
+        xAxis.labelFont = Font.appFont(size: 12)
         xAxis.labelTextColor = UIColor(.text)
         
-        xAxis.valueFormatter = IndexAxisValueFormatter(values:months)
+        xAxis.valueFormatter = IndexAxisValueFormatter(values: descs)
         xAxis.granularity = 1
         
         let yAxis = lineChart.leftAxis
@@ -89,19 +96,15 @@ struct ChartView: UIViewRepresentable {
         yAxis.gridColor = UIColor(.text).withAlphaComponent(0.3)
         //yAxis.setLabelCount(3, force: false)
         yAxis.labelPosition = .outsideChart
-        yAxis.labelFont = Font.appFont(size: 11)
+        yAxis.labelFont = Font.appFont(size: 12)
         yAxis.labelTextColor = UIColor(.text)
         
         return lineChart
     }
     
-    func updateUIView(_ uiView: LineChartView, context: Context) {
-        //
-    }
-}
-
-struct ChartView_Previews: PreviewProvider {
-    static var previews: some View {
-        ChartView(preview: false).frame(height: 300)
+    func updateUIView(_ uiView: LineChartView, context: Context) {        
+        uiView.data = self.setData()
+        uiView.data!.setDrawValues(false)
+        //uiView.animate(yAxisDuration: 0.8)
     }
 }

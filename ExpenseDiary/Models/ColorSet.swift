@@ -6,6 +6,7 @@
 //
 
 import RealmSwift
+import SwiftUI
 
 class ColorSet: Object, Identifiable {
     
@@ -19,6 +20,14 @@ class ColorSet: Object, Identifiable {
     
     override static func primaryKey() -> String? {
         return "id"
+    }
+    
+    func getColor1() -> Color {
+        Color(hex: self.color1)
+    }
+    
+    func getColor2() -> Color {
+        Color(hex: self.color2)
     }
     
     private static var realm = try! Realm()

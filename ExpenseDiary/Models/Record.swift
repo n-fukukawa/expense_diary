@@ -29,37 +29,24 @@ class Record: Object, Identifiable  {
     private static var realm = try! Realm()
     
     
-    static func getRecords(start: Date, end: Date, type: RecordType? = nil, category: Category? = nil) -> Results<Record> {
+    static func all() -> Results<Record> {
+        self.realm.objects(Record.self)
+    }
+    
+    static func getRecords(start: Date, end: Date, category: Category? = nil) -> Results<Record> {
         var records = self.realm.objects(Record.self).filter("date BETWEEN {%@, %@}", start, end)
-        
-        if let type = type {
-            records = records.filter("type == %@", type.rawValue)
-        }
-        
+                
         if let category = category {
             records = records.filter("category == %@", category)
         }
         
-        return records
+        return records.sorted(byKeyPath: "date", ascending: false)
     }
     
-    static func getTotal(start: Date, end: Date, type: RecordType, category: Category? = nil) -> Int {
-        return self.getRecords(start: start, end: end, type: type, category: category)
-                    .sum(ofProperty: "amount")
+    static func getRecords(start: Date, end: Date, type: RecordType) -> Results<Record> {
+        return self.realm.objects(Record.self)
+            .filter("date BETWEEN {%@, %@} && category.type == %@", start, end, type.rawValue)
     }
-    
-    
-    // 年間の月毎のカテゴリー別合計
-    static func getYearly(dates: [Date : Date], type: RecordType, category: Category? = nil) -> [Int] {
-        var results: [Int] = []
-        
-        dates.forEach({start, end in
-            results.append(self.getTotal(start: start, end: end, type: type, category: category))
-        })
-        
-        return results
-    }
-    
     
     static func create(date: Date, category: Category, amount: Int, memo: String) -> Record {
         try! realm.write {
@@ -109,12 +96,12 @@ class Record: Object, Identifiable  {
     
     static func seed() {
         var records:[Record] = []
-        for i in 1...60 {
-            for j in 1...3 {
+        for i in 1...3000 {
+            for j in 1...50 {
                 records.append(Record(value: [
                                         "date"     : Calendar.current.date(byAdding: .day, value: -i, to: Date())!,
                                         "category" : Category.all()[j % 9],
-                                        "amount"   : 1234,
+                                        "amount"   : 1458,
                                         "memo"     : "テスト"
                 ]))
             }

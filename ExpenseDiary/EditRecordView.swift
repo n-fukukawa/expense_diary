@@ -6,14 +6,14 @@
 //
 
 import SwiftUI
-
+import RealmSwift
 
 struct EditRecordView: View {
     @ObservedObject var viewModel = EditRecordViewModel()
+    let screen = UIScreen.main.bounds
     let recordCell: RecordCell?
 
     @Environment(\.presentationMode) var presentationMode
-    let screen = UIScreen.main.bounds
     let formatter = DateFormatter()
 
     @State var showDatePicker = false
@@ -23,15 +23,26 @@ struct EditRecordView: View {
     @State var type: RecordType = .expense
     @State var date = Date()
     @State var category: Category?
-    @State var categories = Category.getByType(.expense)
+    
+    @State var dragHeight: CGFloat = 0
+    
+    let sortProperties = [
+      SortDescriptor(keyPath: "type", ascending: true),
+      SortDescriptor(keyPath: "order", ascending: true)
+    ]
+
     @State var amount = ""
     @State var memo = ""
+    
+    var iconSize: CGFloat {
+        self.screen.width * 0.2
+    }
     
     init(record: RecordCell? = nil) {
         self.recordCell = record
         
         formatter.locale = Locale(identifier: "ja_JP")
-        formatter.dateFormat = "M/d(E)"
+        formatter.dateFormat = "M-d E"
     }
     
     func addDay(_ day: Int) {
@@ -41,120 +52,114 @@ struct EditRecordView: View {
     func changeType(_ type: RecordType) {
         self.type = type
         self.category = nil
-        self.categories = Category.getByType(self.type)
     }
     
     var body: some View {
-    
-        ZStack {
+        ScrollViewReader { scrollProxy in
+            ZStack {
             // 背景
-            Color.neuBackGround.ignoresSafeArea(.all)
+            Color.backGround.ignoresSafeArea(.all)
             
-                VStack(spacing: 0) {
-
+                VStack(spacing: 20) {
                     // タブ
-                    HStack(spacing: 0) {
-                        ForEach(RecordType.all(), id: \.self) { recordType in
-                            Button(action: {
-                                self.changeType(recordType)
-                            }){
-                                let is_active = self.type == recordType
-                                VStack(spacing: 4) {
-                                    Text(recordType.name).planeStyle(size: 16)
-                                    RoundedRectangle(cornerRadius: 10)
-                                    .frame(width: 20, height: 2)
-                                    .opacity(is_active ? 1 : 0)
-                                    .foregroundColor(.sub)
-                                }
-                                .frame(maxWidth: .infinity)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 30)
-                    .padding(.bottom, 30)
+//                    HStack(spacing: 0) {
+//                        ForEach(RecordType.all(), id: \.self) { recordType in
+//                            Button(action: {
+//                                self.changeType(recordType)
+//                            }){
+//                                let is_active = self.type == recordType
+//                                VStack(spacing: 4) {
+//                                    Text(recordType.name).planeStyle(size: 16)
+//                                    RoundedRectangle(cornerRadius: 10)
+//                                    .frame(width: 20, height: 2)
+//                                    .opacity(is_active ? 1 : 0)
+//                                    .foregroundColor(.sub)
+//                                }
+//                                .frame(maxWidth: .infinity)
+//                            }
+//                        }
+//                    }
                     
                     // 日付
                     ZStack {
-                        HStack (spacing: 24) {
+                        HStack (spacing: 0) {
                             Button(action:{ self.addDay(-1) }) {
                                 Image(systemName: "chevron.left")
-                                    .font(.system(size: 13, weight: .bold))
+                                    .font(.system(size: 14, weight: .bold))
                                     .foregroundColor(.text)
                                     .offset(y: 2)
+                                    .padding(.vertical, screen.width * 0.05)
+                                    .padding(.leading, screen.width * 0.1)
+                                    .padding(.trailing, screen.width * 0.05)
                             }
-                            Text(formatter.string(from: date))
-                                .bold()
-                                .planeStyle(size: 22)
-                                .onTapGesture {
-                                    withAnimation {self.showDatePicker = true}
+                            Button(action: {
+                                withAnimation {self.showDatePicker = true}
+                            }){
+                                Text(formatter.string(from: date))
+                                    .bold()
+                                    .planeStyle(size: 22)
+                                    .padding(screen.width * 0.05)
                             }
                             Button(action:{ self.addDay(1)}) {
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 13, weight: .bold))
+                                    .font(.system(size: 14, weight: .bold))
                                     .foregroundColor(.text)
-                                    .offset(x: -6, y: 2)
+                                    .offset(y: 2)
+                                    .padding(.vertical, screen.width * 0.05)
+                                    .padding(.leading, screen.width * 0.05)
+                                    .padding(.trailing, screen.width * 0.1)
                             }
                         }
-                        .padding(.bottom, 24)
                     }
                     
-
-                        
                     // カテゴリー選択
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        let rows: [GridItem] = Array(repeating: .init(.fixed(100), spacing: 30), count: 2)
-                        LazyHGrid(rows: rows, alignment: .center, spacing: 40) {
-                            ForEach(categories, id: \.self) { category in
-                                VStack(spacing: 4) {
-                                    ZStack {
-                                        let is_active = category.id == self.category?.id
+                        ScrollView(showsIndicators: false) {
+                            let columns: [GridItem] = Array(repeating: .init(.fixed(iconSize), spacing: iconSize * 0.5), count: 3)
+                            LazyVGrid(columns: columns, alignment: .center, spacing: iconSize * 0.5) {
+                                ForEach(Category.all().sorted(by: sortProperties), id: \.self) { category in
+                                    VStack(spacing: 4) {
+                                        ZStack {
+                                            let is_active = category.id == self.category?.id
+                                            
+                                            RoundedRectangle(cornerRadius: 0)
+                                                .foregroundColor(is_active ? .main : .backGround)
+                                                .frame(width: iconSize * 0.85, height: iconSize * 0.85)
+                                                .shadow(color: .dropShadow.opacity(0.1), radius: 5, x: 2, y: 2)
+                                            Image(category.icon.name)
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: iconSize * 0.45, height: iconSize * 0.45)
+                                                .foregroundColor(is_active ? .white : .nonActive)
+                                        }
                                         
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .foregroundColor(is_active ? .main : .neuBackGround)
-                                            .frame(width: 72, height: 72)
-                                            .modifier(neuShadowModifier())
-                                        Image(category.icon.name)
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                            .frame(width: 36, height: 36)
-                                            .foregroundColor(is_active ? .white : .nonActive)
+                                        Text(category.name).planeStyle(size: 14).lineLimit(1)
                                     }
-                                    Text(category.name).planeStyle(size: 14).lineLimit(1)
-                                        .foregroundColor(.text)
-                                }
-                                .onTapGesture {
-                                    self.category = category
+                                    .id(category.id)
+                                    .onTapGesture {
+                                        self.category = category
+                                    }
                                 }
                             }
+                            .padding(.vertical, screen.width * 0.05)
                         }
-                        .padding(.vertical, 30)
-                        .padding(.horizontal, 20)
-                    }
+                        .padding(.bottom, screen.width * 0.05)
                     
-                    Divider()
-                        .padding(.bottom, 40)
                     
                     // 金額入力
                     VStack(spacing: 0) {
-                        TextField("金額", text: $amount)
-                            .padding(10)
-                            .foregroundColor(.text)
-                            .background(Color.white)
+                        TextField("金額", text: $amount).customTextField(size: 18)
+                            
                         Divider().frame(height: 1).background(Color.nonActive)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 30)
+                    .padding(.horizontal, screen.width * 0.08)
                     
                     // メモ入力
                     VStack(spacing: 0) {
-                        TextField("メモ", text: $memo)
-                            .padding(10)
-                            .foregroundColor(.text)
-                            .background(Color.white)
+                        TextField("メモ", text: $memo).customTextField(size: 18)
                         Divider().frame(height: 1).background(Color.nonActive)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
+                    .padding(.horizontal, screen.width * 0.08)
+                    .padding(.bottom, screen.width * 0.05)
 
                     // 保存ボタン
                     Button(action: {
@@ -174,8 +179,8 @@ struct EditRecordView: View {
                         Text("保存する").bold().outlineStyle(size: 18)
                     }
                     .buttonStyle(PrimaryButtonStyle())
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 30)
+                    .padding(.horizontal, screen.width * 0.08)
+                    .padding(.bottom, screen.width * 0.05)
 
                     // 削除ボタン
                     if let recordCell = recordCell {
@@ -194,11 +199,10 @@ struct EditRecordView: View {
                         }) {
                             Text("削除する").bold().planeStyle(size: 16)
                         }
-                        .padding(.horizontal, 20)
                     }
                 }
-                .padding(.top, 30)
-                .padding(16)
+                .padding(.vertical, 40)
+                .frame(width: screen.width * 0.9)
                 .alert(item: $showingAlert) { item in
                     item.alert
                 }
@@ -217,28 +221,43 @@ struct EditRecordView: View {
                         .datePickerStyle(GraphicalDatePickerStyle())
                         .labelsHidden()
 
-                    Text("OK")
-                        .planeStyle(size: 18)
-                        .padding(.bottom, 20)
-                        .onTapGesture {
-                            self.showDatePicker = false
-                        }
+                    Button(action: { self.showDatePicker = false}) {
+                        Text("OK")
+                            .planeStyle(size: 20)
+                            .padding(.bottom, 20)
+                    }
                 }
                 .padding(10)
-                .background(Color.neuBackGround)
+                .background(Color.backGround)
                 .cornerRadius(10)
                 .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
                 .shadow(color: Color(#colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)).opacity(0.2), radius: 20, x: 0, y: 20)
                 .offset(y: showDatePicker ? 0 : screen.height)
-                .scaleEffect(showDatePicker ? 0.9 : 1)
+                .scaleEffect(1 - dragHeight / 1000)
+                .offset(y: dragHeight)
+                //.scaleEffect(showDatePicker ? 0.9 : 1)
                 .animation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0))
+                .gesture(
+                    DragGesture().onChanged  { value in
+                            self.dragHeight = value.translation.height > 0
+                                ? value.translation.height : 0
+                    }
+                    .onEnded { value in
+                        if self.dragHeight > 80 {
+                            self.showDatePicker = false
+                        }
+                        self.dragHeight = .zero
+                    }
+                )
         }
-        .onAppear {
-            if let _recordCell = self.recordCell {
-                self.category = _recordCell.category
-                self.amount   = "\(_recordCell.amount)"
-                self.memo     = _recordCell.memo
-                self.date     = _recordCell.date
+            .onAppear {
+                if let recordCell = self.recordCell {
+                    self.category = recordCell.category
+                    self.amount   = "\(recordCell.amount)"
+                    self.memo     = recordCell.memo
+                    self.date     = recordCell.date
+                    scrollProxy.scrollTo(recordCell.category.id)
+                }
             }
         }
     }

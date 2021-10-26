@@ -236,16 +236,16 @@ struct EditPresetView: View {
     let presetCell: PresetCell?
     @ObservedObject var viewModel = PresetViewModel()
     let screen = UIScreen.main.bounds
-    
+
     @Environment(\.presentationMode) var presentationMode
 
-    
+
     @State var type: RecordType = .expense
     @State var category: Category?
     @State var categories = Category.getByType(.expense)
     @State var amount = ""
     @State var memo = ""
-    
+
     @State var showingAlert: AlertItem?
 
     var body: some View {
@@ -275,9 +275,9 @@ struct EditPresetView: View {
                 }
                 .padding(.horizontal, 30)
                 .padding(.bottom, 36)
-                
+
                 Divider()
-                
+
                 // カテゴリー選択
                 ScrollView(showsIndicators: false) {
                     let columns: [GridItem] = Array(repeating: .init(.fixed(90), spacing: 20), count: 3)
@@ -286,7 +286,7 @@ struct EditPresetView: View {
                             VStack(spacing: 4) {
                                 ZStack {
                                     let is_active = category.id == self.category?.id
-                                    
+
                                     Circle().foregroundColor(is_active ? .accent : .white)
                                         .frame(width: 52, height: 52)
                                         .shadow(color: .nonActive.opacity(is_active ? 0.4 : 1), radius: is_active ? 6 : 1)
@@ -308,10 +308,10 @@ struct EditPresetView: View {
                     .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 40)
-                
+
                 Divider()
                     .padding(.bottom, 40)
-                
+
                 VStack(spacing: 0) {
                     TextField("金額", text: $amount)
                         .padding(10)
@@ -321,7 +321,7 @@ struct EditPresetView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 30)
-                
+
                 VStack(spacing: 0) {
                     TextField("メモ", text: $memo)
                         .padding(10)
@@ -331,12 +331,12 @@ struct EditPresetView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
-                
+
                 Spacer()
-                
+
                 Button(action: {
                     let result = self.viewModel.save(presetCell: presetCell, category: category, amount: amount, memo: memo)
-                    
+
                     switch result {
                         case .success(_):
                             self.presentationMode.wrappedValue.dismiss()

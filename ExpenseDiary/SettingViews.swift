@@ -43,6 +43,12 @@ struct SettingMenuView: View {
                                     Spacer()
                                 }
                             }
+                            NavigationLink(destination: CategoryMenuView()) {
+                                HStack {
+                                    Text("予算の登録／編集").planeStyle(size: 15)
+                                    Spacer()
+                                }
+                            }
                             NavigationLink(destination: EditStartDayView()) {
                                 HStack {
                                     Text("月の開始日の変更").planeStyle(size: 15)

@@ -9,7 +9,7 @@ import RealmSwift
 
 class Budget: Object, Identifiable {
     
-    @objc dynamic var id: Int = 1
+    @objc dynamic var id = UUID().uuidString
     @objc dynamic var year: Int = 0
     @objc dynamic var month: Int = 0
     @objc dynamic var category: Category!
@@ -27,23 +27,23 @@ class Budget: Object, Identifiable {
     static func seed() {
         try! realm.write {
             let themes = [
-                Budget(value: ["id" : 1,
-                              "year" : 2021,
-                              "month" : 10,
-                              "category" : Category.getByType(.expense)[3],
-                              "amount": 20000,
-                            ]),
-                Budget(value: ["id" : 2,
+                Budget(value: [
                               "year" : 2021,
                               "month" : 10,
                               "category" : Category.getByType(.expense)[2],
-                              "amount": 30000,
+                              "amount": 40000,
                             ]),
-                Budget(value: ["id" : 3,
+                Budget(value: [
                               "year" : 2021,
                               "month" : 10,
-                              "category" : Category.getByType(.expense)[1],
-                              "amount": 30000,
+                              "category" : Category.getByType(.expense)[0],
+                              "amount": 10000,
+                            ]),
+                Budget(value: [
+                              "year" : 2021,
+                              "month" : 10,
+                              "category" : Category.getByType(.expense)[5],
+                              "amount": 20000,
                             ]),
             ]
             
@@ -52,10 +52,11 @@ class Budget: Object, Identifiable {
     }
     
     static func all() -> Results<Budget> {
-        realm.objects(Budget.self).sorted(byKeyPath: "id", ascending: true)
+        realm.objects(Budget.self)
+            //.sorted(byKeyPath: "category.order", ascending: true)
     }
     
-    static func find(id: Int) -> Budget? {
-        realm.objects(Budget.self).filter("id == %@", id).first
+    static func getBudgets(year: Int, month: Int) -> Results<Budget> {
+        self.all().filter("year == %@ && month == %@", year, month)
     }
 }

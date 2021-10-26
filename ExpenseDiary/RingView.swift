@@ -18,7 +18,7 @@ struct RingView: View {
     
     var body: some View {
         let multiplier = size / 44
-        let progress = percent / 100
+        let progress = percent > 100 ? 1 : percent / 100
         ZStack {
             Circle()
                 .stroke(Color.nonActive, style: StrokeStyle(lineWidth: 5 * multiplier))
@@ -30,16 +30,13 @@ struct RingView: View {
                 .rotation3DEffect(Angle(degrees: 180), axis: (x: 1, y: 0, z: 0))
                 .frame(width: size, height: size)
                 .shadow(color: color2.opacity(0.1), radius: 3 * multiplier, x: 0, y: 3 * multiplier)
-                .animation(.easeInOut)
+                .animation(.easeInOut(duration: 0.5))
             //Text("\(Int(percent))%")
                 Image(icon.name)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 20 * multiplier)
                     .foregroundColor(.nonActive)
-                .onTapGesture {
-                    self.show.toggle()
-                }
         }
         .frame(width: size + 5 * multiplier, height: size + 5 * multiplier)
     }

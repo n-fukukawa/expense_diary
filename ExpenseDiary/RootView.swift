@@ -19,34 +19,31 @@ struct RootView: View {
     @State var showRing = false
     
     @State var showBalance = false
-    @State var showBadget = false
+    @State var showBadget  = false
+    @State var showAnalysis   = false
     
     @State var lineChartRender: CGFloat = 0
-    
-    let BALANCE_VIEW_HEIGHT: CGFloat = 0.18
     
     var showModal: Bool {
         self.showSettingMenu || self.showPicker
     }
     
     init() {
-        let realm = try! Realm()
-
-        try! realm.write {
-             realm.deleteAll()
-        }
-        Icon.seed()
-        Theme.seed()
-        ColorSet.seed()
-
-        Category.seed()
-        Budget.seed()
-        Record.seed()
+//        let realm = try! Realm()
+//
+//        try! realm.write {
+//             realm.deleteAll()
+//        }
+//        Icon.seed()
+//        Theme.seed()
+//        ColorSet.seed()
+//
+//        Category.seed()
+//        Budget.seed()
+        //Record.seed()
     }
 
     var body: some View {
-        let multiplier = screen.height / 844
-        let cardInPadding: CGFloat = 20
         
         NavigationView {
             ZStack {
@@ -54,75 +51,38 @@ struct RootView: View {
                 
                 VStack (spacing: 0) {
                     HeaderView(showSettingMenu: $showSettingMenu, showPicker: $showPicker)
-                        .padding(.horizontal, 30)
+                        .frame(width: screen.width - 50)
                         .padding(.top, 10)
                         .padding(.bottom, 20)
                     
                     GeometryReader { geometry in
-                        BalanceView(show: self.$showBalance, viewModel: BalanceCardViewModel(env: env))
+                        BalanceView(show: self.$showBalance, viewModel: BalanceViewModel(env: env))
                             .offset(y: self.showBalance ? -geometry.frame(in: .global).minY : 0)
-                            
                     }
                     .frame(maxWidth: showBalance ? .infinity : screen.width - 40)
                     .frame(height: screen.height * 0.18)
                     .zIndex(showBalance ? 1 : 0)
                     
                     GeometryReader { geometry in
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack (alignment: .center) {
-                                ForEach(Budget.all(), id: \.self) { budget in
-                                    BudgetCardView(budget: budget, height: screen.height * 0.15, padding: cardInPadding)
-                                        .onTapGesture {
-                                            self.showBadget.toggle()
-                                        }
-                                }
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
+                        BudgetView(viewModel: BudgetViewModel(env: env), show: $showBadget)
                             .offset(y: self.showBadget ? -geometry.frame(in: .global).minY : 0)
-                        }
                     }
-                    .frame(height: self.showBadget ? screen.height : screen.height * 0.18)
+                    .frame(maxWidth: showBadget ? .infinity : screen.width)
+                    .frame(height: screen.height * 0.18)
                     .zIndex(showBadget ? 1 : 0)
-                    //.frame(maxWidth: showBalance ? .infinity : screen.width - 40)
-                    
-                    VStack {
-                        Spacer()
-                        HStack {
-                            VStack (alignment: .leading, spacing: 0) {
-                                HStack (spacing: 6) {
-                                    Image(Icon.all()[6].name)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 28 * multiplier)
-                                        .foregroundColor(.nonActive)
-                                    Image(systemName: "chevron.down")
-                                        .font(.system(size: 12 * multiplier, weight: .medium))
-                                        .foregroundColor(.text)
-                                        .opacity(0.8)
-                                        .offset(y: 1)
-                                }
-                                ChartView(preview: true).padding(.leading, 10)
-                                    .onAppear() {
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                            withAnimation(.linear(duration: 3.0)) {
-                                                lineChartRender = 1.0
-                                            }
-                                        }
-                                    }
-                            }
-                            Spacer()
-                        }
+//
+                    GeometryReader { geometry in
+                        AnalysisView(show: $showAnalysis,
+                                     viewModel: AnalysisViewModel(env: env))
+                            .offset(y: self.showAnalysis ? -geometry.frame(in: .global).minY : 0)
                     }
-                    .padding(cardInPadding)
-                    //.frame(height: screen.height * 0.25)
-                    .background(Color.backGround)
-                    .clipped()
-                    .shadow(color: .dropShadow.opacity(0.1), radius: 10, x: 5, y: 5)
-                    .padding(.bottom, 12)
+                    .frame(maxWidth: showAnalysis ? .infinity : screen.width - 40)
+                    .frame(height: screen.height * 0.40)
+                    .zIndex(showAnalysis ? 1 : 0)
                     
                     AdmobBannerView().frame(width: 320, height: 50)
                         .padding(.bottom, 4)
+                        .zIndex(2)
                 }
                 
                 
@@ -153,7 +113,9 @@ struct RootView: View {
 
 
 struct HeaderView: View {
+    let screen = UIScreen.main.bounds
     @EnvironmentObject var env: StatusObject
+    @State var showEdit = false
     @Binding var showSettingMenu: Bool
     @Binding var showPicker: Bool
     let formatter = DateFormatter()
@@ -165,12 +127,11 @@ struct HeaderView: View {
     }
     var body: some View {
         VStack {
-            HStack {
-                Button(action: { withAnimation() {
-                    self.showSettingMenu = true
-                }}){
+            HStack (spacing: 12) {
+                Button(action: { withAnimation() { self.showSettingMenu = true}})
+                {
                     VStack (alignment: .leading, spacing: 8) {
-                        ForEach(0..<2) { i in
+                        ForEach(0..<3) { i in
                             Rectangle()
                                 .frame(width: 24 - CGFloat(i) * 6 , height: 1)
                                 .foregroundColor(.text)
@@ -178,13 +139,10 @@ struct HeaderView: View {
                     }
                 }
                 
-                Spacer()
-            }
-            
-            HStack {
-                Button(action: { self.showPicker = true }) {
+                Button(action: { self.showPicker = true })
+                {
                     HStack {
-                        Text("\(env.activeMonth)").planeStyle(size: 36)
+                        Text("\(env.activeMonth)").planeStyle(size: 32)
                         Image(systemName: "chevron.down")
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.text)
@@ -196,178 +154,19 @@ struct HeaderView: View {
                 Spacer()
                 
                 Button(action: { withAnimation() {
-                    //
+                    self.showEdit = true
                 }}){
                     Image(systemName: "plus")
                         .font(.system(size: 28, weight: .thin))
                         .foregroundColor(.text)
                 }
-            }
-
-
-
-        }
-    }
-}
-
-struct RecordCardView: View {
-    let recordCell: RecordCell
-    let formatter = DateFormatter()
-    
-    init(recordCell: RecordCell) {
-        self.recordCell = recordCell
-        formatter.dateFormat = "M.d E"
-    }
-    
-    var body: some View {
-        VStack {
-            HStack {
-                Text(formatter.string(from: recordCell.date)).planeStyle(size: 14)
-                Spacer()
-            }
-            HStack (spacing: 20) {
-                ZStack {
-                    Circle().foregroundColor(.gray).opacity(0.1)
-                    Image(recordCell.category.icon.name)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 24, height: 24)
-                        .foregroundColor(.text).opacity(0.8)
+                .sheet(isPresented: $showEdit) {
+                    EditRecordView(record: nil)
                 }
-                .frame(width: 50, height: 50)
-                
-                VStack (alignment: .leading, spacing: 2) {
-                    Text(recordCell.category.name).planeStyle(size: 18)
-                    Text(recordCell.memo).planeStyle(size: 14)
-                }
-                Spacer()
-                Text("\(recordCell.amount)円").planeStyle(size: 18)
-            }
-            Divider()
-        }
-        .padding(.bottom, 16)
-        .padding(.horizontal, 32)
-        .background(Color.backGround)
-    }
-}
-
-
-
-
-
-
-struct BudgetCardView: View {
-    let budget: Budget
-    let height: CGFloat
-    let padding: CGFloat
-    @State var showRing = false
-    var body: some View {
-        HStack (spacing: 16){
-            RingView(color1: budget.category.color1.opacity(0.7), color2: budget.category.color2.opacity(0.7),
-                     icon: budget.category.icon, size: height * 0.6, percent: 80, show: $showRing)
-            VStack (alignment: .leading, spacing: 0) {
-                Text("残り").planeStyle(size: 12)
-                Text("3,800円").planeStyle(size: 18)
             }
         }
-        .padding(padding)
-        .frame(height: height)
-        .background(Color.backGround)
-        .shadow(color: .dropShadow.opacity(0.1), radius: 8, x: 0, y: 0)
     }
 }
-
-//struct TabView: View {
-//    @Binding var contentType: ContentType
-//    var body: some View {
-//        HStack(spacing: 0) {
-//            ForEach(ContentType.all(), id: \.self) { contentType in
-//                let is_active = self.contentType == contentType
-//                Button(action: {
-//                    self.contentType = contentType
-//                }){
-//                    VStack(spacing: 4) {
-//                        Text(contentType.rawValue)
-//                            .subStyle(size: is_active ? 20 : 16, tracking: 1)
-//                        RoundedRectangle(cornerRadius: 10)
-//                            .frame(width: 20, height: 2)
-//                            .opacity(is_active ? 1 : 0)
-//                            .foregroundColor(.sub)
-//                    }
-//                    .frame(height: 46)
-//                    .frame(maxWidth: .infinity)
-//                }
-//            }
-//        }
-//    }
-//}
-
-//struct MainView: View {
-//    @Binding var contentType: ContentType
-//    var body: some View {
-//        ZStack {
-////            Rectangle()
-////                .cornerRadius(25.0, corners: [.topLeft, .topRight])
-////                .foregroundColor(.neuBackGround)
-////                .ignoresSafeArea(edges: .bottom)
-//
-//            VStack {
-////                 ContentView(type: $contentType)
-////                    .padding(.horizontal, 16)
-////                    .padding(.top, 24)
-////                    .padding(.bottom, 20)
-//                 Spacer()
-//                 AdmobBannerView().frame(width: 320, height: 50)
-//            }
-//        }
-//
-//    }
-//}
-
-//struct ContentView: View {
-//    @EnvironmentObject var env: StatusObject
-//    @Binding var type: ContentType
-//    
-//    var body: some View {
-//        switch (type) {
-//            case .records  : ListView(env: env)
-//            case .summary  : SummaryView(env: env)
-//            case .chart    : ChartView()
-//        }
-//    }
-//}
-
-//struct GlobalNavView: View {
-//    @EnvironmentObject var env: StatusObject
-//    @State var isShowing = false
-//    var body: some View {
-//        ZStack {
-//            VStack {
-//                Spacer()
-//                HStack {
-//                    Spacer()
-//                    Button(action: {
-//                        self.isShowing = true
-//                    }){
-//                        ZStack {
-//                            Circle().foregroundColor(.sub)
-//                                .shadow(color: .sub.opacity(0.5), radius: 6, x: 2, y: 2)
-//                            Image(systemName: "plus")
-//                                .font(.system(size: 22, weight: .bold))
-//                                .foregroundColor(.white)
-//                        }
-//                        .frame(width: 56, height: 56)
-//                    }
-//                    .sheet(isPresented: $isShowing) {
-//                        EditRecordView()
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-
 
 struct NoDataView: View {
     var body: some View {

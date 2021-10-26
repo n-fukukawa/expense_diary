@@ -54,48 +54,26 @@ extension Text {
             .foregroundColor(.text)
     }
     
-    func mainStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
-        self
-            .tracking(tracking)
-            .font(Font.custom("NotoSansJP-Regular", size: size))
-            .foregroundColor(.main)
-    }
-    
-    func nonActiveStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
-        self
-            .tracking(tracking)
-            .font(Font.custom("NotoSansJP-Regular", size: size))
-            .foregroundColor(.nonActive)
-    }
-    
-    func subStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
-        self
-            .tracking(tracking)
-            .font(Font.custom("NotoSansJP-Regular", size: size))
-            .foregroundColor(.sub)
-    }
-    
     func outlineStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
         self
             .tracking(tracking)
             .font(Font.custom("NotoSansJP-Regular", size: size))
-            .foregroundColor(.white)
+            .foregroundColor(.backGround)
     }
     
-    func warningStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
+    func customStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
         self
             .tracking(tracking)
             .font(Font.custom("NotoSansJP-Regular", size: size))
-            .foregroundColor(.warning)
     }
 }
 
 extension View {
-    func customTextField() -> some View {
+    func customTextField(size: CGFloat) -> some View {
         self
+            .font(Font.custom("NotoSansJP-Regular", size: size))
             .padding(.vertical, 10)
             .foregroundColor(.text)
-            .background(Color.white)
     }
 }
 
