@@ -13,18 +13,10 @@ struct ModalCardModifier: ViewModifier {
         content
             .background(Color.backGround)
             .cornerRadius(10)
-            .shadow(color: Color(#colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)).opacity(0.2), radius: 20, x: 0, y: 20)
+            .myShadow(radius: 20, x: 0, y: 20)
             .opacity(active ? 1 : 0)
             .scaleEffect(active ? 0.9 : 0.95)
             .animation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0))
-    }
-}
-
-struct neuShadowModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .shadow(color: .dropShadow.opacity(0.1), radius: 2, x: 3, y: 3)
-            .shadow(color: .dropLight, radius: 2, x: -3, y: -3)
     }
 }
 

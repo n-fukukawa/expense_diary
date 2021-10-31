@@ -13,14 +13,15 @@ struct RootView: View {
     let formatter = DateFormatter()
     
     @EnvironmentObject var env: StatusObject
+    
+    @State var mode: ViewMode = .home
+    
+    @State var showEdit = false
     @State var showSettingMenu = false
     @State var showPicker = false
     @State var contentType: ContentType = .records
     @State var showRing = false
     
-    @State var showBalance = false
-    @State var showBadget  = false
-    @State var showAnalysis   = false
     
     @State var lineChartRender: CGFloat = 0
     
@@ -39,70 +40,101 @@ struct RootView: View {
 //        ColorSet.seed()
 //
 //        Category.seed()
-//        Budget.seed()
-        //Record.seed()
+////        Budget.seed()
+//        Record.seed()
     }
 
     var body: some View {
         
         NavigationView {
-            ZStack {
-                Color.backGround.ignoresSafeArea(.all)
+            ZStack (alignment: .top) {
                 
-                VStack (spacing: 0) {
-                    HeaderView(showSettingMenu: $showSettingMenu, showPicker: $showPicker)
-                        .frame(width: screen.width - 50)
-                        .padding(.top, 10)
-                        .padding(.bottom, 20)
+                if mode == .home {
+                    Color.backGround.ignoresSafeArea(.all)
                     
-                    GeometryReader { geometry in
-                        BalanceView(show: self.$showBalance, viewModel: BalanceViewModel(env: env))
-                            .offset(y: self.showBalance ? -geometry.frame(in: .global).minY : 0)
-                    }
-                    .frame(maxWidth: showBalance ? .infinity : screen.width - 40)
-                    .frame(height: screen.height * 0.18)
-                    .zIndex(showBalance ? 1 : 0)
+                    Rectangle().fill(LinearGradient(gradient: Gradient(colors: [.themeDark, .themeLight]), startPoint: .leading, endPoint: .trailing))
+                        .frame(height: screen.height * 0.3)
+                        .ignoresSafeArea(.all)
                     
-                    GeometryReader { geometry in
-                        BudgetView(viewModel: BudgetViewModel(env: env), show: $showBadget)
-                            .offset(y: self.showBadget ? -geometry.frame(in: .global).minY : 0)
+                    VStack (spacing: 0) {
+                        HeaderView(showSettingMenu: $showSettingMenu, showPicker: $showPicker)
+                            .padding(.top, 10)
+    //                            .opacity(env.viewType == .home ? 1 : 0)
+                            .frame(maxWidth: screen.width - 50)
+                        
+                        GeometryReader { geometry in
+                            BalanceView(height: 60 ,viewModel: BalanceViewModel(env: env))
+                                .offset(y: env.viewType == .balance ? -geometry.frame(in: .global).minY : 0)
+                        }
+                        .frame(maxWidth: env.viewType == .balance ? .infinity : screen.width - 40)
+                        .frame(height: 60)
+    //                        .opacity(env.viewType == .home || env.viewType == .balance ? 1 : 0)
+                        .zIndex(env.viewType == .balance ? 1 : 0)
+
+                        
+                        GeometryReader { geometry in
+                            BudgetView(viewModel: BudgetViewModel(env: env))
+                                .offset(y: env.viewType == .budget ? -geometry.frame(in: .global).minY : 0)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 120)
+                        .zIndex(env.viewType == .budget ? 1 : 0)
+                        //.opacity(env.viewType == .home || env.viewType == .budget  ? 1 : 0)
+                        
                     }
-                    .frame(maxWidth: showBadget ? .infinity : screen.width)
-                    .frame(height: screen.height * 0.18)
-                    .zIndex(showBadget ? 1 : 0)
-//
-                    GeometryReader { geometry in
-                        AnalysisView(show: $showAnalysis,
-                                     viewModel: AnalysisViewModel(env: env))
-                            .offset(y: self.showAnalysis ? -geometry.frame(in: .global).minY : 0)
-                    }
-                    .frame(maxWidth: showAnalysis ? .infinity : screen.width - 40)
-                    .frame(height: screen.height * 0.40)
-                    .zIndex(showAnalysis ? 1 : 0)
-                    
-                    AdmobBannerView().frame(width: 320, height: 50)
-                        .padding(.bottom, 4)
-                        .zIndex(2)
+                } else {
+                    AnalysisView(viewModel: AnalysisViewModel(env: env))
                 }
+
+                Spacer(minLength: 50 + 60)
                 
-                
-//                ZStack {
-//                    Color.black.opacity(self.showModal ? 0.1 : 0).ignoresSafeArea(.all)
-//                }
-//                .onTapGesture {
-//                    withAnimation {
-//                        self.showSettingMenu = false
-//                        self.showPicker = false
-//                    }
-//                }
+                VStack {
+                    Spacer()
+                    AdmobBannerView().frame(width: 320, height: 50)
+                        .zIndex(2)
+                    if env.viewType == .home {
+                        HStack {
+                            Spacer()
+                            Button(action: {self.mode = .home}) {
+                                Image("home2")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 30, height: 30)
+                                    .foregroundColor(true ? .themeDark : .secondary.opacity(0.4))
+                            }
+                            Spacer()
+                            Button(action: {self.showEdit = true}) {
+                                ZStack {
+                                    Circle().fill(LinearGradient(gradient: Gradient(colors: [.themeDark, .themeLight]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                        .shadow(color: .themeDark.opacity(0.3), radius: 4, x: 0, y: 0)
+                                        .shadow(color: .themeDark.opacity(0.8), radius: 1, x: 2, y: 2)
+                                        .shadow(color: .themeLight.opacity(0.8), radius: 1, x: -1, y: -1)
+                                    Image("pen")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .foregroundColor(.white)
+                                        .frame(width: 24, height: 24)
+                                }
+                                .frame(width: 60, height: 60)
+                            }
+                            .sheet(isPresented: $showEdit) {
+                                EditRecordView(record: nil)
+                            }
+                            Spacer()
+                            Button(action: {self.mode = .chart}) {
+                                Image(systemName: "chart.bar.xaxis")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 30, height: 30)
+                                    .foregroundColor(false ? .themeDark : .secondary.opacity(0.4))
+                            }
+                            Spacer()
+                        }
+                    }
+                }
 
                 SettingMenuView(isActive: $showSettingMenu).transition(.slide)
-                
-//                if showPicker {
-//                    VStack {
-//                        Text("a").padding()
-//                    }.modifier(ModalCardModifier(active: showPicker))
-//                }
+
             }
             .navigationBarHidden(true)
             .navigationBarBackButtonHidden(true)
@@ -119,51 +151,54 @@ struct HeaderView: View {
     @Binding var showSettingMenu: Bool
     @Binding var showPicker: Bool
     let formatter = DateFormatter()
+    let formatterWithYear = DateFormatter()
     
     init(showSettingMenu: Binding<Bool>, showPicker: Binding<Bool>) {
         self._showSettingMenu = showSettingMenu
         self._showPicker = showPicker
-        formatter.dateFormat = "M/d"
+        formatter.dateFormat = "M-d"
+        formatterWithYear.dateFormat = "Y-M-d"
     }
     var body: some View {
-        VStack {
+        VStack (spacing: 4) {
             HStack (spacing: 12) {
                 Button(action: { withAnimation() { self.showSettingMenu = true}})
                 {
                     VStack (alignment: .leading, spacing: 8) {
-                        ForEach(0..<3) { i in
+                        ForEach(-1..<2) { i in
                             Rectangle()
-                                .frame(width: 24 - CGFloat(i) * 6 , height: 1)
-                                .foregroundColor(.text)
+                                .frame(width: 20 + CGFloat(abs(i)) * 6 , height: 2)
+                                .foregroundColor(.backGround)
                         }
                     }
                 }
                 
                 Button(action: { self.showPicker = true })
                 {
-                    HStack {
-                        Text("\(env.activeMonth)").planeStyle(size: 32)
+                    HStack (alignment: .center, spacing: 1) {
+                        Text("\(env.activeMonth)").style(.title, color: .white)
+                        Text("月").style(color: .white).offset(y: 2)
                         Image(systemName: "chevron.down")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.text)
+                            .font(.caption)
+                            .foregroundColor(.white)
                             .opacity(0.8)
-                            .offset(y: 5)
+                            .padding(.leading, 4)
+                            .offset(y: 2)
+                        Spacer()
                     }
                 }
-                
                 Spacer()
-                
-                Button(action: { withAnimation() {
-                    self.showEdit = true
-                }}){
-                    Image(systemName: "plus")
-                        .font(.system(size: 28, weight: .thin))
-                        .foregroundColor(.text)
-                }
-                .sheet(isPresented: $showEdit) {
-                    EditRecordView(record: nil)
+            }
+            
+            HStack (spacing: 0) {
+                Group {
+                    Text("\(formatterWithYear.string(from: env.startDate))").style(.caption, tracking: 1, color: .white)
+                    Text("〜").style(.caption2, tracking: 1, color: .white)
+                    Text("\(formatter.string(from: env.endDate))").style(.caption, tracking: 1, color: .white)
+                    Spacer()
                 }
             }
+            
         }
     }
 }
@@ -172,7 +207,7 @@ struct NoDataView: View {
     var body: some View {
         VStack {
             Spacer()
-            Text("データがありません").planeStyle(size: 16)
+            Text("データがありません").style(.body).frame(maxWidth: .infinity)
             Spacer()
         }
     }
@@ -190,3 +225,4 @@ struct ContentView_Previews: PreviewProvider {
         }
     }
 }
+

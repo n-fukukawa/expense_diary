@@ -26,10 +26,7 @@ struct EditRecordView: View {
     
     @State var dragHeight: CGFloat = 0
     
-    let sortProperties = [
-      SortDescriptor(keyPath: "type", ascending: true),
-      SortDescriptor(keyPath: "order", ascending: true)
-    ]
+    @State var activeField: FieldType?
 
     @State var amount = ""
     @State var memo = ""
@@ -54,6 +51,11 @@ struct EditRecordView: View {
         self.category = nil
     }
     
+    enum FieldType {
+        case amount
+        case memo
+    }
+    
     var body: some View {
         ScrollViewReader { scrollProxy in
             ZStack {
@@ -61,32 +63,13 @@ struct EditRecordView: View {
             Color.backGround.ignoresSafeArea(.all)
             
                 VStack(spacing: 20) {
-                    // タブ
-//                    HStack(spacing: 0) {
-//                        ForEach(RecordType.all(), id: \.self) { recordType in
-//                            Button(action: {
-//                                self.changeType(recordType)
-//                            }){
-//                                let is_active = self.type == recordType
-//                                VStack(spacing: 4) {
-//                                    Text(recordType.name).planeStyle(size: 16)
-//                                    RoundedRectangle(cornerRadius: 10)
-//                                    .frame(width: 20, height: 2)
-//                                    .opacity(is_active ? 1 : 0)
-//                                    .foregroundColor(.sub)
-//                                }
-//                                .frame(maxWidth: .infinity)
-//                            }
-//                        }
-//                    }
-                    
                     // 日付
                     ZStack {
                         HStack (spacing: 0) {
                             Button(action:{ self.addDay(-1) }) {
                                 Image(systemName: "chevron.left")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(.text)
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.secondary)
                                     .offset(y: 2)
                                     .padding(.vertical, screen.width * 0.05)
                                     .padding(.leading, screen.width * 0.1)
@@ -97,13 +80,13 @@ struct EditRecordView: View {
                             }){
                                 Text(formatter.string(from: date))
                                     .bold()
-                                    .planeStyle(size: 22)
+                                    .style(.title3, tracking: 1)
                                     .padding(screen.width * 0.05)
                             }
                             Button(action:{ self.addDay(1)}) {
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(.text)
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.secondary)
                                     .offset(y: 2)
                                     .padding(.vertical, screen.width * 0.05)
                                     .padding(.leading, screen.width * 0.05)
@@ -116,27 +99,30 @@ struct EditRecordView: View {
                         ScrollView(showsIndicators: false) {
                             let columns: [GridItem] = Array(repeating: .init(.fixed(iconSize), spacing: iconSize * 0.5), count: 3)
                             LazyVGrid(columns: columns, alignment: .center, spacing: iconSize * 0.5) {
-                                ForEach(Category.all().sorted(by: sortProperties), id: \.self) { category in
-                                    VStack(spacing: 4) {
+                                ForEach(Category.all(), id: \.self) { category in
+                                    VStack(spacing: 8) {
                                         ZStack {
                                             let is_active = category.id == self.category?.id
                                             
-                                            RoundedRectangle(cornerRadius: 0)
-                                                .foregroundColor(is_active ? .main : .backGround)
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .fill(LinearGradient(gradient: Gradient(colors: [is_active ? .themeDark : .backGround, is_active ? .themeLight : .white]), startPoint: .topLeading, endPoint: .bottomTrailing))
                                                 .frame(width: iconSize * 0.85, height: iconSize * 0.85)
-                                                .shadow(color: .dropShadow.opacity(0.1), radius: 5, x: 2, y: 2)
+                                                .myShadow(radius: 3, x: 2, y: 2)
                                             Image(category.icon.name)
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
-                                                .frame(width: iconSize * 0.45, height: iconSize * 0.45)
-                                                .foregroundColor(is_active ? .white : .nonActive)
+                                                .frame(width: iconSize * 0.5, height: iconSize * 0.5)
+                                                .foregroundColor(is_active ? .white : .secondary.opacity(0.7))
                                         }
+                                        .animation(.easeInOut(duration: 0.3))
                                         
-                                        Text(category.name).planeStyle(size: 14).lineLimit(1)
+                                        Text(category.name).style(.footnote, weight: .bold).lineLimit(1).scaleEffect(1.1)
                                     }
                                     .id(category.id)
                                     .onTapGesture {
-                                        self.category = category
+                                        withAnimation() {
+                                            self.category = category
+                                        }
                                     }
                                 }
                             }
@@ -147,18 +133,22 @@ struct EditRecordView: View {
                     
                     // 金額入力
                     VStack(spacing: 0) {
-                        TextField("金額", text: $amount).customTextField(size: 18)
+                        TextField("金額", text: $amount,
+                                  onEditingChanged: { isEditing in
+                                    self.activeField = isEditing ? .amount : nil
+                                  }).customTextField()
                             
-                        Divider().frame(height: 1).background(Color.nonActive)
+                        Divider().frame(height: 1).background(activeField == .amount ? Color.themeLight : Color.secondary)
                     }
-                    .padding(.horizontal, screen.width * 0.08)
                     
                     // メモ入力
                     VStack(spacing: 0) {
-                        TextField("メモ", text: $memo).customTextField(size: 18)
-                        Divider().frame(height: 1).background(Color.nonActive)
+                        TextField("メモ", text: $memo,
+                                  onEditingChanged: { isEditing in
+                                    self.activeField = isEditing ? .memo : nil
+                                  }).customTextField()
+                        Divider().frame(height: 1).background(activeField == .memo ? Color.themeLight : Color.secondary)
                     }
-                    .padding(.horizontal, screen.width * 0.08)
                     .padding(.bottom, screen.width * 0.05)
 
                     // 保存ボタン
@@ -176,10 +166,9 @@ struct EditRecordView: View {
                                         dismissButton: .default(Text("OK"))))
                         }
                     }) {
-                        Text("保存する").bold().outlineStyle(size: 18)
+                        Text("保存する").bold().style(color: .white)
                     }
                     .buttonStyle(PrimaryButtonStyle())
-                    .padding(.horizontal, screen.width * 0.08)
                     .padding(.bottom, screen.width * 0.05)
 
                     // 削除ボタン
@@ -197,12 +186,12 @@ struct EditRecordView: View {
                                    })))
                             self.deleteTarget = recordCell
                         }) {
-                            Text("削除する").bold().planeStyle(size: 16)
+                            Text("削除する").bold().style()
                         }
                     }
                 }
                 .padding(.vertical, 40)
-                .frame(width: screen.width * 0.9)
+                .frame(width: screen.width * 0.8)
                 .alert(item: $showingAlert) { item in
                     item.alert
                 }
@@ -222,16 +211,16 @@ struct EditRecordView: View {
                         .labelsHidden()
 
                     Button(action: { self.showDatePicker = false}) {
-                        Text("OK")
-                            .planeStyle(size: 20)
-                            .padding(.bottom, 20)
+                        Text("完了").style(.title3, color: .white)
                     }
+                    .buttonStyle(PrimaryButtonStyle())
+                    .padding()
                 }
                 .padding(10)
                 .background(Color.backGround)
                 .cornerRadius(10)
                 .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-                .shadow(color: Color(#colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)).opacity(0.2), radius: 20, x: 0, y: 20)
+                .myShadow(radius: 10, x: 0, y: 0)
                 .offset(y: showDatePicker ? 0 : screen.height)
                 .scaleEffect(1 - dragHeight / 1000)
                 .offset(y: dragHeight)
@@ -263,70 +252,6 @@ struct EditRecordView: View {
     }
 }
 
-
-class EditRecordViewModel: ObservableObject {
-    func save(recordCell: RecordCell?, date: Date, category: Category?, amount: String, memo: String)
-        -> Result<Record, EditRecordError>
-    {
-        // バリデーション
-        guard let category = category else {
-            return .failure(.categoryIsEmpty)
-        }
-        if amount.isEmpty {
-            return .failure(.amountIsEmpty)
-        }
-        guard let amount = Int(amount) else {
-            return .failure(.amountNotNumeric)
-        }
-        if amount < 0  {
-            return .failure(.amountNotNumeric)
-        }
-        if memo.count > Config.RECORD_MEMO_MAX  {
-            return .failure(.memoTooLong)
-        }
-        
-        // 更新
-        if let recordCell = recordCell {
-            if let record = Record.getById(recordCell.id) {
-                let updatedRecord = Record.update(record: record, date: date, category: category, amount: amount, memo: memo)
-                return .success(updatedRecord)
-            }
-            
-            return .failure(.recordNotFound)
-        }
-        
-        // 新規作成
-        let record = Record.create(date: date, category: category, amount: amount, memo: memo)
-
-        return .success(record)
-    }
-    
-    func delete(recordCell: RecordCell?) {
-        if let recordCell = recordCell {
-            if let record = Record.getById(recordCell.id) {
-                Record.delete(record)
-            }
-        }
-    }
-}
-
-enum EditRecordError : Error {
-    case amountIsEmpty
-    case amountNotNumeric
-    case categoryIsEmpty
-    case memoTooLong
-    case recordNotFound
-    
-    var message: String {
-        switch self {
-        case .amountIsEmpty     : return "金額を入力してください"
-        case .amountNotNumeric  : return "金額には正の整数を入力してください"
-        case .categoryIsEmpty   : return "カテゴリーを選択してください"
-        case .memoTooLong       : return "メモは\(Config.RECORD_MEMO_MAX)文字以内で入力してください"
-        case .recordNotFound    : return "記録がみつかりませんでした"
-        }
-    }
-}
 
 struct AlertItem: Identifiable {
     var id = UUID()

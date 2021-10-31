@@ -10,20 +10,25 @@ import SwiftUI
 
 extension Color {
     static let backGround    = Color(hex: "FFFFFF")
-    static let text          = Color(hex: "707076")
+    static let text          = Color(hex: "909096")
     static let nonActive     = Color(hex: "C6C6CC")
     
-    static let main          = Color(hex: "90c8da")
-    static let darkMain      = Color(hex: "548ea0")
-    static let sub           = Color(hex: "6a4e2d") //バーントアンバー
-    static let accent        = Color(hex: "536078")
-    static let warning       = Color(hex: "CC1030")
-
-    static let neuBackGround = Color(hex: "F3F4F9")
+    static let themeLight    = Color(hex: "8DC6FA")
+    static let themeDark     = Color(hex: "2878D9")
     
-    static let dropShadow    = Color(hex: "000000")
-    static let dropLight     = Color(hex: "FFFFFF")
-
+    static let successLight  = Color(hex: "3ab482")
+    static let successDark   = Color(hex: "36a474")
+    static let dangerLight   = Color(hex: "f8b856")
+    static let dangerDark    = Color(hex: "f3d95b")
+    static let warningLight  = Color(hex: "d93245")
+    static let warningDark   = Color(hex: "d93245")
+    
+//    static let main          = Color(hex: "88c2d4")
+//    static let darkMain      = Color(hex: "508495")
+//    static let sub           = Color(hex: "6a4e2d") //バーントアンバー
+//    static let accent        = Color(hex: "536078")
+    
+//    static let dropShadow    = Color(hex: "000000")
 }
 
 extension Color {
@@ -42,38 +47,34 @@ extension Color {
 
 extension Font {
     static func appFont(size: CGFloat) -> UIFont {
-        return UIFont(name: "NotoSansJP-Regular", size: size)!
+        return UIFont(name: "NotoSansJP-Thin", size: size)!
     }
 }
 
 extension Text {
-    func planeStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
+    func style(_ font: Font = .body, weight: Font.Weight = .light, tracking: CGFloat = 2, color: Color = .secondary) -> some View {
         self
             .tracking(tracking)
-            .font(Font.custom("NotoSansJP-Regular", size: size))
-            .foregroundColor(.text)
-    }
-    
-    func outlineStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
-        self
-            .tracking(tracking)
-            .font(Font.custom("NotoSansJP-Regular", size: size))
-            .foregroundColor(.backGround)
-    }
-    
-    func customStyle(size: CGFloat, tracking: CGFloat = 2) -> some View {
-        self
-            .tracking(tracking)
-            .font(Font.custom("NotoSansJP-Regular", size: size))
+            .font(font)
+            .fontWeight(weight)
+            .foregroundColor(color)
     }
 }
 
 extension View {
-    func customTextField(size: CGFloat) -> some View {
+    func myShadow(radius: CGFloat, x: CGFloat = 0, y: CGFloat = 0, valid: Bool = true) -> some View {
+        self.shadow(color: .primary.opacity(valid ? 0.2 : 0), radius: radius, x: x, y: y)
+    }
+}
+
+extension View {
+    func customTextField() -> some View {
         self
-            .font(Font.custom("NotoSansJP-Regular", size: size))
-            .padding(.vertical, 10)
-            .foregroundColor(.text)
+            .font(.title3)
+            .foregroundColor(.secondary)
+            .padding(6)
+            .padding(.trailing, 6)
+            .background(Color.gray.opacity(0.08))
     }
 }
 

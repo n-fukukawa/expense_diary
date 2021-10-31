@@ -12,28 +12,25 @@ struct SummaryCardView: View {
     let amount: Int
     
     var body: some View {
-        VStack {
-            HStack (spacing: 20) {
-                ZStack {
-                    Circle().foregroundColor(.gray).opacity(0.1)
+        VStack (spacing: 0) {
+            VStack (spacing: 0) {
+                HStack (spacing: 2) {
                     Image(category.icon.name)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 24, height: 24)
-                        .foregroundColor(.text).opacity(0.8)
+                        .foregroundColor(.secondary).opacity(0.8)
+                    .frame(width: 50, height: 50)
+                    Text(category.name).style(.title3)
+                    Spacer()
+                    Text("\(amount)円").style(.title3, tracking: 1)
                 }
-                .frame(width: 50, height: 50)
-                
-                VStack (alignment: .leading, spacing: 2) {
-                    Text(category.name).planeStyle(size: 16)
-                }
-                Spacer()
-                Text("\(amount)円").planeStyle(size: 16)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 16)
             }
+            .background(Color.backGround)
+            
             Divider()
         }
-        .padding(.bottom, 16)
-        .padding(.horizontal, 32)
-        .background(Color.backGround)
     }
 }

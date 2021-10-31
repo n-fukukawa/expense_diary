@@ -10,101 +10,118 @@ import Charts
 
 struct ChartView: UIViewRepresentable {
     
-    typealias UIViewType = LineChartView
+    typealias UIViewType = BarChartView
     
     let dataSet: [(key: YearMonth, value: Int)]
-    let colorSet: ColorSet
-    let preview: Bool
+    let balance: Bool
     
     var data: [ChartDataEntry] = []
     var descs: [String] = []
     
-    init(dataSet: [(key: YearMonth, value: Int)], colorSet: ColorSet, preview: Bool) {
+    init(dataSet: [(key: YearMonth, value: Int)], balance: Bool) {
         self.dataSet = dataSet
-        self.colorSet = colorSet
-        self.preview = preview
+        self.balance = balance
 
         var count: Double = 0
         self.dataSet.forEach({ set in
-            self.data.append(ChartDataEntry(x: count, y: Double(set.value)))
+            self.data.append(BarChartDataEntry(x: count, y: Double(set.value)))
             self.descs.append("\(set.key.monthDesc)")
             count += 1
         })
     }
     
-    func setData() -> LineChartData {
-        let dataSet = LineChartDataSet(entries: data)
+    func setData() -> BarChartData {
+        let dataSet = BarChartDataSet(entries: self.data)
         
         let gradientColors = [
-            UIColor(colorSet.getColor1()).withAlphaComponent(0.5).cgColor,
-            UIColor(colorSet.getColor2()).withAlphaComponent(1).cgColor,
+            UIColor(.themeLight).withAlphaComponent(0.3).cgColor,
+            UIColor(.themeDark).withAlphaComponent(1).cgColor,
         ] as CFArray
         let colorLocations:[CGFloat] = [0.0, 0.8, 0.95] // Positioning of the gradient
         let gradient = CGGradient.init(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: gradientColors, locations: colorLocations) // Gradient Object
-//        dataSet.mode = .cubicBeziers
-        dataSet.fill = Fill(linearGradient: gradient!, angle: 90)
-        dataSet.fillAlpha = 0.2
-        dataSet.drawFilledEnabled = true
-        dataSet.setCircleColor(UIColor(colorSet.getColor1()).withAlphaComponent(0.5))
-        dataSet.circleRadius = 5
-        dataSet.setColor(UIColor(colorSet.getColor1()), alpha: 0.5)
-//        dataSet.drawCirclesEnabled = false
+        //dataSet.mode = .cubicBezier
+//        dataSet.fill = Fill(linearGradient: gradient!, angle: 90)
+//        dataSet.fillAlpha = 0.5
+//        dataSet.drawFilledEnabled = true
+//        dataSet.setCircleColor(UIColor(.themeDark))
+//        dataSet.circleRadius = 2
         
+        let colorSets = Array(self.dataSet.map{$0.value < 0 ? UIColor(.warningLight) : UIColor(.themeLight)})
+        
+        dataSet.setColors(colorSets[0], colorSets[1], colorSets[2], colorSets[3], colorSets[4], colorSets[5], colorSets[6], colorSets[7], colorSets[8], colorSets[9], colorSets[10], colorSets[11], colorSets[12])
+        
+//        dataSet.drawCirclesEnabled = false
 
-        return LineChartData(dataSet: dataSet)
+        let barChartData =  BarChartData(dataSet: dataSet)
+        barChartData.barWidth = Double(0.4)
+        
+        return barChartData
     }
     
     
-    func makeUIView(context: Context) -> LineChartView {
-        let lineChart = LineChartView()
-        lineChart.data = self.setData()
+    func makeUIView(context: Context) -> BarChartView {
+        let chart = BarChartView()
+        chart.data = self.setData()
+        
         
         // 振る舞い
-        lineChart.pinchZoomEnabled = false
-        lineChart.doubleTapToZoomEnabled = false
-        lineChart.dragEnabled = false
-        lineChart.scaleXEnabled = false
-        lineChart.scaleYEnabled = false
+        chart.pinchZoomEnabled = false
+        chart.doubleTapToZoomEnabled = false
+        chart.dragEnabled = true
+        chart.scaleXEnabled = false
+        chart.scaleYEnabled = false
         
-        //if preview {
-            lineChart.highlightPerTapEnabled = false
-        //}
+//        if preview {
+            chart.highlightPerTapEnabled = false
+//        }
         
-        lineChart.animate(yAxisDuration: 0.8)
+        chart.leftAxis.axisMinimum = 0
         
-        lineChart.backgroundColor = UIColor(.backGround)
-        lineChart.legend.enabled = false
-        lineChart.rightAxis.enabled = false
+        chart.animate(yAxisDuration: 0.8)
         
-        lineChart.data!.setDrawValues(false)
-        lineChart.leftAxis.axisMinimum = 0
+        chart.backgroundColor = UIColor(.backGround)
+        chart.legend.enabled = false
+        chart.rightAxis.enabled = false
         
-        let xAxis = lineChart.xAxis
-        xAxis.axisLineColor = UIColor(.text)
-        xAxis.gridLineWidth = 0
+        chart.data!.setDrawValues(false)
+        
+        chart.setVisibleXRangeMaximum(4)
+        chart.moveViewToX(90)
+        
+        
+        let xAxis = chart.xAxis
+        xAxis.axisLineColor = UIColor(.primary)
+        xAxis.gridLineWidth = 1
+        xAxis.gridColor = UIColor(.secondary).withAlphaComponent(0.1)
         xAxis.labelPosition = .bottom
-        xAxis.labelCount = 5
-        xAxis.labelFont = Font.appFont(size: 12)
-        xAxis.labelTextColor = UIColor(.text)
+        xAxis.labelCount = 13
+        xAxis.labelFont = UIFont.systemFont(ofSize: 12)
+        xAxis.labelTextColor = UIColor(.secondary)
         
         xAxis.valueFormatter = IndexAxisValueFormatter(values: descs)
         xAxis.granularity = 1
         
-        let yAxis = lineChart.leftAxis
-        yAxis.axisLineColor = UIColor(.text)
+        let yAxis = chart.leftAxis
+        yAxis.axisLineColor = UIColor(.primary)
         yAxis.gridLineWidth = 1
-        yAxis.gridColor = UIColor(.text).withAlphaComponent(0.3)
+        yAxis.gridColor = UIColor(.secondary).withAlphaComponent(0.1)
         //yAxis.setLabelCount(3, force: false)
         yAxis.labelPosition = .outsideChart
-        yAxis.labelFont = Font.appFont(size: 12)
-        yAxis.labelTextColor = UIColor(.text)
+        yAxis.labelFont = UIFont.systemFont(ofSize: 12)
+        yAxis.labelTextColor = UIColor(.secondary)
         
-        return lineChart
+        return chart
     }
     
-    func updateUIView(_ uiView: LineChartView, context: Context) {        
+    func updateUIView(_ uiView: BarChartView, context: Context) {
+        if balance {
+            uiView.leftAxis.resetCustomAxisMin()
+        } else {
+            uiView.leftAxis.axisMinimum = 0
+        }
         uiView.data = self.setData()
         uiView.data!.setDrawValues(false)
-        //uiView.animate(yAxisDuration: 0.8)
+
+        uiView.animate(yAxisDuration: 0.8)
     }
 }

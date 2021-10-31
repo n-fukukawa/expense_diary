@@ -23,6 +23,11 @@ final class YearMonth: Identifiable {
     }
     
     var monthDesc: String {
-        "\(self.month)月"
+        if self.month == 1 {
+            return self.fullDesc
+        } else {
+            return "\(self.month)月"
+        }
+
     }
 }

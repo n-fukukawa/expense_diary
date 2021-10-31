@@ -13,7 +13,7 @@ final class BudgetViewModel: ObservableObject {
     @ObservedObject var env: StatusObject
     @Published var activeBudget: BudgetCell?
     @Published var budgetCells: [BudgetCell] = []
-    @Published var recordCells: [RecordCell] = []
+    @Published var recordCells: [BudgetCell : [RecordCell]] = [:]
     
     private var notificationTokens: [NotificationToken] = []
     
@@ -22,7 +22,7 @@ final class BudgetViewModel: ObservableObject {
         
         self.setBudgetCells()
         self.setRecordCells()
-        
+
         notificationTokens.append(Budget.all().observe { change in
             switch change {
                 case .initial(_):
@@ -74,19 +74,21 @@ final class BudgetViewModel: ObservableObject {
     }
     
     private func setBudgetCells() {
-        self.budgetCells = Budget.getBudgets(year: env.activeYear, month: env.activeMonth)
-            .map{BudgetCell(id: $0.id, year: $0.year, month: $0.month, category: $0.category, amount: $0.amount, created_at: $0.created_at, updated_at: $0.updated_at)}
+        let budgets = Budget.getBudgets(year: env.activeYear, month: env.activeMonth)
+        self.budgetCells = BudgetCell.generateFromBudget(budgets: budgets)
     }
     
     private func setRecordCells() {
-        if self.viewState == .select {
-            self.recordCells = self.getRecords(budgetCell: self.activeBudget!)
-                .map{RecordCell(id: $0.id, date: $0.date, category: $0.category, amount: $0.amount, memo: $0.memo, created_at: $0.created_at, updated_at: $0.updated_at)}
-        }
+            self.budgetCells.forEach({ budgetCell in
+                let recordCells = self.getRecords(budgetCell: budgetCell)
+                    .map{RecordCell(id: $0.id, date: $0.date, category: $0.category, amount: $0.amount, memo: $0.memo, created_at: $0.created_at, updated_at: $0.updated_at)}
+            
+                self.recordCells.updateValue(Array(recordCells), forKey: budgetCell)
+            })
     }
     
     private func getRecords(budgetCell: BudgetCell) -> Results<Record> {
-        let date = env.getStartAndEndDate(activeYear: budgetCell.year, activeMonth: budgetCell.month)
+        let date = env.getStartAndEndDate(year: budgetCell.year, month: budgetCell.month)
         
         return Record.getRecords(start: date[0], end: date[1], category: budgetCell.category)
     }

@@ -14,9 +14,12 @@ class StatusObject: ObservableObject {
     let month = Calendar.current.component(.month, from: Date())
     let day   = Calendar.current.component(.day, from: Date())
     
-    @Published var navItem: GlobalNavItem = .list
+    @Published var viewType: ViewType = .home
+    
+    @Published var mode: ViewMode = .home
     @Published var activeYear: Int = 0
     @Published var activeMonth: Int = 0
+    
     
     @Published var startDay: Int {
         didSet {
@@ -67,20 +70,20 @@ class StatusObject: ObservableObject {
         }
     }
     
-    func getStartAndEndDate(activeYear: Int, activeMonth: Int) -> [Date] {
+    func getStartAndEndDate(year: Int, month: Int) -> [Date] {
         let start: Date
         let end:   Date
         
         if forward == 1 {
-            start = Calendar.current.date(from: DateComponents(year: activeYear, month: activeMonth - 1, day: startDay))!
+            start = Calendar.current.date(from: DateComponents(year: year, month: month - 1, day: startDay))!
         } else {
-            start = Calendar.current.date(from: DateComponents(year: activeYear, month: activeMonth, day: startDay))!
+            start = Calendar.current.date(from: DateComponents(year: year, month: month, day: startDay))!
         }
         
         if forward == 1 {
-            end = Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth, day: startDay - 1))!
+            end = Calendar.current.date(from: DateComponents(year: year, month: month, day: startDay - 1))!
         } else {
-            end = Calendar.current.date(from: DateComponents(year: self.activeYear, month: activeMonth + 1, day: startDay - 1))!
+            end = Calendar.current.date(from: DateComponents(year: year, month: month + 1, day: startDay - 1))!
         }
         
         return [start, end]
@@ -119,5 +122,9 @@ class StatusObject: ObservableObject {
 
         self.activeYear = Calendar.current.component(.year, from: date)
         self.activeMonth = Calendar.current.component(.month, from: date)
+    }
+    
+    func onChangeViewType(_ viewType: ViewType) {
+        self.viewType = viewType
     }
 }

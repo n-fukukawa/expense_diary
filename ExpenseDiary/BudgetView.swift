@@ -9,181 +9,187 @@ import SwiftUI
 
 
 struct BudgetView: View {
+    let width: CGFloat = 220
+    let height: CGFloat = 80
     let screen = UIScreen.main.bounds
     @EnvironmentObject var env: StatusObject
     @ObservedObject var viewModel: BudgetViewModel
-    @Binding var show: Bool
+    @State var activeBudgetCell: BudgetCell?
     
-    init(viewModel: BudgetViewModel, show: Binding<Bool>) {
+    init(viewModel: BudgetViewModel) {
         self.viewModel = viewModel
-        self._show = show
     }
     
     var body: some View {
-        Group {
-            if let budgetCell = viewModel.activeBudget {
-                BudgetCardView(budgetCell: budgetCell, show: $show, viewModel: BudgetViewModel(env: env))
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack (alignment: .center) {
-                        ForEach(viewModel.budgetCells, id: \.id) { budgetCell in
-                            BudgetCardView(budgetCell: budgetCell, show: $show, viewModel: BudgetViewModel(env: env))
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                }
+            if let activeCell = self.activeBudgetCell {
+                BudgetCardView(budgetCell: activeCell,
+                                   active: true,
+                                   activeBudgetCell: $activeBudgetCell,
+                                   viewModel: BudgetViewModel(env: env))
+                    .opacity(env.viewType == .budget ? 1 : 0)
             }
-        }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .center, spacing: 20) {
+                    ForEach(viewModel.budgetCells, id: \.id) { BudgetCell in
+                        BudgetCardView(budgetCell: BudgetCell,
+                                       active: false,
+                                       activeBudgetCell: $activeBudgetCell,
+                                       viewModel: BudgetViewModel(env: env))
+                    }
+                }
+                .padding(.horizontal, 30)
+                .padding(.vertical, 20)
+            }
+            .opacity(env.viewType == .budget ? 0 : 1)
     }
 }
 
 struct BudgetCardView: View {
+    let height: CGFloat = 80
+    let width: CGFloat = 220
+    @EnvironmentObject var env: StatusObject
     @ObservedObject var viewModel: BudgetViewModel
+    @Binding var activeBudgetCell: BudgetCell?
     let screen = UIScreen.main.bounds
     let budgetCell: BudgetCell
     
-    @Binding var show: Bool
+    let active: Bool
+    
     @State var showRing = false
     
-    @State var active = false
+    var scale: CGFloat {
+        self.active ? 3.2: 1.0
+    }
     
-    @State var activeView: CGSize = .zero
-    
-    init(budgetCell: BudgetCell, show: Binding<Bool>, viewModel: BudgetViewModel) {
+    init(budgetCell: BudgetCell, active: Bool, activeBudgetCell: Binding<BudgetCell?>, viewModel: BudgetViewModel) {
         self.budgetCell = budgetCell
-        self._show = show
+        self.active = active
+        self._activeBudgetCell = activeBudgetCell
         self.viewModel = viewModel
     }
     
+    private func open() {
+        self.activeBudgetCell = budgetCell
+        self.viewModel.onSelectBudget(budgetCell: budgetCell)
+        withAnimation() {
+            self.env.onChangeViewType(.budget)
+        }
+    }
+    
     private func close() {
+        self.activeBudgetCell = nil
         self.viewModel.activeBudget = nil
-        self.show = false
+        self.env.viewType = .home
     }
     
-    var scale: CGFloat {
-        self.show ? 2.2 : 1.0
-    }
-    
-    var headerHeight: CGFloat {
-        self.show ? self.screen.height * 0.18 * scale : self.screen.height * 0.15
-    }
-    
-    var contentHeight: CGFloat {
-        self.show ? screen.height : headerHeight
-    }
-    
-    var pad: CGFloat {
-        self.show ? self.headerHeight * 0.12 : self.headerHeight * 0.14
-    }
-    
-    var width: CGFloat {
-        self.show ? .infinity : screen.width * 0.3
-    }
     var body: some View {
         ZStack (alignment: .top) {
+            if active {
+            Rectangle().fill(LinearGradient(gradient: Gradient(colors: [.themeDark.opacity(active ? 1 : 0), .themeLight.opacity(active ? 1 : 0)]), startPoint: .leading, endPoint: .trailing))
+            }
+            
             List {
-                if viewModel.viewState == .select {
-                    if !viewModel.recordCells.isEmpty {
-                        ForEach(viewModel.recordCells, id: \.id) { recordCell in
-                                RecordCardView(recordCell: recordCell).id(recordCell.id)
-                                .listRowInsets(EdgeInsets())
-                            }
-                    } else {
-                        NoDataView()
+                if !viewModel.recordCells.isEmpty {
+                    ForEach(viewModel.recordCells[budgetCell]!) { recordCell in
+                        RecordCardView(recordCell: recordCell).id(recordCell.id)
+                        .listRowInsets(EdgeInsets())
                     }
+                } else {
+                    NoDataView()
                 }
             }
             .listStyle(PlainListStyle())
-            .padding(.top, 20)
-            .frame(maxWidth: width, maxHeight: contentHeight, alignment: .top)
+            .frame(width: active ? screen.width : width)
+            .frame(height: active ? screen.height : height, alignment: .top)
             .background(Color.backGround)
-            .offset(y: show ? headerHeight : 0)
-            .padding(.bottom, headerHeight)
-            .opacity(active && show ? 1 : 0)
+            .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
+            .myShadow(radius: 10, x: 5, y: -5)
+            .offset(y: active ? height * scale : 0)
+            .padding(.bottom, height)
+            .opacity(active ? 1 : 0)
             
-            VStack {
-                if show {
-                    HStack (spacing: 3) {
-                        Spacer()
-                        Image(systemName: "xmark")
-                            .font(.system(size: 24, weight: .light))
-                            .foregroundColor(.text)
-                            .offset(x: pad * 0.8 * (1 - 1/scale))
-                            .opacity(show ? 1 : 0)
-                            .onTapGesture {
+            
+            GeometryReader { geometry in
+                let spending = viewModel.getSpending(budgetCell: budgetCell)
+                let amount   = budgetCell.amount
+                let percent  = CGFloat(spending) / CGFloat(amount) * 100
+                let diff     = amount - spending
+                VStack {
+                    if active {
+                        HStack (spacing: 3) {
+                            Image(systemName: "arrow.backward")
+                                .font(.system(size: 24, weight: .medium))
+                                .foregroundColor(.white)
+                                .opacity(active ? 1 : 0)
+                                .onTapGesture {
                                     self.close()
+                                }
+                            Spacer()
+                        }
+                        VStack (spacing: 0) {
+                            VStack (spacing: 0) {
+                                VStack (spacing: 12) {
+                                    RingView(icon: budgetCell.category.icon,size: active ?  height * 1.2 : height * 0.8,
+                                             percent: percent, show: $showRing, isWhite: true)
+                                    Text("\(budgetCell.category.name)")
+                                        .style(weight: .medium, color: .white)
+                                    HStack {
+                                        Text("\(spending) / \(amount)円").style(.title2, color: .white)
+                                    }
+                                }
                             }
-                    }
-                }
-                Spacer()
-                HStack (spacing: 16){
-                    let spending = viewModel.getSpending(budgetCell: budgetCell)
-                    let amount   = budgetCell.amount
-                    let percent  = CGFloat(spending) / CGFloat(amount) * 100
-                    let diff     = amount - spending
-                    VStack (spacing: 10) {
-                        RingView(color1: budgetCell.category.color1.opacity(0.7), color2: budgetCell.category.color2.opacity(0.7),
-                                 icon: budgetCell.category.icon,
-                                 size: show ? headerHeight * 0.3 : headerHeight * 0.55,
-                             percent: percent, show: $showRing)
-                        if show {
-                            VStack (alignment: .center, spacing: 16) {
-                                Text("\(budgetCell.category.name)").planeStyle(size: 16)
-                                Text("\(spending)円 / \(budgetCell.amount)円").planeStyle(size: 20)
+                        }
+                    } else {
+                        VStack (spacing: 0) {
+                            VStack (spacing: 0) {
+                                Spacer()
+                                HStack (spacing: 16) {
+                                    RingView(icon: budgetCell.category.icon,size: active ?  height * 1.2 : height * 0.8,
+                                             percent: percent, show: $showRing)
+                                    VStack {
+                                        VStack (alignment: .leading, spacing: 0) {
+                                            if diff >= 0 {
+                                                Text("残り予算").style(.caption2, tracking: 0)
+                                                Text("\(diff)円").style(.title3, tracking: 1)
+                                            } else {
+                                                Text("予算オーバー").style(.caption2, tracking: 0, color: .warningLight)
+                                                Text("+\(abs(diff))円").style(.title3, tracking: 1, color: .warningLight)
+                                            }
+                                        }
+                                    }
+                                    Spacer()
+                                }
+                                Spacer()
                             }
                         }
                     }
-
-                    if !show {
-                        VStack (alignment: .leading, spacing: 0) {
-                            Text("\(diff >= 0 ? "残り予算" : "予算超過")").planeStyle(size: 12)
-                            Text("\(abs(diff))円").planeStyle(size: 16)
-                        }
-                    }
                 }
-                Spacer()
             }
-            .padding(.top, show ? 60 : pad)
-            .padding(.bottom, pad)
-            .padding(.horizontal, pad)
-            .frame(minWidth: show ? 0 : width)
-            .frame(maxHeight: headerHeight)
-            .background(Color.backGround)
-            .shadow(color: .dropShadow.opacity(0.1), radius: 8, x: 0, y: 0)
-            .gesture(
-                DragGesture()
-                .onChanged { value in
-                    if !show { return }
-                    self.activeView = value.translation
-                    if self.activeView.height > 200 {
-                        self.activeView = .zero
-                        self.close()
-                    }
-                }
-                .onEnded { value in
-                    if !show { return }
-                    if self.activeView.height > 80 {
-                        self.close()
-                    }
-                    self.activeView = .zero
-                }
-            )
+            .padding(.horizontal, 10)
+            .frame(width: active ? screen.width - 40 : width)
+            .frame(height: height * scale)
+            .background(Color.backGround.opacity(active ? 0 : 1))
+            //.cornerRadius(active ? 0 : height / 2)
+            .cornerRadius(10)
+            .clipped()
+            .myShadow(radius: 5, x: 0, y: 0)
             .onTapGesture {
-                if !show {
-                    self.show = true
-                    self.viewModel.activeBudget = budgetCell
+                if !active {
+                    self.open()
                 }
             }
         }
-        .frame(height: contentHeight)
-        .background(Color.backGround)
-        //.animation(.easeIn)
+        .padding(.top, active ? 60 : 0)
+       // .animation(.spring(response: 0.5, dampiprintngFraction: 0.8, blendDuration: 0))
         .ignoresSafeArea(.all)
-        .onAppear() {
-            if let activeCell = self.viewModel.activeBudget, activeCell.id == budgetCell.id {
-                self.active = true
+        .gesture(
+            DragGesture().onEnded(){ value in
+                if active && value.translation.width > 50 {
+                    self.close()
+                }
             }
+        )
+        .onAppear() {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.showRing = true
             }
@@ -193,6 +199,6 @@ struct BudgetCardView: View {
 
 struct BudgetView_Previews: PreviewProvider {
     static var previews: some View {
-        BudgetView(viewModel: BudgetViewModel(env: StatusObject()), show: .constant(true))
+        BudgetView(viewModel: BudgetViewModel(env: StatusObject()))
     }
 }

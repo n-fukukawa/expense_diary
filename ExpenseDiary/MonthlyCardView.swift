@@ -20,9 +20,9 @@ struct MonthlyCardView: View {
     var body: some View {
         VStack {
             HStack (spacing: 20) {
-                Text(yearMonth.fullDesc).planeStyle(size: 16)
+                Text(yearMonth.fullDesc).style()
                 Spacer()
-                Text("\(amount)円").planeStyle(size: 16)
+                Text("\(amount)円").style()
             }
             Divider()
         }

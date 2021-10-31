@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "5D24AD9D-2648-4D80-A8F2-B73D7EBA0C19"
+   type = "0"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "78F6679F-58FE-4F82-9B9C-5ABF57633D49"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ExpenseDiary/PresetViews.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "32"
+            endingLineNumber = "32"
+            landmarkName = "PresetViewModel"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B32927F6-C2E0-43C0-BDB7-4B69E33A2B94"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ExpenseDiary/BudgetView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "119"
+            endingLineNumber = "119"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "B32927F6-C2E0-43C0-BDB7-4B69E33A2B94 - 47c82e9c2397d91"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; SwiftUI._ConditionalContent&lt;SwiftUI.TupleView&lt;(SwiftUI.HStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Spacer, &lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0)&gt;&gt;, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(ExpenseDiary.RingView, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, SwiftUI.HStack&lt;&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0&gt;)&gt;&gt;&gt;&gt;)&gt;, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Spacer, SwiftUI.HStack&lt;SwiftUI.TupleView&lt;(ExpenseDiary.RingView, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI._ConditionalContent&lt;SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0)&gt;, SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0)&gt;&gt;&gt;&gt;, SwiftUI.Spacer)&gt;&gt;, SwiftUI.Spacer)&gt;&gt;&gt;&gt; in closure #2 (SwiftUI.GeometryProxy) -&gt; SwiftUI.VStack&lt;SwiftUI._ConditionalContent&lt;SwiftUI.TupleView&lt;(SwiftUI.HStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Spacer, &lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0)&gt;&gt;, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(ExpenseDiary.RingView, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, SwiftUI.HStack&lt;&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0&gt;)&gt;&gt;&gt;&gt;)&gt;, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Spacer, SwiftUI.HStack&lt;SwiftUI.TupleView&lt;(ExpenseDiary.RingView, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI._ConditionalContent&lt;SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0)&gt;, SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0)&gt;&gt;&gt;&gt;, SwiftUI.Spacer)&gt;&gt;, SwiftUI.Spacer)&gt;&gt;&gt;&gt;&gt; in closure #1 () -&gt; SwiftUI.TupleView&lt;(Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.Shape.fill&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ShapeStyle&gt;(_: &#x3c4;_1_0, style: SwiftUI.FillStyle) -&gt; some&gt;&gt;.0&gt;, &lt;&lt;opaque return type of SwiftUI.View.opacity(Swift.Double) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0)&gt; in ExpenseDiary.BudgetCardView.body.getter : some"
+                  moduleName = "ExpenseDiary"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/fukulab/Desktop/swift_projects/ExpenseDiary/ExpenseDiary/BudgetView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "121"
+                  endingLineNumber = "121"
+                  offsetFromSymbolStart = "1280">
+               </Location>
+               <Location
+                  uuid = "B32927F6-C2E0-43C0-BDB7-4B69E33A2B94 - 8db1e4fc0772f1b8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; SwiftUI.TupleView&lt;(SwiftUI.Spacer, &lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0)&gt; in closure #1 () -&gt; SwiftUI._ConditionalContent&lt;SwiftUI.TupleView&lt;(SwiftUI.HStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Spacer, &lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0)&gt;&gt;, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(ExpenseDiary.RingView, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, SwiftUI.HStack&lt;&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0&gt;)&gt;&gt;&gt;&gt;)&gt;, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Spacer, SwiftUI.HStack&lt;SwiftUI.TupleView&lt;(ExpenseDiary.RingView, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI._ConditionalContent&lt;SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0)&gt;, SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0)&gt;&gt;&gt;&gt;, SwiftUI.Spacer)&gt;&gt;, SwiftUI.Spacer)&gt;&gt;&gt;&gt; in closure #2 (SwiftUI.GeometryProxy) -&gt; SwiftUI.VStack&lt;SwiftUI._ConditionalContent&lt;SwiftUI.TupleView&lt;(SwiftUI.HStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Spacer, &lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0)&gt;&gt;, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(ExpenseDiary.RingView, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, SwiftUI.HStack&lt;&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0&gt;)&gt;&gt;&gt;&gt;)&gt;, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Spacer, SwiftUI.HStack&lt;SwiftUI.TupleView&lt;(ExpenseDiary.RingView, SwiftUI.VStack&lt;SwiftUI.VStack&lt;SwiftUI._ConditionalContent&lt;SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0)&gt;, SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.Text.style(_: SwiftUI.Font, weight: SwiftUI.Font.Weight, tracking: CoreGraphics.CGFloat, color: SwiftUI.Color) -&gt; some&gt;&gt;.0)&gt;&gt;&gt;&gt;, SwiftUI.Spacer)&gt;&gt;, SwiftUI.Spacer)&gt;&gt;&gt;&gt;&gt; in closure #1 () -&gt; SwiftUI.TupleView&lt;(Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.Shape.fill&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ShapeStyle&gt;(_: &#x3c4;_1_0, style: SwiftUI.FillStyle) -&gt; some&gt;&gt;.0&gt;, &lt;&lt;opaque return type of SwiftUI.View.opacity(Swift.Double) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0)&gt; in ExpenseDiary.BudgetCardView.body.getter : some"
+                  moduleName = "ExpenseDiary"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/fukulab/Desktop/swift_projects/ExpenseDiary/ExpenseDiary/BudgetView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "122"
+                  endingLineNumber = "122"
+                  offsetFromSymbolStart = "500">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

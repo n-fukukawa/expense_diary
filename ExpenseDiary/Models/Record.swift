@@ -10,7 +10,7 @@ import RealmSwift
 import SwiftUI
 
 class Record: Object, Identifiable  {
-    @objc dynamic var id = UUID().uuidString
+    @objc dynamic var id = UUID()
     @objc dynamic var date: Date = Date()
     @objc dynamic var category: Category!
     @objc dynamic var amount: Int = 0
@@ -34,7 +34,10 @@ class Record: Object, Identifiable  {
     }
     
     static func getRecords(start: Date, end: Date, category: Category? = nil) -> Results<Record> {
-        var records = self.realm.objects(Record.self).filter("date BETWEEN {%@, %@}", start, end)
+        let startOfDay = Calendar.current.startOfDay(for: start)
+        let end = Calendar.current.date(byAdding: .day, value: 1, to: end)!
+        let endOfDay = Calendar.current.startOfDay(for: end)
+        var records = self.realm.objects(Record.self).filter("date >= %@ && date < %@", startOfDay, endOfDay)
                 
         if let category = category {
             records = records.filter("category == %@", category)
@@ -44,8 +47,11 @@ class Record: Object, Identifiable  {
     }
     
     static func getRecords(start: Date, end: Date, type: RecordType) -> Results<Record> {
+        let startOfDay = Calendar.current.startOfDay(for: start)
+        let end = Calendar.current.date(byAdding: .day, value: 1, to: end)!
+        let endOfDay = Calendar.current.startOfDay(for: end)
         return self.realm.objects(Record.self)
-            .filter("date BETWEEN {%@, %@} && category.type == %@", start, end, type.rawValue)
+            .filter("date BETWEEN {%@, %@} && category.type == %@", startOfDay, endOfDay, type.rawValue)
     }
     
     static func create(date: Date, category: Category, amount: Int, memo: String) -> Record {
@@ -89,21 +95,23 @@ class Record: Object, Identifiable  {
     }
 
     
-    static func getById(_ id: String) -> Record? {
+    static func getById(_ id: UUID) -> Record? {
         return self.realm.objects(Record.self).filter("id == %@", id).first
     }
     
     
     static func seed() {
         var records:[Record] = []
-        for i in 1...3000 {
-            for j in 1...50 {
-                records.append(Record(value: [
-                                        "date"     : Calendar.current.date(byAdding: .day, value: -i, to: Date())!,
-                                        "category" : Category.all()[j % 9],
-                                        "amount"   : 1458,
-                                        "memo"     : "テスト"
-                ]))
+        for i in 1...500 {
+            for j in 1...5 {
+                if (i + j) % 2 == 0 {
+                    records.append(Record(value: [
+                                            "date"     : Calendar.current.date(byAdding: .day, value: -i, to: Date())!,
+                                            "category" : Category.all()[j % 9],
+                                            "amount"   : 500,
+                                            "memo"     : "テストです"
+                    ]))
+                }
             }
         }
         try! realm.write {

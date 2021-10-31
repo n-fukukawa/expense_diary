@@ -17,7 +17,7 @@ struct SettingMenuView: View {
             HStack {
                 ZStack {
                     Color.backGround.ignoresSafeArea(.all)
-                        .shadow(color: .black.opacity(0.1), radius: 20, x: 10, y: 20)
+                        .myShadow(radius: 20, x: 10, y: 20)
                     VStack {
                         HStack {
                             Spacer()
@@ -39,43 +39,43 @@ struct SettingMenuView: View {
                         VStack (spacing: 40) {
                             NavigationLink(destination: CategoryMenuView()) {
                                 HStack {
-                                    Text("カテゴリーの登録／編集").planeStyle(size: 15)
+                                    Text("カテゴリーの登録／編集").style()
                                     Spacer()
                                 }
                             }
-                            NavigationLink(destination: CategoryMenuView()) {
+                            NavigationLink(destination: EditBudgetView(env: env)) {
                                 HStack {
-                                    Text("予算の登録／編集").planeStyle(size: 15)
+                                    Text("予算の登録／編集").style()
                                     Spacer()
                                 }
                             }
                             NavigationLink(destination: EditStartDayView()) {
                                 HStack {
-                                    Text("月の開始日の変更").planeStyle(size: 15)
+                                    Text("月の開始日の変更").style()
                                     Spacer()
                                 }
                             }
                             NavigationLink(destination: PresetMenuView()) {
                                 HStack {
-                                    Text("プリセットの登録／編集").planeStyle(size: 15)
+                                    Text("プリセットの登録／編集").style()
                                     Spacer()
                                 }
                             }
-                            NavigationLink(destination: EditThemeView()) {
-                                HStack {
-                                    Text("テーマカラーの変更").planeStyle(size: 15)
-                                    Spacer()
-                                }
-                            }
+//                            NavigationLink(destination: EditThemeView()) {
+//                                HStack {
+//                                    Text("テーマカラーの変更").style()
+//                                    Spacer()
+//                                }
+//                            }
                             NavigationLink(destination: BackUpMenuView()) {
                                 HStack {
-                                    Text("バックアップ＆引継ぎ").planeStyle(size: 15)
+                                    Text("バックアップ＆引継ぎ").style()
                                     Spacer()
                                 }
                             }
                             NavigationLink(destination: Text("AppStore").foregroundColor(.text)) {
                                 HStack {
-                                    Text("レビュー").planeStyle(size: 15)
+                                    Text("レビュー").style()
                                     Spacer()
                                 }
                             }
@@ -162,7 +162,7 @@ struct EditThemeView: View {
                     ForEach(Theme.all().map{$0.id}, id: \.self) { themeId in
                         if let theme = Theme.find(id: themeId) {
                             HStack {
-                                Text(theme.name).planeStyle(size: 16)
+                                Text(theme.name).style()
                                 Spacer()
                                 HStack(spacing: 0) {
                                     Rectangle()

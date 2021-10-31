@@ -8,7 +8,7 @@
 import Foundation
 
 struct PresetCell: Identifiable {
-    let id: String
+    let id: UUID
     let category: Category!
     let amount: Int
     let memo: String

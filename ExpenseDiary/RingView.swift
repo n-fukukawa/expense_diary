@@ -8,42 +8,60 @@
 import SwiftUI
 
 struct RingView: View {
-    let color1: Color
-    let color2: Color
     let icon: Icon
     let size: CGFloat
     let percent: CGFloat
-    
     @Binding var show: Bool
+    
+    var isWhite = false
+    
+    var color1: Color {
+        if self.percent < 70 {
+            return .successDark
+        } else if self.percent < 90 {
+            return .dangerDark
+        } else {
+            return .warningDark
+        }
+    }
+    
+    var color2: Color {
+        if self.percent < 70 {
+            return .successLight
+        } else if self.percent < 90 {
+            return .dangerLight
+        } else {
+            return .warningLight
+        }
+    }
     
     var body: some View {
         let multiplier = size / 44
         let progress = percent > 100 ? 1 : percent / 100
         ZStack {
             Circle()
-                .stroke(Color.nonActive, style: StrokeStyle(lineWidth: 5 * multiplier))
-                .frame(width: size, height: size)
+                .stroke(isWhite ? .white : Color.nonActive, style: StrokeStyle(lineWidth: 5 * multiplier))
+                .frame(width: size * 39 / 44, height: size * 39 / 44)
             Circle()
-                .trim(from: show ? 1 - progress : 1, to: 1.0)
+                .trim(from: show ? progress : 1, to: 1.0)
                 .stroke(LinearGradient(gradient: Gradient(colors: [color1, color2]), startPoint: .topTrailing, endPoint: .bottomLeading), style: StrokeStyle(lineWidth: 5 * multiplier, lineCap: .round, lineJoin: .round, miterLimit: .infinity, dash: [20, 0], dashPhase: 0))
                 .rotationEffect(Angle(degrees: 90))
                 .rotation3DEffect(Angle(degrees: 180), axis: (x: 1, y: 0, z: 0))
-                .frame(width: size, height: size)
+                .frame(width: size * 39 / 44, height: size * 39 / 44)
                 .shadow(color: color2.opacity(0.1), radius: 3 * multiplier, x: 0, y: 3 * multiplier)
-                .animation(.easeInOut(duration: 0.5))
-            //Text("\(Int(percent))%")
+                .animation(.easeInOut(duration: 0.8), value: show)
                 Image(icon.name)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 20 * multiplier)
-                    .foregroundColor(.nonActive)
+                    .foregroundColor(isWhite ? .white : .nonActive)
         }
-        .frame(width: size + 5 * multiplier, height: size + 5 * multiplier)
+        .frame(width: size, height: size)
     }
 }
 
 struct RingView_Previews: PreviewProvider {
     static var previews: some View {
-        RingView(color1: .blue, color2: .red, icon: Icon.all().first!, size: 90, percent: 75, show: .constant(true))
+        RingView(icon: Icon.all().first!, size: 90, percent: 75, show: .constant(true))
     }
 }

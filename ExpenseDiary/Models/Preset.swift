@@ -11,7 +11,7 @@ import SwiftUI
 
 class Preset: Object, Identifiable  {
     
-    @objc dynamic var id = UUID().uuidString
+    @objc dynamic var id = UUID()
     @objc dynamic var category: Category!
     @objc dynamic var amount: Int = 0
     @objc dynamic var memo: String = ""
@@ -73,7 +73,7 @@ class Preset: Object, Identifiable  {
         }
     }
     
-    static func getById(_ id: String) -> Preset? {
+    static func getById(_ id: UUID) -> Preset? {
         return self.realm.objects(Preset.self).filter("id == %@", id).first
     }
     

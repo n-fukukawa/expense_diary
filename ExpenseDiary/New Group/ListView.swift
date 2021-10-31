@@ -113,9 +113,9 @@ struct DailyCard: View {
                     
                     VStack (spacing: 0)  {
                         Text("\(weekFormat.string(from: date))")
-                            .planeStyle(size: 12)
+                            .style()
                         Text("\(dayFormat.string(from: date))")
-                            .planeStyle(size: 20)
+                            .style()
                         
     //                    Text("¥\(abs(total))")
     //                        .planeStyle(size: 10).lineLimit(1)
@@ -164,10 +164,10 @@ struct ListCard: View {
                     .foregroundColor(.nonActive)
                     .padding(.trailing, 4)
                 
-                Text(name).planeStyle(size: 15).lineLimit(1)
-                Text(memo).planeStyle(size: 11).lineLimit(1)
+                Text(name).style().lineLimit(1)
+                Text(memo).style().lineLimit(1)
                 Spacer()
-                Text("¥\(amount)").planeStyle(size: 16).lineLimit(1)
+                Text("¥\(amount)").style().lineLimit(1)
             }
             .foregroundColor(.text)
             .padding(.horizontal, 16)

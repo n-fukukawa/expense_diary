@@ -22,10 +22,8 @@ class PresetViewModel: ObservableObject {
             switch change {
                 case let .initial(results):
                     self.setPresetCells(presets: results)
-                    print("changed")
                 case let .update(results, _, _, _):
                     self.setPresetCells(presets: results)
-                    print("update")
                 case let .error(error):
                     print(error.localizedDescription)
             }
@@ -99,7 +97,6 @@ class PresetViewModel: ObservableObject {
         }
         
         if source < to {
-            print(source, to)
             for i in (source + 1)...(to - 1) {
                 if let preset = Preset.getById(presets[i].id) {
                     Preset.updateOrder(preset: preset, order: i)
@@ -109,7 +106,6 @@ class PresetViewModel: ObservableObject {
                 Preset.updateOrder(preset: preset, order: to)
             }
         } else if source > to {
-            print(source, to)
             var count = 0
             for i in (to...(source - 1)).reversed() {
                 if let preset = Preset.getById(presets[i].id) {
@@ -166,7 +162,7 @@ struct PresetMenuView: View {
                     HStack {
                         Picker(selection: $type, label: Text("支出収入区分")) {
                             ForEach(RecordType.all(), id: \.self) { recordType in
-                                Text(recordType.name).planeStyle(size: 16)
+                                Text(recordType.name).style()
                             }
                         }
                         .labelsHidden()
@@ -179,10 +175,10 @@ struct PresetMenuView: View {
                         let presetCells = viewModel.getPresetCells(type: type)
                         ForEach(presetCells, id: \.id) { presetCell in
                             HStack {
-                                Text(presetCell.category.name).planeStyle(size: 16)
-                                Text(presetCell.memo).planeStyle(size: 14)
+                                Text(presetCell.category.name).style()
+                                Text(presetCell.memo).style()
                                 Spacer()
-                                Text("\(presetCell.amount) 円").planeStyle(size: 16)
+                                Text("\(presetCell.amount) 円").style()
                             }
                             .padding(6)
                             .contentShape(Rectangle())
@@ -218,7 +214,7 @@ struct PresetMenuView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     Button(action: { self.isShowing = true }) {
-                        Text("作成").planeStyle(size: 14)
+                        Text("作成").style()
                     }
 
                     MyEditButton().foregroundColor(.text)
@@ -262,10 +258,10 @@ struct EditPresetView: View {
                             let is_active = self.type == recordType
                             VStack(spacing: 8) {
                                 if is_active {
-                                    Text(recordType.name).planeStyle(size: 18)
+                                    Text(recordType.name).style()
                                     Rectangle().frame(height: 3).offset(x: 0, y: -1)
                                 } else {
-                                    Text(recordType.name).planeStyle(size: 18)
+                                    Text(recordType.name).style()
                                     Rectangle().frame(height: 1)
                                 }
                             }
@@ -287,7 +283,7 @@ struct EditPresetView: View {
                                 ZStack {
                                     let is_active = category.id == self.category?.id
 
-                                    Circle().foregroundColor(is_active ? .accent : .white)
+                                    Circle().foregroundColor(is_active ? .themeDark : .white)
                                         .frame(width: 52, height: 52)
                                         .shadow(color: .nonActive.opacity(is_active ? 0.4 : 1), radius: is_active ? 6 : 1)
                                     Image(category.icon.name)
@@ -296,7 +292,7 @@ struct EditPresetView: View {
                                         .frame(width: 26, height: 26)
                                         .foregroundColor(is_active ? .white : .nonActive)
                                 }
-                                Text(category.name).planeStyle(size: 14)
+                                Text(category.name).style()
                                     .foregroundColor(.text)
                             }
                             .onTapGesture {
@@ -348,7 +344,7 @@ struct EditPresetView: View {
                                     dismissButton: .default(Text("OK"))))
                     }
                 }) {
-                    Text("プリセットを保存する").outlineStyle(size: 18)
+                    Text("プリセットを保存する").style(color: .white)
                 }
                 .buttonStyle(PrimaryButtonStyle())
                 .padding(.horizontal, 20)

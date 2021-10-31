@@ -8,19 +8,22 @@
 import SwiftUI
 
 struct BalanceView: View {
-    let heightRate: CGFloat = 0.18
     let screen = UIScreen.main.bounds
+    let height: CGFloat
     @EnvironmentObject var env: StatusObject
     @ObservedObject var viewModel: BalanceViewModel
-    @Binding var show: Bool
-    @State var activeView: CGSize = .zero
+    
+    var show: Bool {
+        self.env.viewType == .balance
+    }
     
     var scale: CGFloat {
-        self.show ? (self.viewModel.viewState != .category ? 1.8 : 1.4) : 1.0
+        self.show ? 4.4 : 1.0
     }
     
     var headerHeight: CGFloat {
-        self.show ? self.screen.height * heightRate * scale : self.screen.height * heightRate
+        self.show ? height * scale
+                  : height
     }
     
     var contentHeight: CGFloat {
@@ -32,195 +35,205 @@ struct BalanceView: View {
     }
     
     var width: CGFloat {
-        self.show ? .infinity : self.screen.width - 40
+        self.show ? screen.width : screen.width - 40
     }
     
     let formatter = DateFormatter()
     
-    init(show: Binding<Bool>, viewModel: BalanceViewModel) {
-        self._show = show
+    init(height: CGFloat, viewModel: BalanceViewModel) {
+        self.height = height
         self.viewModel = viewModel
-        
         formatter.dateFormat = "M-d"
+    }
+    
+    func onClickBackward() {
+        if viewModel.viewState == .category {
+            viewModel.onChangeCategory(category: nil)
+        } else {
+            self.close()
+        }
+    }
+    
+    func onClickBalance() {
+        if show {
+            viewModel.onChangeRecordType(recordType: nil)
+        } else {
+            self.open()
+        }
+    }
+    
+    func open() {
+        self.env.onChangeViewType(.balance)
     }
     
     func close() {
         self.viewModel.onChangeCategory(category: nil)
         self.viewModel.onChangeRecordType(recordType: nil)
-        self.show = false
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 0)) {
+            self.env.onChangeViewType(.home)
+        }
     }
     
     var body: some View {
         ScrollViewReader { scrollProxy in
             ZStack (alignment: .top) {
+                if show {
+                Rectangle().fill(LinearGradient(gradient: Gradient(colors: [.themeDark, .themeLight]), startPoint: .leading, endPoint: .trailing))
+                }
+                
                 List {
                     if viewModel.viewState == .summary {
-                        ForEach(viewModel.summary, id: \.key) { summary in
-                            ForEach(summary.value, id: \.key) { s in
-                                SummaryCardView(category: s.key, amount: s.value).id(summary.key)
-                                    .listRowInsets(EdgeInsets())
-                                    .onTapGesture {
-                                        self.viewModel.onChangeCategory(category: s.key)
-                                    }
+                        if !viewModel.summary.isEmpty {
+                            ForEach(viewModel.summary, id: \.key) { summary in
+                                ForEach(summary.value, id: \.key) { s in
+                                    SummaryCardView(category: s.key, amount: s.value).id(summary.key)
+                                        .listRowInsets(EdgeInsets())
+                                        .onTapGesture {
+                                            self.viewModel.onChangeCategory(category: s.key)
+                                        }
+                                }
                             }
+                        } else {
+                            NoDataView()
                         }
                     } else {
-                        ForEach(viewModel.recordCells, id: \.id) { recordCell in
-                            RecordCardView(recordCell: recordCell).id(recordCell.id)
-                            .listRowInsets(EdgeInsets())
+                        if !viewModel.recordCells.isEmpty {
+                            ForEach(viewModel.recordCells, id: \.id) { recordCell in
+                                RecordCardView(recordCell: recordCell).id(recordCell.id)
+                                .listRowInsets(EdgeInsets())
+                            }
+                        } else {
+                            NoDataView()
                         }
                     }
                 }
                 .listStyle(PlainListStyle())
-                .padding(.top, 20)
+                .padding(.top, 6)
+                .padding(.bottom, show ? headerHeight + 90: 0)
                 .frame(maxWidth: width, maxHeight: contentHeight, alignment: .top)
                 .background(Color.backGround)
+                .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
+                .myShadow(radius: 10, x: 5, y: -5)
                 .offset(y: show ? headerHeight : 0)
-                .padding(.bottom, show ? headerHeight + 70 : headerHeight) // padding for admob_banner
                 .opacity(show ? 1 : 0)
+                .zIndex(show ? 1 : 0)
             
-                VStack {
-                    HStack {
-                        VStack (alignment: .leading, spacing: 0) {
-                            HStack(spacing: 3) {
-                                if viewModel.viewState == .category {
-                                    Image(systemName: "arrow.backward")
-                                        .font(.system(size: 24, weight: .light))
-                                        .foregroundColor(.text)
-                                        .opacity(show ? 1 : 0)
-                                        .onTapGesture {
-                                            viewModel.onChangeCategory(category: nil)
-                                        }
-                                }
-  
-                                // 開始日と終了日
-                                if !show {
-                                    Text("\(formatter.string(from: env.startDate))").planeStyle(size: 13, tracking: 1)
-                                    Text("→").planeStyle(size: 12, tracking: 1)
-                                    Text("\(formatter.string(from: env.endDate))").planeStyle(size: 13, tracking: 1)
-                                }
-                                Spacer()
-                                
-                                Image(systemName: "xmark")
-                                    .font(.system(size: 24, weight: .light))
-                                    .foregroundColor(.text)
-                                    .offset(x: pad * (1 - 1/scale))
-                                    .opacity(show ? 1 : 0)
-                                    .onTapGesture { self.close() }
-                            }
-                        }
-                        Spacer()
-                    }
-                    
-                    Spacer()
-
-                    HStack {
-                        VStack (alignment: .leading, spacing: 0) {
-                            if viewModel.viewState == .category {
-                                Text(viewModel.category!.name).planeStyle(size: 16)
-                                    .offset(x: -pad * (1 - 1/scale))
-                            }
-
-                            Text(viewModel.viewState == .category
-                                    ? "\(viewModel.categoryAmount)円"
-                                    : "\(viewModel.balance > 0 ? "+" : (viewModel.balance < 0 ? "−" : ""))\(abs(viewModel.balance))円")
-                                .planeStyle(size: show ? 28 : 24, tracking: 3)
-                                .offset(x: show ? -4 : 0)
-                        }
-                        .onTapGesture {
-                            if show {
-                                viewModel.onChangeRecordType(recordType: nil)
-                            } else {
-                                self.show = true
-                            }
-                        }
-                        if !show {
-                            Spacer()
-                        }
-                    }
-                    if viewModel.category != nil {
-                        Spacer()
-                    }
-                    if show && viewModel.category == nil {
-                        Divider()
-                        Spacer()
+                GeometryReader { geometry in
+                    VStack {
+                        //戻る矢印
+                        if show {
                         HStack {
+                            Image(systemName: "arrow.backward")
+                                .font(.title)
+                                .foregroundColor(.white)
+                                .onTapGesture { self.onClickBackward() }
                             Spacer()
-                            VStack (spacing: 4) {
-                                Text("支出").planeStyle(size: 13)
-                                Text("\(viewModel.spending)円").planeStyle(size: 18)
-                            }
-                            .padding(8)
-                            .background(Color.nonActive.opacity(viewModel.recordType == .expense ? 0.2 : 0))
-                            .cornerRadius(5)
-                            .onTapGesture {
-                                viewModel.onChangeRecordType(recordType: .expense)
-                            }
-                            
+                        }}
+                        //収支
+                        HStack (alignment: .center) {
                             Spacer()
-                            
-                            VStack (spacing: 6) {
-                                Text("収入").planeStyle(size: 13)
-                                Text("\(viewModel.income)円").planeStyle(size: 18)
+                            VStack (alignment: .center, spacing: 8) {
+                                if viewModel.viewState == .category {
+                                    Image(viewModel.category!.icon.name)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: headerHeight * 0.18)
+                                        .foregroundColor(.white)
+                                    Text(viewModel.category!.name)
+                                        .style(weight: .medium, tracking: 3, color: .white)
+                                        .padding(.bottom, 4)
+                                }
+                                HStack {
+                                    Text(viewModel.viewState == .category
+                                        ? "\(viewModel.categoryAmount)"
+                                        : "\(viewModel.balance > 0 ? "+" : (viewModel.balance < 0 ? "−" : ""))\(abs(viewModel.balance))")
+                                    .style(.largeTitle, color: .white)
+                                    Text("円").style(weight: .regular, color: .white).offset(y: 4)
+                                    if !show {
+                                        Image(systemName: "chevron.right")
+                                            .font(.title3)
+                                            .foregroundColor(.white)
+                                            .padding(.leading, 4)
+                                    }
+                                }
+                                .padding(.leading, 8)
                             }
-                            .padding(8)
-                            .background(Color.nonActive.opacity(viewModel.recordType == .income ? 0.2 : 0))
-                            .cornerRadius(5)
-                            .onTapGesture {
-                                viewModel.onChangeRecordType(recordType: .income)
-                            }
-                            Spacer()
+                            if show { Spacer() }
                         }
-                        .opacity(show ? 1 : 0)
+                        .onTapGesture { onClickBalance() }
+                        
+                        // 支出と収入
+                        if show && viewModel.category == nil {
+                            Rectangle().foregroundColor(.white.opacity(0.5)).frame(height: 1)
+                            HStack (spacing: 20) {
+                                VStack (spacing: 4) {
+                                    Text("支出").style(.callout, weight: .regular, color: .white)
+                                    Text("\(viewModel.spending)円").style(.title3, color: .white)
+                                }
+                                .padding(12)
+                                .background(Color.secondary.opacity(viewModel.recordType == .expense ? 0.2 : 0))
+                                .cornerRadius(5)
+                                .onTapGesture {
+                                    viewModel.onChangeRecordType(recordType: .expense)
+                                }
+                                
+                                VStack (spacing: 6) {
+                                    Text("収入").style(.callout, weight: .regular, color: .white)
+                                    Text("\(viewModel.income)円").style(.title3, color: .white)
+                                }
+                                .padding(12)
+                                .background(Color.secondary.opacity(viewModel.recordType == .income ? 0.2 : 0))
+                                .cornerRadius(5)
+                                .onTapGesture {
+                                    viewModel.onChangeRecordType(recordType: .income)
+                                }
+                            }
+                        }
                     }
+                    .padding(pad)
+                    .padding(.top, show ? 30 : 0)
                 }
-                .padding(.top, show ? 60 : pad)
-                .padding(.bottom, pad)
-                .padding(.horizontal, pad)
+//                .background(LinearGradient(gradient: Gradient(colors: [.themeDark.opacity(show ? 1 : 0), .themeLight.opacity(show ? 1 : 0)]), startPoint: .leading, endPoint: .trailing))
                 .frame(maxWidth: width, maxHeight: headerHeight)
-                .background(Color.backGround)
-                .shadow(color: .dropShadow.opacity(show ? 0.05 : 0.1), radius: 8, x: 0, y: 4)
-                .gesture(
-                    DragGesture()
-                    .onChanged { value in
-                        if !show { return }
-                        self.activeView = value.translation
-                        if self.activeView.height > 200 {
-                            self.activeView = .zero
-                            self.close()
-                        }
-                    }
-                    .onEnded { value in
-                        if !show { return }
-                        if self.activeView.height > 50 {
-                            self.close()
-                        }
-                        self.activeView = .zero
-                    }
-                )
+                .ignoresSafeArea(.all)
                 .onTapGesture {
                     if !self.show {
-                        self.show = true
+                        self.open()
                     }
                 }
             }
         }
         .frame(height: contentHeight)
-        .scaleEffect(1 - activeView.height / 1000)
-        .animation(.spring(response: 0.4, dampingFraction: 0.9, blendDuration: 0.5))
+        .animation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0))
         .ignoresSafeArea(.all)
         .gesture(
             DragGesture()
-                .onChanged { _ in }
-                .onEnded { value in
-                    if value.translation.width > 50 {
-                        if viewModel.category == nil {
-                            self.close()
+            .onEnded { value in
+                if value.translation.width > 50 {
+                    if viewModel.category == nil {
+                        if viewModel.recordType != nil {
+                            viewModel.onChangeRecordType(recordType: nil)
                         } else {
-                            viewModel.onChangeCategory(category: nil)
+                            self.close()
                         }
+                    } else {
+                        viewModel.onChangeCategory(category: nil)
                     }
                 }
+            }
         )
+    }
+}
+
+
+struct BalanceView_Previews: PreviewProvider {
+    static var previews: some View {
+//        let devices = ["iPhone 12", "iPhone 8 Plus", "iPad Air(4th generation)"]
+        let devices = ["iPhone 12", "iPhone 8"]
+        ForEach(devices, id: \.self) { device in
+            BalanceView(height: 80, viewModel: BalanceViewModel(env: StatusObject()))
+                       .previewDevice(.init(rawValue: device))
+                        .environment(\.locale, Locale(identifier: "ja_JP"))
+        }
     }
 }

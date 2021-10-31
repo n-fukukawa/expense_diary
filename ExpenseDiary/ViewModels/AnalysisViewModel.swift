@@ -14,12 +14,14 @@ final class AnalysisViewModel: ObservableObject {
     @ObservedObject var env: StatusObject
     
     @Published var monthlyAmounts: [(key: YearMonth, value: Int)] = []
-    @Published var recordType: RecordType = .expense
+    @Published var recordType: RecordType? = .expense
     @Published var category: Category?
+    var viewState: AnalysisViewState = .total
     
     private var notificationTokens: [NotificationToken] = []
     
     init(env: StatusObject) {
+        print("init")
         self.env = env
         self.setmonthlyAmounts()
         
@@ -39,45 +41,70 @@ final class AnalysisViewModel: ObservableObject {
     
     enum AnalysisViewState {
         case total
+        case balance
         case category
     }
     
-    var viewState: AnalysisViewState {
-        return self.category == nil ? .total : .category
-    }
     
     func onChangeCategory(category: Category?) {
+        if category != nil {
+            self.viewState = .category
+        }
         self.category = category
+        self.recordType = nil
         self.setmonthlyAmounts()
     }
     
-    func onChangeRecordType(recordType: RecordType) {
+    func onChangeRecordType(recordType: RecordType?) {
+        if recordType != nil {
+            self.viewState = .total
+        }
         self.recordType = recordType
         self.category = nil
         self.setmonthlyAmounts()
     }
     
+    func onClickBalance() {
+        self.viewState = .balance
+        self.category = nil
+        self.recordType = nil
+        self.setmonthlyAmounts()
+    }
+    
     private func setmonthlyAmounts() {
         var yearMonths: [YearMonth] = []
-        for i in 0...5 {
-            yearMonths.append(YearMonth(year: env.activeYear, month: env.activeMonth - i))
+        for i in 0...12 {
+            if env.activeMonth - i <= 0 {
+                yearMonths.append(YearMonth(year: env.activeYear - 1, month: 12 + (env.activeMonth - i)))
+            } else {
+                yearMonths.append(YearMonth(year: env.activeYear, month: env.activeMonth - i))
+            }
         }
         
         var result:[(key: YearMonth, value: Int)] = []
         yearMonths.forEach({ yearMonth in
-            let startAndEndDate = env.getStartAndEndDate(activeYear: yearMonth.year, activeMonth: yearMonth.month)
+            let startAndEndDate = env.getStartAndEndDate(year: yearMonth.year, month: yearMonth.month)
             
             var records: Results<Record>
-            if self.viewState == .category {
-                records = Record.getRecords(start: startAndEndDate[0], end: startAndEndDate[1], category: self.category!)
+            if self.viewState == .category{
+                records = Record.getRecords(start: startAndEndDate[0], end: startAndEndDate[1], category: category)
+            } else if self.viewState == .total {
+                records = Record.getRecords(start: startAndEndDate[0], end: startAndEndDate[1], type: self.recordType!)
             } else {
-                records = Record.getRecords(start: startAndEndDate[0], end: startAndEndDate[1], type: recordType)
+                records = Record.getRecords(start: startAndEndDate[0], end: startAndEndDate[1])
             }
             
             var sum = 0
-            records.forEach({ record in
-                sum += record.amount
-            })
+            if self.viewState == .balance {
+                records.forEach({ record in
+                    sum += record.amount * (record.category.type == RecordType.expense.rawValue ? -1 : 1)
+                })
+            } else {
+                records.forEach({ record in
+                    sum += record.amount
+                })
+            }
+
             
             result.append((key: yearMonth, value: sum))
         })

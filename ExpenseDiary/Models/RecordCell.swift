@@ -8,7 +8,7 @@
 import Foundation
 
 struct RecordCell: Identifiable {
-    let id: String
+    let id: UUID
     let date: Date
     let category: Category!
     let amount: Int

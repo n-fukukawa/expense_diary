@@ -10,7 +10,7 @@ import SwiftUI
 
 class Category: Object, Identifiable {
     
-    @objc dynamic var id = UUID().uuidString
+    @objc dynamic var id = UUID()
     @objc dynamic var type: Int = RecordType.expense.rawValue
     @objc dynamic var name: String = ""
     @objc dynamic var icon: Icon!
@@ -35,9 +35,9 @@ class Category: Object, Identifiable {
     
     static func seed() {
         let categories = [
-            Category(value: ["type" : RecordType.expense.rawValue, "name" : "食費", "icon" : Icon.find("dish")!, "colorSet" : ColorSet.find(id: 2)!, "order" : 1]),
+            Category(value: ["type" : RecordType.expense.rawValue, "name" : "食費", "icon" : Icon.find("dish")!, "colorSet" : ColorSet.find(id: 1)!, "order" : 1]),
             Category(value: ["type" : RecordType.expense.rawValue, "name" : "日用品費", "icon" : Icon.find("laundry.fill")!, "colorSet" : ColorSet.find(id: 1)!, "order" : 2]),
-           Category(value: ["type" : RecordType.expense.rawValue, "name" : "交通費", "icon" : Icon.find("train")!, "colorSet" : ColorSet.find(id: 3)!, "order" : 3]),
+           Category(value: ["type" : RecordType.expense.rawValue, "name" : "交通費", "icon" : Icon.find("train")!, "colorSet" : ColorSet.find(id: 1)!, "order" : 3]),
            Category(value: ["type" : RecordType.expense.rawValue, "name" : "被服費", "icon" : Icon.find("fashion")!, "colorSet" : ColorSet.find(id: 1)!, "order" : 4]),
            Category(value: ["type" : RecordType.expense.rawValue, "name" : "美容費", "icon" : Icon.find("rouge")!, "colorSet" : ColorSet.find(id: 1)!, "order" : 5]),
            Category(value: ["type" : RecordType.expense.rawValue, "name" : "娯楽費", "icon" : Icon.find("film")!, "colorSet" : ColorSet.find(id: 1)!, "order" : 6]),
@@ -56,7 +56,12 @@ class Category: Object, Identifiable {
     }
     
     static func all() -> Results<Category> {
-        return self.realm.objects(Category.self).sorted(byKeyPath: "order", ascending: true)
+        let sortProperties = [
+          SortDescriptor(keyPath: "type", ascending: true),
+          SortDescriptor(keyPath: "order", ascending: true)
+        ]
+        
+        return self.realm.objects(Category.self).sorted(by: sortProperties)
     }
     
     static func getByType(_ type: RecordType) -> Results<Category> {
@@ -68,9 +73,7 @@ class Category: Object, Identifiable {
     static func create(type: RecordType, name: String, icon: Icon) -> Category {
         try! realm.write {
             let order = self.getMaxOrder() + 1
-            print(order)
             let category = Category(value: ["type" : type.rawValue, "name" : name, "icon" : icon, "order": order])
-            print(category)
             realm.add(category)
             
             return category
@@ -100,7 +103,7 @@ class Category: Object, Identifiable {
         }
     }
     
-    static func getById(_ id: String) -> Category? {
+    static func getById(_ id: UUID) -> Category? {
         return self.realm.objects(Category.self).filter("id == %@", id).first
     }
     

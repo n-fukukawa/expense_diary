@@ -38,8 +38,8 @@ class ColorSet: Object, Identifiable {
             let themes = [
                 ColorSet(value: ["id" : 1,
                               "name" : "ホライゾンブルー",
-                              "color1": "a0d8ea",
-                              "color2" : "35a0ce",
+                              "color1": "8DC6FA",
+                              "color2" : "2878D9",
                               "order" : 1]),
                 ColorSet(value: ["id" : 2,
                               "name" : "ファイアレッド",

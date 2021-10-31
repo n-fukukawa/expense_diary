@@ -14,37 +14,33 @@ struct RecordCardView: View {
     
     init(recordCell: RecordCell) {
         self.recordCell = recordCell
-        formatter.dateFormat = "M-d E"
+        formatter.locale = Locale(identifier: "ja_JP")
+        formatter.dateFormat = "M-d (E)"
     }
     
     var body: some View {
-        VStack {
-            HStack {
-                Text(formatter.string(from: recordCell.date)).planeStyle(size: 14)
-                Spacer()
-            }
-            HStack (spacing: 20) {
-                ZStack {
-                    Circle().foregroundColor(.gray).opacity(0.1)
-                    Image(recordCell.category.icon.name)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 24, height: 24)
-                        .foregroundColor(.text).opacity(0.8)
+        VStack (spacing: 0) {
+            VStack (spacing: 8) {
+                HStack {
+                    Text(formatter.string(from: recordCell.date)).style(.body, weight: .bold, tracking: 0).opacity(0.8)
+                    Spacer()
                 }
-                .frame(width: 50, height: 50)
-                
-                VStack (alignment: .leading, spacing: 2) {
-                    Text(recordCell.category.name).planeStyle(size: 16)
-                    Text(recordCell.memo).planeStyle(size: 13)
+                HStack (spacing: 20) {                    
+                    VStack (alignment: .leading, spacing: 2) {
+                        Text(recordCell.category.name).style(.title3)
+                        if !recordCell.memo.isEmpty {
+                            Text(recordCell.memo).style(.caption)
+                        }
+                    }
+                    Spacer()
+                    Text("\(recordCell.amount)円").style(.title3, tracking: 1)
                 }
-                Spacer()
-                Text("\(recordCell.amount)円").planeStyle(size: 16)
             }
+            .padding(.horizontal, 40)
+            .padding(.vertical, 16)
+            
             Divider()
         }
-        .padding(.bottom, 16)
-        .padding(.horizontal, 32)
         .background(Color.backGround)
         .onTapGesture {
             self.show.toggle()
@@ -54,8 +50,8 @@ struct RecordCardView: View {
         }
     }
 }
-struct RecordCardView_Previews: PreviewProvider {
-    static var previews: some View {
-        RecordCardView(recordCell: RecordCell(id: "1", date: Date(), category: Category(), amount: 1000, memo: "memomemo", created_at: Date(), updated_at: Date()))
-    }
-}
+//struct RecordCardView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        RecordCardView(recordCell: RecordCell(id: "1", date: Date(), category: Category(), amount: 1000, memo: "memomemo", created_at: Date(), updated_at: Date()))
+//    }
+//}

@@ -9,7 +9,7 @@ import RealmSwift
 
 class Icon: Object, Identifiable {
     
-    @objc dynamic var id = UUID().uuidString
+    @objc dynamic var id = UUID()
     @objc dynamic var name: String = ""
     @objc dynamic var order: Int = 0
     @objc dynamic var created_at: Date = Date()

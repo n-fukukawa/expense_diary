@@ -9,7 +9,7 @@ import RealmSwift
 
 class Budget: Object, Identifiable {
     
-    @objc dynamic var id = UUID().uuidString
+    @objc dynamic var id = UUID()
     @objc dynamic var year: Int = 0
     @objc dynamic var month: Int = 0
     @objc dynamic var category: Category!
@@ -31,18 +31,18 @@ class Budget: Object, Identifiable {
                               "year" : 2021,
                               "month" : 10,
                               "category" : Category.getByType(.expense)[2],
-                              "amount": 40000,
-                            ]),
-                Budget(value: [
-                              "year" : 2021,
-                              "month" : 10,
-                              "category" : Category.getByType(.expense)[0],
                               "amount": 10000,
                             ]),
                 Budget(value: [
                               "year" : 2021,
                               "month" : 10,
-                              "category" : Category.getByType(.expense)[5],
+                              "category" : Category.getByType(.expense)[0],
+                              "amount": 30000,
+                            ]),
+                Budget(value: [
+                              "year" : 2021,
+                              "month" : 10,
+                              "category" : Category.getByType(.expense)[6],
                               "amount": 20000,
                             ]),
             ]
@@ -53,10 +53,74 @@ class Budget: Object, Identifiable {
     
     static func all() -> Results<Budget> {
         realm.objects(Budget.self)
-            //.sorted(byKeyPath: "category.order", ascending: true)
+            .sorted(byKeyPath: "category.order", ascending: true)
     }
     
     static func getBudgets(year: Int, month: Int) -> Results<Budget> {
         self.all().filter("year == %@ && month == %@", year, month)
+    }
+    
+    static func create(year: Int, month: Int, category: Category, amount: Int) -> Budget {
+        try! realm.write {
+            let budget = Budget(value: [
+                "year": year,
+                "month": month,
+                "category": category,
+                "amount": amount,
+            ])
+            realm.add(budget)
+            
+            return budget
+        }
+    }
+    
+    static func update(budget: Budget, year: Int, month: Int, category: Category, amount: Int)
+        -> Budget {
+            try! realm.write {
+                budget.setValue(year, forKey: "year")
+                budget.setValue(month, forKey: "month")
+                budget.setValue(category, forKey: "category")
+                budget.setValue(amount, forKey: "amount")
+                budget.setValue(Date(), forKey: "updated_at")
+            }
+            
+            return budget
+    }
+    
+    
+    static func creates(budgets: [Budget]) {
+        try! realm.write {
+            realm.add(budgets)
+        }
+    }
+    
+    static func updates(budgetCells: [BudgetCell]) {
+        try! realm.write {
+            budgetCells.forEach({ budgetCell in
+                if let storedBudget = Budget.getById(budgetCell.id) {
+                    storedBudget.amount = budgetCell.amount
+                    storedBudget.updated_at = Date()
+                }
+            })
+        }
+    }
+
+    
+    static func delete(_ budget: Budget) {
+        try! realm.write {
+            realm.delete(budget)
+        }
+    }
+    
+    // カテゴリーが削除されることによる予算の削除
+    static func deleteByCategory(_ category: Category) {
+        try! realm.write {
+            let budgets = realm.objects(Budget.self).filter("category = %@", category)
+            realm.delete(budgets)
+        }
+    }
+    
+    static func getById(_ id: UUID) -> Budget? {
+        return self.realm.objects(Budget.self).filter("id == %@", id).first
     }
 }
