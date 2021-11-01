@@ -17,21 +17,21 @@ struct RingView: View {
     
     var color1: Color {
         if self.percent < 70 {
-            return .successDark
+            return Color("successDark") 
         } else if self.percent < 90 {
-            return .dangerDark
+            return Color("dangerDark") 
         } else {
-            return .warningDark
+            return Color("warningDark")
         }
     }
     
     var color2: Color {
         if self.percent < 70 {
-            return .successLight
+            return Color("successLight") 
         } else if self.percent < 90 {
-            return .dangerLight
+            return Color("dangerLight")
         } else {
-            return .warningLight
+            return Color("warningLight")
         }
     }
     
@@ -40,7 +40,7 @@ struct RingView: View {
         let progress = percent > 100 ? 1 : percent / 100
         ZStack {
             Circle()
-                .stroke(isWhite ? .white : Color.nonActive, style: StrokeStyle(lineWidth: 5 * multiplier))
+                .stroke(isWhite ? Color.white : .secondary, style: StrokeStyle(lineWidth: 5 * multiplier))
                 .frame(width: size * 39 / 44, height: size * 39 / 44)
             Circle()
                 .trim(from: show ? progress : 1, to: 1.0)
@@ -54,14 +54,14 @@ struct RingView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 20 * multiplier)
-                    .foregroundColor(isWhite ? .white : .nonActive)
+                    .foregroundColor(isWhite ? .white : .secondary)
         }
         .frame(width: size, height: size)
     }
 }
 
-struct RingView_Previews: PreviewProvider {
-    static var previews: some View {
-        RingView(icon: Icon.all().first!, size: 90, percent: 75, show: .constant(true))
-    }
-}
+//struct RingView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        RingView(icon: Icon.all().first!, size: 90, percent: 75, show: .constant(true))
+//    }
+//}

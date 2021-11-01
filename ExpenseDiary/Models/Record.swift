@@ -54,6 +54,32 @@ class Record: Object, Identifiable  {
             .filter("date BETWEEN {%@, %@} && category.type == %@", startOfDay, endOfDay, type.rawValue)
     }
     
+    static func getAmount(start: Date, end: Date, category: Category? = nil) -> Int {
+        let records = self.getRecords(start: start, end: end, category: category)
+        var result = 0
+        records.forEach({ record in
+            result += record.amount * (record.category.type == RecordType.expense.rawValue ? -1 : 1)
+        })
+        
+        return result
+    }
+    
+    static func getEachAmount(start: Date, end: Date, category: Category? = nil) -> [RecordType : Int] {
+        let records = self.getRecords(start: start, end: end, category: category)
+        var result: [RecordType : Int] = [:]
+        result[.expense] = 0
+        result[.income] = 0
+        records.forEach({ record in
+            if record.category.type == RecordType.expense.rawValue {
+                result[.expense]! += record.amount
+            } else {
+                result[.income]! += record.amount
+            }
+        })
+        
+        return result
+    }
+    
     static func create(date: Date, category: Category, amount: Int, memo: String) -> Record {
         try! realm.write {
             let record = Record(value: [

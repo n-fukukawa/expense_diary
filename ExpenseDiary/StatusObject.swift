@@ -14,9 +14,9 @@ class StatusObject: ObservableObject {
     let month = Calendar.current.component(.month, from: Date())
     let day   = Calendar.current.component(.day, from: Date())
     
-    @Published var viewType: ViewType = .home
+    @Published var viewType: ViewType = .home // home/balance/budget/analysis
     
-    @Published var mode: ViewMode = .home
+    @Published var mode: ViewMode = .home // home/chart
     @Published var activeYear: Int = 0
     @Published var activeMonth: Int = 0
     
@@ -24,6 +24,12 @@ class StatusObject: ObservableObject {
     @Published var startDay: Int {
         didSet {
             UserDefaults.standard.set(startDay, forKey: "startDay")
+        }
+    }
+    
+    @Published var startWeekday: Int {
+        didSet {
+            UserDefaults.standard.set(startDay, forKey: "startWeekday")
         }
     }
     
@@ -41,11 +47,13 @@ class StatusObject: ObservableObject {
 
     init() {
         UserDefaults.standard.register(defaults: ["startDay" : 1,
+                                                  "startWeekday" : 1,
                                                   "forward"  : 0,
                                                   "themeId"  : 1])
-        self.startDay = UserDefaults.standard.integer(forKey: "startDay")
-        self.forward  = UserDefaults.standard.integer(forKey: "forward")
-        self.themeId  = UserDefaults.standard.integer(forKey: "themeId")
+        self.startDay     = UserDefaults.standard.integer(forKey: "startDay")
+        self.startWeekday = UserDefaults.standard.integer(forKey: "startWeekday")
+        self.forward      = UserDefaults.standard.integer(forKey: "forward")
+        self.themeId      = UserDefaults.standard.integer(forKey: "themeId")
 
         self.refreshActive()
     }
@@ -122,6 +130,16 @@ class StatusObject: ObservableObject {
 
         self.activeYear = Calendar.current.component(.year, from: date)
         self.activeMonth = Calendar.current.component(.month, from: date)
+    }
+    
+    func movePrevMonth() {
+        if self.activeMonth == 1 {
+            self.activeYear -= 1
+            self.activeMonth = 12
+        } else {
+            self.activeMonth -= 1
+        }
+        print(self.activeYear, self.activeMonth)
     }
     
     func onChangeViewType(_ viewType: ViewType) {

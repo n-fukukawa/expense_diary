@@ -12,7 +12,7 @@ struct PrimaryButtonStyle: ButtonStyle {
         configuration.label
             .padding(10)
             .frame(maxWidth: .infinity)
-            .background(LinearGradient(gradient: Gradient(colors: [.themeDark, .themeLight]), startPoint: .topLeading, endPoint: .bottomTrailing)
+            .background(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .topLeading, endPoint: .bottomTrailing)
                             .opacity(configuration.isPressed ? 0.3 : 1))
             .cornerRadius(5)
     }

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		550D1FA1272835AF001D449E /* NotoSansJP-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 550D1FA0272835AF001D449E /* NotoSansJP-Thin.otf */; };
 		550D1FA327283A7F001D449E /* ProgressBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550D1FA227283A7F001D449E /* ProgressBarView.swift */; };
 		550D1FA5272A18ED001D449E /* ViewType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550D1FA4272A18ED001D449E /* ViewType.swift */; };
 		5511329027092D7100C8A7A6 /* ExpenseDiaryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5511328F27092D7100C8A7A6 /* ExpenseDiaryApp.swift */; };
@@ -15,7 +14,6 @@
 		5511329427092D7100C8A7A6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5511329327092D7100C8A7A6 /* Assets.xcassets */; };
 		5511329727092D7100C8A7A6 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5511329627092D7100C8A7A6 /* Preview Assets.xcassets */; };
 		5511329F2709326800C8A7A6 /* Modifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5511329E2709326800C8A7A6 /* Modifiers.swift */; };
-		551132A4270933F600C8A7A6 /* NotoSansJP-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 551132A2270933F600C8A7A6 /* NotoSansJP-Regular.otf */; };
 		551132AA270955E400C8A7A6 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551132A9270955E400C8A7A6 /* Extensions.swift */; };
 		551132AC2709652C00C8A7A6 /* StatusObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551132AB2709652C00C8A7A6 /* StatusObject.swift */; };
 		551132AE2709662300C8A7A6 /* RecordType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551132AD2709662300C8A7A6 /* RecordType.swift */; };
@@ -41,6 +39,7 @@
 		554E209E272C02B8005FD4C1 /* MyEditButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 554E209D272C02B8005FD4C1 /* MyEditButton.swift */; };
 		554E20A0272C1958005FD4C1 /* EditRecordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 554E209F272C1958005FD4C1 /* EditRecordViewModel.swift */; };
 		554E20A2272C19B1005FD4C1 /* EditBudgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 554E20A1272C19B1005FD4C1 /* EditBudgetViewModel.swift */; };
+		5570216D272EBC7A006B580D /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5570216C272EBC7A006B580D /* CalendarViewModel.swift */; };
 		55799AB52724208200789305 /* BalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55799AB42724208200789305 /* BalanceViewModel.swift */; };
 		55799AB72724374400789305 /* BalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55799AB62724374400789305 /* BalanceView.swift */; };
 		55799AB92724BC5C00789305 /* BudgetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55799AB82724BC5C00789305 /* BudgetCell.swift */; };
@@ -65,7 +64,6 @@
 
 /* Begin PBXFileReference section */
 		3DA5B531D5CD28ABE86C094C /* Pods-ExpenseDiary.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExpenseDiary.release.xcconfig"; path = "Target Support Files/Pods-ExpenseDiary/Pods-ExpenseDiary.release.xcconfig"; sourceTree = "<group>"; };
-		550D1FA0272835AF001D449E /* NotoSansJP-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSansJP-Thin.otf"; sourceTree = "<group>"; };
 		550D1FA227283A7F001D449E /* ProgressBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressBarView.swift; sourceTree = "<group>"; };
 		550D1FA4272A18ED001D449E /* ViewType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewType.swift; sourceTree = "<group>"; };
 		5511328C27092D7100C8A7A6 /* ExpenseDiary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExpenseDiary.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,7 +73,6 @@
 		5511329627092D7100C8A7A6 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		5511329827092D7100C8A7A6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5511329E2709326800C8A7A6 /* Modifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modifiers.swift; sourceTree = "<group>"; };
-		551132A2270933F600C8A7A6 /* NotoSansJP-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSansJP-Regular.otf"; sourceTree = "<group>"; };
 		551132A9270955E400C8A7A6 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		551132AB2709652C00C8A7A6 /* StatusObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusObject.swift; sourceTree = "<group>"; };
 		551132AD2709662300C8A7A6 /* RecordType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordType.swift; sourceTree = "<group>"; };
@@ -101,6 +98,7 @@
 		554E209D272C02B8005FD4C1 /* MyEditButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEditButton.swift; sourceTree = "<group>"; };
 		554E209F272C1958005FD4C1 /* EditRecordViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecordViewModel.swift; sourceTree = "<group>"; };
 		554E20A1272C19B1005FD4C1 /* EditBudgetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBudgetViewModel.swift; sourceTree = "<group>"; };
+		5570216C272EBC7A006B580D /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
 		55799AB42724208200789305 /* BalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceViewModel.swift; sourceTree = "<group>"; };
 		55799AB62724374400789305 /* BalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceView.swift; sourceTree = "<group>"; };
 		55799AB82724BC5C00789305 /* BudgetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetCell.swift; sourceTree = "<group>"; };
@@ -185,7 +183,6 @@
 				551132CA270BC15200C8A7A6 /* Modifiers */,
 				55799ABE2724C0D800789305 /* New Group */,
 				551132C9270BC13F00C8A7A6 /* Styles */,
-				551132A02709336500C8A7A6 /* Fonts */,
 				5511329327092D7100C8A7A6 /* Assets.xcassets */,
 				55469F162721973400609093 /* Skyscape Wallpapers.png */,
 				5511329827092D7100C8A7A6 /* Info.plist */,
@@ -200,15 +197,6 @@
 				5511329627092D7100C8A7A6 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		551132A02709336500C8A7A6 /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				550D1FA0272835AF001D449E /* NotoSansJP-Thin.otf */,
-				551132A2270933F600C8A7A6 /* NotoSansJP-Regular.otf */,
-			);
-			path = Fonts;
 			sourceTree = "<group>";
 		};
 		551132BD270A788D00C8A7A6 /* Models */ = {
@@ -272,6 +260,7 @@
 				55799AC627255D3900789305 /* AnalysisViewModel.swift */,
 				55799AB42724208200789305 /* BalanceViewModel.swift */,
 				55799ABA2724BDF100789305 /* BudgetViewModel.swift */,
+				5570216C272EBC7A006B580D /* CalendarViewModel.swift */,
 				554E209B272C025D005FD4C1 /* CategoryViewModel.swift */,
 				554E20A1272C19B1005FD4C1 /* EditBudgetViewModel.swift */,
 				554E209F272C1958005FD4C1 /* EditRecordViewModel.swift */,
@@ -357,8 +346,6 @@
 			files = (
 				5511329727092D7100C8A7A6 /* Preview Assets.xcassets in Resources */,
 				5511329427092D7100C8A7A6 /* Assets.xcassets in Resources */,
-				551132A4270933F600C8A7A6 /* NotoSansJP-Regular.otf in Resources */,
-				550D1FA1272835AF001D449E /* NotoSansJP-Thin.otf in Resources */,
 				55469F172721973400609093 /* Skyscape Wallpapers.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -425,6 +412,7 @@
 				551132AA270955E400C8A7A6 /* Extensions.swift in Sources */,
 				55799AC927255E6900789305 /* YearMonth.swift in Sources */,
 				551132D327112B8700C8A7A6 /* ChartView.swift in Sources */,
+				5570216D272EBC7A006B580D /* CalendarViewModel.swift in Sources */,
 				551132B42709780500C8A7A6 /* Record.swift in Sources */,
 				5511329227092D7100C8A7A6 /* RootView.swift in Sources */,
 				551132D5271304BB00C8A7A6 /* PresetViews.swift in Sources */,

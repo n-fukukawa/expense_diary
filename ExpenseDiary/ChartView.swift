@@ -34,8 +34,8 @@ struct ChartView: UIViewRepresentable {
         let dataSet = BarChartDataSet(entries: self.data)
         
         let gradientColors = [
-            UIColor(.themeLight).withAlphaComponent(0.3).cgColor,
-            UIColor(.themeDark).withAlphaComponent(1).cgColor,
+            UIColor(Color("themeLight")).withAlphaComponent(0.3).cgColor,
+            UIColor(Color("themeDark")).withAlphaComponent(1).cgColor,
         ] as CFArray
         let colorLocations:[CGFloat] = [0.0, 0.8, 0.95] // Positioning of the gradient
         let gradient = CGGradient.init(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: gradientColors, locations: colorLocations) // Gradient Object
@@ -43,10 +43,10 @@ struct ChartView: UIViewRepresentable {
 //        dataSet.fill = Fill(linearGradient: gradient!, angle: 90)
 //        dataSet.fillAlpha = 0.5
 //        dataSet.drawFilledEnabled = true
-//        dataSet.setCircleColor(UIColor(.themeDark))
+//        dataSet.setCircleColor(UIColor(Color("themeDark")))
 //        dataSet.circleRadius = 2
         
-        let colorSets = Array(self.dataSet.map{$0.value < 0 ? UIColor(.warningLight) : UIColor(.themeLight)})
+        let colorSets = Array(self.dataSet.map{$0.value < 0 ? UIColor(Color("warningLight")) : UIColor(Color("themeLight"))})
         
         dataSet.setColors(colorSets[0], colorSets[1], colorSets[2], colorSets[3], colorSets[4], colorSets[5], colorSets[6], colorSets[7], colorSets[8], colorSets[9], colorSets[10], colorSets[11], colorSets[12])
         
@@ -79,14 +79,14 @@ struct ChartView: UIViewRepresentable {
         
         chart.animate(yAxisDuration: 0.8)
         
-        chart.backgroundColor = UIColor(.backGround)
+        chart.backgroundColor = UIColor(Color("backGround"))
         chart.legend.enabled = false
         chart.rightAxis.enabled = false
         
         chart.data!.setDrawValues(false)
         
         chart.setVisibleXRangeMaximum(4)
-        chart.moveViewToX(90)
+        chart.moveViewToX(12)
         
         
         let xAxis = chart.xAxis
@@ -121,6 +121,7 @@ struct ChartView: UIViewRepresentable {
         }
         uiView.data = self.setData()
         uiView.data!.setDrawValues(false)
+        uiView.backgroundColor = UIColor(Color("backGround"))
 
         uiView.animate(yAxisDuration: 0.8)
     }

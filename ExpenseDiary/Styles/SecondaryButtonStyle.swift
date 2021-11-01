@@ -12,7 +12,7 @@ struct SecondaryButtonStyle: ButtonStyle {
         configuration.label
             .frame(maxWidth: .infinity)
             .padding()
-            .background(Color.nonActive.opacity(configuration.isPressed ? 0.3 : 1))
+            .background(Color.secondary.opacity(configuration.isPressed ? 0.3 : 1))
             .cornerRadius(5)
     }
 }

@@ -41,7 +41,7 @@ struct RecordCardView: View {
             
             Divider()
         }
-        .background(Color.backGround)
+        .background(Color("backGround"))
         .onTapGesture {
             self.show.toggle()
         }

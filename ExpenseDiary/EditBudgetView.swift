@@ -50,7 +50,7 @@ struct EditBudgetView: View {
         ScrollViewReader { scrollProxy in
             ZStack {
             // 背景
-            Color.backGround.ignoresSafeArea(.all)
+                Color("backGround").ignoresSafeArea(.all)
             
                 VStack(spacing: 20) {
 

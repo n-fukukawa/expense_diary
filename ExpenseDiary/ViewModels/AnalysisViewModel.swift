@@ -14,9 +14,9 @@ final class AnalysisViewModel: ObservableObject {
     @ObservedObject var env: StatusObject
     
     @Published var monthlyAmounts: [(key: YearMonth, value: Int)] = []
-    @Published var recordType: RecordType? = .expense
+    @Published var recordType: RecordType?
     @Published var category: Category?
-    var viewState: AnalysisViewState = .total
+    var viewState: AnalysisViewState = .balance
     
     private var notificationTokens: [NotificationToken] = []
     

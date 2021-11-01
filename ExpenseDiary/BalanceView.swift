@@ -78,7 +78,7 @@ struct BalanceView: View {
         ScrollViewReader { scrollProxy in
             ZStack (alignment: .top) {
                 if show {
-                Rectangle().fill(LinearGradient(gradient: Gradient(colors: [.themeDark, .themeLight]), startPoint: .leading, endPoint: .trailing))
+                Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .leading, endPoint: .trailing))
                 }
                 
                 List {
@@ -111,7 +111,7 @@ struct BalanceView: View {
                 .padding(.top, 6)
                 .padding(.bottom, show ? headerHeight + 90: 0)
                 .frame(maxWidth: width, maxHeight: contentHeight, alignment: .top)
-                .background(Color.backGround)
+                .background(Color("backGround"))
                 .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
                 .myShadow(radius: 10, x: 5, y: -5)
                 .offset(y: show ? headerHeight : 0)
@@ -148,6 +148,7 @@ struct BalanceView: View {
                                         ? "\(viewModel.categoryAmount)"
                                         : "\(viewModel.balance > 0 ? "+" : (viewModel.balance < 0 ? "−" : ""))\(abs(viewModel.balance))")
                                     .style(.largeTitle, color: .white)
+                                    .scaleEffect(1.1)
                                     Text("円").style(weight: .regular, color: .white).offset(y: 4)
                                     if !show {
                                         Image(systemName: "chevron.right")
@@ -193,7 +194,7 @@ struct BalanceView: View {
                     .padding(pad)
                     .padding(.top, show ? 30 : 0)
                 }
-//                .background(LinearGradient(gradient: Gradient(colors: [.themeDark.opacity(show ? 1 : 0), .themeLight.opacity(show ? 1 : 0)]), startPoint: .leading, endPoint: .trailing))
+//                .background(LinearGradient(gradient: Gradient(colors: [Color("themeDark").opacity(show ? 1 : 0), Color("themeLight").opacity(show ? 1 : 0)]), startPoint: .leading, endPoint: .trailing))
                 .frame(maxWidth: width, maxHeight: headerHeight)
                 .ignoresSafeArea(.all)
                 .onTapGesture {

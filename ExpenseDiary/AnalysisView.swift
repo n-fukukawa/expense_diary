@@ -23,6 +23,12 @@ struct AnalysisView: View {
             return "収支"
         }
     }
+    
+    func closeCategoryPicker() {
+        withAnimation(.easeInOut(duration: 0.4)) {
+            self.categoryPicker = false
+        }
+    }
 
     func open() {
         withAnimation(.none) {
@@ -44,43 +50,46 @@ struct AnalysisView: View {
                 VStack (spacing: 20) {
                     HStack (spacing: 6) {
                         Spacer()
-                        Group {
-                            Text(name).style(.title2, color: .white)
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.white)
-                                .rotationEffect(categoryPicker ? Angle(degrees: 180) : Angle(degrees: 0))
-                            }
-                            .onTapGesture {
-                                self.categoryPicker.toggle()
-                            }
+                        Text(name).style(.title2, color: .white)
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white)
+                            .rotationEffect(categoryPicker ? Angle(degrees: 180) : Angle(degrees: 0))
                         Spacer()
                     }
+                    .offset(x: 6)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            self.categoryPicker.toggle()
+                        }
+                    }
+                    
                     if categoryPicker {
                         ScrollView (.horizontal, showsIndicators: false) {
                             HStack (spacing: 30) {
                                 let active = self.viewModel.viewState == .balance
                                 VStack(spacing: 0) {
-                                    Text("収支").style(.title3, color: active ? .dangerDark : .white)
+                                    Text("収支").style(.title3, color: active ? Color("dangerDark") : .white)
                                         .scaleEffect(0.8)
                                     }
                                 .frame(height: 28)
                                 .onTapGesture {
                                     self.viewModel.onClickBalance()
-                                    self.categoryPicker = false
+                                    self.closeCategoryPicker()
                                 }
                                 
                                 ForEach(RecordType.all(), id: \.self) { recordType in
                                     let active = self.viewModel.viewState == .total && self.viewModel.recordType == recordType
                                     VStack(spacing: 0) {
-                                        Text("\(recordType.name)").style(.title3, color: active ? .dangerDark : .white)
+                                        Text("\(recordType.name)").style(.title3, color: active ? Color("dangerDark") : .white)
                                             .scaleEffect(0.8)
-//                                        Text("合計").style(.caption, color: active ? .dangerDark : .white)
+//                                        Text("合計").style(.caption, color: active ? Color("dangerDark")  : .white)
                                         }
                                     .frame(height: 28)
                                     .onTapGesture {
                                         viewModel.onChangeRecordType(recordType: recordType)
-                                        self.categoryPicker = false
+                                        self.closeCategoryPicker()
                                     }
                                 }
                                 
@@ -90,11 +99,11 @@ struct AnalysisView: View {
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
                                         .frame(width: 28, height: 28)
-                                        .foregroundColor(active ? .dangerDark : .white)
+                                        .foregroundColor(active ? Color("dangerDark")  : .white)
                                         .id(category.id)
                                         .onTapGesture {
                                             viewModel.onChangeCategory(category: category)
-                                            self.categoryPicker = false
+                                            self.closeCategoryPicker()
                                         }
                                 }
                             }
@@ -111,17 +120,16 @@ struct AnalysisView: View {
                 }
                 .padding(.top, 60)
                 .padding(.bottom, 20)
-                .background(Rectangle().fill(LinearGradient(gradient: Gradient(colors: [.themeDark, .themeLight]), startPoint: .leading, endPoint: .trailing)))
-                .myShadow(radius: 10, x: 0, y: 5, valid: categoryPicker)
+                .background(Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .leading, endPoint: .trailing)))
             }
             
             VStack (alignment: .leading, spacing: 0) {
                 ChartView(dataSet: viewModel.monthlyAmounts.reversed(), balance: self.viewModel.viewState == .balance)
             }
             .padding(20)
-            .background(Color.backGround)
+            .background(Color("backGround"))
             .clipped()
-            .myShadow(radius: 10, x: 1, y: 1)
+            .myShadow(radius: 4, x: 1, y: 1)
             .frame(height: screen.height * 0.4)
             .zIndex(1)
             

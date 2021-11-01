@@ -28,7 +28,7 @@ struct MonthlyCardView: View {
         }
         .padding(.bottom, 16)
         .padding(.horizontal, 32)
-        .background(Color.backGround)
+        .background(Color("backGround"))
         .onTapGesture {
             self.show.toggle()
         }

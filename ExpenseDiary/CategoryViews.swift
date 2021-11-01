@@ -30,7 +30,7 @@ struct CategoryMenuView: View {
     
     var body: some View {
         ZStack {
-            Color.backGround
+            Color("backGround")
             VStack {
                 HStack {
                     Picker(selection: $type, label: Text("支出収入区分")) {
@@ -53,7 +53,7 @@ struct CategoryMenuView: View {
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 20, height: 20)
-                                .foregroundColor(.nonActive)
+                                .foregroundColor(.secondary)
                                 .padding(.trailing, 4)
                             Text(categoryCell.name).style(.title3)
                             Spacer()
@@ -127,7 +127,7 @@ struct EditCategoryView: View {
     
     var body: some View {
         ZStack {
-            Color.backGround.ignoresSafeArea(.all)
+            Color("backGround").ignoresSafeArea(.all)
             
             VStack(spacing: 0) {
                 VStack(spacing: 0) {
@@ -135,7 +135,7 @@ struct EditCategoryView: View {
                         self.isEditing = isEditing
                       }).customTextField()
 
-                    Divider().frame(height: 1).background(isEditing ? Color.themeLight : Color.secondary)
+                    Divider().frame(height: 1).background(isEditing ? Color("themeLight") : Color.secondary)
                 }
                 .padding(.top, 20)
                 .padding(.bottom, 50)
@@ -149,7 +149,7 @@ struct EditCategoryView: View {
                                 let is_active = self.icon == icon
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 10)
-                                        .fill(LinearGradient(gradient: Gradient(colors: [is_active ? .themeDark : .backGround, is_active ? .themeLight : .white]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                        .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color("themeDark") : Color("backGround"), is_active ? Color("themeLight") : .white]), startPoint: .topLeading, endPoint: .bottomTrailing))
                                         .frame(width: iconSize * 0.85, height: iconSize * 0.85)
                                         .myShadow(radius: 3, x: 2, y: 2)
                                     Image(icon.name)

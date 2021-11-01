@@ -157,7 +157,7 @@ struct PresetMenuView: View {
     var body: some View {
         ZStack {
             ZStack {
-                Color.backGround
+                Color("backGround")
                 VStack {
                     HStack {
                         Picker(selection: $type, label: Text("支出収入区分")) {
@@ -246,7 +246,7 @@ struct EditPresetView: View {
 
     var body: some View {
         ZStack {
-            Color.backGround.ignoresSafeArea(.all)
+            Color("backGround").ignoresSafeArea(.all)
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     ForEach(RecordType.all(), id: \.self) { recordType in
@@ -283,14 +283,14 @@ struct EditPresetView: View {
                                 ZStack {
                                     let is_active = category.id == self.category?.id
 
-                                    Circle().foregroundColor(is_active ? .themeDark : .white)
+                                    Circle().foregroundColor(is_active ? Color("themeDark") : .white)
                                         .frame(width: 52, height: 52)
-                                        .shadow(color: .nonActive.opacity(is_active ? 0.4 : 1), radius: is_active ? 6 : 1)
+                                        .shadow(color: .secondary.opacity(is_active ? 0.4 : 1), radius: is_active ? 6 : 1)
                                     Image(category.icon.name)
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
                                         .frame(width: 26, height: 26)
-                                        .foregroundColor(is_active ? .white : .nonActive)
+                                        .foregroundColor(is_active ? .white : .secondary)
                                 }
                                 Text(category.name).style()
                                     .foregroundColor(.text)
@@ -313,7 +313,7 @@ struct EditPresetView: View {
                         .padding(10)
                         .foregroundColor(.text)
                         .background(Color.white)
-                    Divider().frame(height: 1).background(Color.nonActive)
+                    Divider().frame(height: 1).background(Color.secondary)
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 30)
@@ -323,7 +323,7 @@ struct EditPresetView: View {
                         .padding(10)
                         .foregroundColor(.text)
                         .background(Color.white)
-                    Divider().frame(height: 1).background(Color.nonActive)
+                    Divider().frame(height: 1).background(Color.secondary)
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)

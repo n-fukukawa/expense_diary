@@ -12,6 +12,7 @@ struct EditRecordView: View {
     @ObservedObject var viewModel = EditRecordViewModel()
     let screen = UIScreen.main.bounds
     let recordCell: RecordCell?
+    let clickedDate: Date?
 
     @Environment(\.presentationMode) var presentationMode
     let formatter = DateFormatter()
@@ -35,8 +36,9 @@ struct EditRecordView: View {
         self.screen.width * 0.2
     }
     
-    init(record: RecordCell? = nil) {
+    init(record: RecordCell? = nil, clickedDate: Date? = nil) {
         self.recordCell = record
+        self.clickedDate = clickedDate
         
         formatter.locale = Locale(identifier: "ja_JP")
         formatter.dateFormat = "M-d E"
@@ -60,7 +62,7 @@ struct EditRecordView: View {
         ScrollViewReader { scrollProxy in
             ZStack {
             // 背景
-            Color.backGround.ignoresSafeArea(.all)
+                Color("backGround").ignoresSafeArea(.all)
             
                 VStack(spacing: 20) {
                     // 日付
@@ -105,7 +107,7 @@ struct EditRecordView: View {
                                             let is_active = category.id == self.category?.id
                                             
                                             RoundedRectangle(cornerRadius: 10)
-                                                .fill(LinearGradient(gradient: Gradient(colors: [is_active ? .themeDark : .backGround, is_active ? .themeLight : .white]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color("themeDark") : Color("backGround"), is_active ? Color("themeLight") : Color("backGround")]), startPoint: .topLeading, endPoint: .bottomTrailing))
                                                 .frame(width: iconSize * 0.85, height: iconSize * 0.85)
                                                 .myShadow(radius: 3, x: 2, y: 2)
                                             Image(category.icon.name)
@@ -138,7 +140,7 @@ struct EditRecordView: View {
                                     self.activeField = isEditing ? .amount : nil
                                   }).customTextField()
                             
-                        Divider().frame(height: 1).background(activeField == .amount ? Color.themeLight : Color.secondary)
+                        Divider().frame(height: 1).background(activeField == .amount ? Color("themeLight") : Color.secondary)
                     }
                     
                     // メモ入力
@@ -147,7 +149,7 @@ struct EditRecordView: View {
                                   onEditingChanged: { isEditing in
                                     self.activeField = isEditing ? .memo : nil
                                   }).customTextField()
-                        Divider().frame(height: 1).background(activeField == .memo ? Color.themeLight : Color.secondary)
+                        Divider().frame(height: 1).background(activeField == .memo ? Color("themeLight") : Color.secondary)
                     }
                     .padding(.bottom, screen.width * 0.05)
 
@@ -217,7 +219,7 @@ struct EditRecordView: View {
                     .padding()
                 }
                 .padding(10)
-                .background(Color.backGround)
+                .background(Color("backGround"))
                 .cornerRadius(10)
                 .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
                 .myShadow(radius: 10, x: 0, y: 0)
@@ -246,6 +248,9 @@ struct EditRecordView: View {
                     self.memo     = recordCell.memo
                     self.date     = recordCell.date
                     scrollProxy.scrollTo(recordCell.category.id)
+                } else if let clickedDate = self.clickedDate {
+                    self.date = clickedDate
+                    print("date")
                 }
             }
         }

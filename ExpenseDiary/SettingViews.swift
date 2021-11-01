@@ -12,88 +12,112 @@ struct SettingMenuView: View {
     @Binding var isActive: Bool
     let screen = UIScreen.main.bounds
     
+    @State var dragValue: CGFloat = 0
+    
     var body: some View {
-        if isActive {
-            HStack {
-                ZStack {
-                    Color.backGround.ignoresSafeArea(.all)
-                        .myShadow(radius: 20, x: 10, y: 20)
-                    VStack {
-                        HStack {
-                            Spacer()
-                            Button(action: { self.isActive = false }){
-                                Image(systemName: "xmark")
-                                    .font(.system(size: 24, weight: .medium))
-                            }
+        HStack {
+            ZStack {
+                Color("backGround").ignoresSafeArea(.all)
+                    .myShadow(radius: 20, x: 10, y: 20)
+                VStack {
+                    HStack {
+                        Spacer()
+                        Button(action: {self.isActive = false})
+                        {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 24, weight: .medium))
                         }
+                    }
+                    HStack {
+                        Image(systemName: "gearshape.2")
+                            .font(.system(size: 110, weight: .ultraLight))
+                            .foregroundColor(.secondary)
+                            .opacity(0.5)
+                            .offset(x: -10)
+                        Spacer()
+                    }
+                    .padding(.bottom, 30)
+                    
+                    VStack (spacing: 40) {
+
                         HStack {
-                            Image(systemName: "gearshape.2")
-                                .font(.system(size: 110, weight: .thin))
-                                .foregroundColor(.nonActive)
-                                .opacity(0.5)
-                                .offset(x: -10)
-                            Spacer()
-                        }
-                        .padding(.bottom, 30)
-                        
-                        VStack (spacing: 40) {
-                            NavigationLink(destination: CategoryMenuView()) {
-                                HStack {
-                                    Text("カテゴリーの登録／編集").style()
-                                    Spacer()
-                                }
-                            }
                             NavigationLink(destination: EditBudgetView(env: env)) {
-                                HStack {
-                                    Text("予算の登録／編集").style()
-                                    Spacer()
-                                }
+                                Text("予算").style()
                             }
-                            NavigationLink(destination: EditStartDayView()) {
-                                HStack {
-                                    Text("月の開始日の変更").style()
-                                    Spacer()
-                                }
+                            Spacer()
+                        }
+
+                        HStack {
+                            NavigationLink(destination: CategoryMenuView()) {
+                                Text("カテゴリー").style()
                             }
+                            Spacer()
+                        }
+                        
+
+                        HStack {
                             NavigationLink(destination: PresetMenuView()) {
-                                HStack {
-                                    Text("プリセットの登録／編集").style()
-                                    Spacer()
-                                }
+                                Text("固定支出・収入").style()
                             }
+                            Spacer()
+                        }
+                        
+
+                        HStack {
+                            NavigationLink(destination: EditStartDayView()) {
+                                Text("カレンダー").style()
+                            }
+                            Spacer()
+                        }
 //                            NavigationLink(destination: EditThemeView()) {
 //                                HStack {
 //                                    Text("テーマカラーの変更").style()
 //                                    Spacer()
 //                                }
 //                            }
+
+                        HStack {
                             NavigationLink(destination: BackUpMenuView()) {
-                                HStack {
-                                    Text("バックアップ＆引継ぎ").style()
-                                    Spacer()
-                                }
+                                Text("バックアップ＆引継ぎ").style()
                             }
-                            NavigationLink(destination: Text("AppStore").foregroundColor(.text)) {
-                                HStack {
-                                    Text("レビュー").style()
-                                    Spacer()
-                                }
-                            }
+                            Spacer()
                         }
-                        Spacer()
-                        Spacer()
-    //                            Text("©︎fukulab 2021")
+                        
+                        HStack {
+                            NavigationLink(destination: Text("AppStore").foregroundColor(.text)) {
+                                Text("レビュー").style()
+                            }
+                            Spacer()
+                        }
                     }
-                    .foregroundColor(.text)
-                    .padding(30)
+                    Spacer()
+                    Spacer()
+//                            Text("©︎fukulab 2021")
                 }
-                .frame(width: screen.width * 0.8)
-                
-                Spacer()
+                .foregroundColor(.text)
+                .padding(30)
             }
-            .offset(x: self.isActive ? 0 : -screen.width)
-            .animation(.default)
+            .frame(width: screen.width * 0.8)
+            
+            Spacer()
         }
+        .offset(x: self.isActive ? dragValue : -screen.width)
+        .animation(.easeOut(duration: 0.4))
+        .gesture(
+            DragGesture()
+            .onChanged{value in
+                if value.translation.width < 0 {
+                    self.dragValue = value.translation.width
+                }
+            }
+            .onEnded{value in
+                if self.dragValue < -50 {
+                    self.isActive = false
+                }
+                
+                self.dragValue = .zero
+            }
+        )
     }
 }
 
@@ -108,7 +132,7 @@ struct EditStartDayView: View {
     
     var body: some View {
         ZStack {
-            Color.backGround
+            Color("backGround")
             VStack {
                 Form {
                     Picker("月の開始日", selection: $env.startDay) {
@@ -156,7 +180,7 @@ struct EditThemeView: View {
     }
     var body: some View {
         ZStack {
-            Color.backGround
+            Color("backGround")
             Form {
                 Picker("", selection: $env.themeId) {
                     ForEach(Theme.all().map{$0.id}, id: \.self) { themeId in
@@ -191,7 +215,7 @@ struct BackUpMenuView: View {
     @State var theme: Theme = Theme()
     var body: some View {
         ZStack {
-            Color.backGround
+            Color("backGround")
             VStack {
                 Text("BackUp Menu")
             }

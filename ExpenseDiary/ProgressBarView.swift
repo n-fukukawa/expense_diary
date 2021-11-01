@@ -24,19 +24,19 @@ struct ProgressBarView: View {
         if self.percent < 70 {
             return .successDark
         } else if self.percent < 90 {
-            return .dangerDark
+            return Color("dangerDark") 
         } else {
-            return .warningDark
+            return Color("warningDark")
         }
     }
     
     var color2: Color {
         if self.percent < 70 {
-            return .successLight
+            return Color("successLight") 
         } else if self.percent < 90 {
-            return .dangerLight
+            return Color("dangerLight")
         } else {
-            return .warningLight
+            return Color("warningLight")
         }
     }
     
@@ -49,12 +49,12 @@ struct ProgressBarView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(height: 8 * multiplier)
-                    .foregroundColor(.nonActive)
+                    .foregroundColor(.secondary)
                 Text("\(category.name)")
                     .style()
             }
             ZStack (alignment: .leading) {
-                RoundedRectangle(cornerRadius: 5 * multiplier).foregroundColor(.nonActive)
+                RoundedRectangle(cornerRadius: 5 * multiplier).foregroundColor(.secondary)
                     .frame(width: size, height: 2.5 * multiplier)
                 RoundedRectangle(cornerRadius: 5 * multiplier).fill(LinearGradient(gradient: Gradient(colors: [color1, color2]), startPoint: .topTrailing, endPoint: .bottomLeading))
                     //.rotation3DEffect(Angle(degrees: 180), axis: (x: 1, y: 0, z: 0))

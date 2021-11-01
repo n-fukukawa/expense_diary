@@ -85,14 +85,16 @@ struct BudgetCardView: View {
     var body: some View {
         ZStack (alignment: .top) {
             if active {
-            Rectangle().fill(LinearGradient(gradient: Gradient(colors: [.themeDark.opacity(active ? 1 : 0), .themeLight.opacity(active ? 1 : 0)]), startPoint: .leading, endPoint: .trailing))
+            Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark").opacity(active ? 1 : 0), Color("themeLight").opacity(active ? 1 : 0)]), startPoint: .leading, endPoint: .trailing))
             }
             
             List {
                 if !viewModel.recordCells.isEmpty {
-                    ForEach(viewModel.recordCells[budgetCell]!) { recordCell in
-                        RecordCardView(recordCell: recordCell).id(recordCell.id)
-                        .listRowInsets(EdgeInsets())
+                    if let recordCells = viewModel.recordCells[budgetCell] {
+                        ForEach(recordCells) { recordCell in
+                            RecordCardView(recordCell: recordCell).id(recordCell.id)
+                            .listRowInsets(EdgeInsets())
+                        }
                     }
                 } else {
                     NoDataView()
@@ -101,7 +103,7 @@ struct BudgetCardView: View {
             .listStyle(PlainListStyle())
             .frame(width: active ? screen.width : width)
             .frame(height: active ? screen.height : height, alignment: .top)
-            .background(Color.backGround)
+            .background(Color("backGround"))
             .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
             .myShadow(radius: 10, x: 5, y: -5)
             .offset(y: active ? height * scale : 0)
@@ -152,8 +154,8 @@ struct BudgetCardView: View {
                                                 Text("残り予算").style(.caption2, tracking: 0)
                                                 Text("\(diff)円").style(.title3, tracking: 1)
                                             } else {
-                                                Text("予算オーバー").style(.caption2, tracking: 0, color: .warningLight)
-                                                Text("+\(abs(diff))円").style(.title3, tracking: 1, color: .warningLight)
+                                                Text("予算オーバー").style(.caption2, tracking: 0, color: Color("warningLight"))
+                                                Text("+\(abs(diff))円").style(.title3, tracking: 1, color: Color("warningLight"))
                                             }
                                         }
                                     }
@@ -168,7 +170,7 @@ struct BudgetCardView: View {
             .padding(.horizontal, 10)
             .frame(width: active ? screen.width - 40 : width)
             .frame(height: height * scale)
-            .background(Color.backGround.opacity(active ? 0 : 1))
+            .background(Color("backGround").opacity(active ? 0 : 1))
             //.cornerRadius(active ? 0 : height / 2)
             .cornerRadius(10)
             .clipped()
