@@ -20,14 +20,14 @@ struct SettingMenuView: View {
                 Color("backGround").ignoresSafeArea(.all)
                     .myShadow(radius: 20, x: 10, y: 20)
                 VStack {
-                    HStack {
-                        Spacer()
-                        Button(action: {self.isActive = false})
-                        {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 24, weight: .medium))
-                        }
-                    }
+//                    HStack {
+//                        Spacer()
+//                        Button(action: {self.isActive = false})
+//                        {
+//                            Image(systemName: "xmark")
+//                                .font(.system(size: 24, weight: .medium))
+//                        }
+//                    }
                     HStack {
                         Image(systemName: "gearshape.2")
                             .font(.system(size: 110, weight: .ultraLight))
@@ -41,14 +41,14 @@ struct SettingMenuView: View {
                     VStack (spacing: 40) {
 
                         HStack {
-                            NavigationLink(destination: EditBudgetView(env: env)) {
+                            NavigationLink(destination: EditBudgetView(env: env, showSettingMenu: $isActive)) {
                                 Text("予算").style()
                             }
                             Spacer()
                         }
 
                         HStack {
-                            NavigationLink(destination: CategoryMenuView()) {
+                            NavigationLink(destination: CategoryMenuView(showSettingMenu: $isActive)) {
                                 Text("カテゴリー").style()
                             }
                             Spacer()
@@ -56,7 +56,7 @@ struct SettingMenuView: View {
                         
 
                         HStack {
-                            NavigationLink(destination: PresetMenuView()) {
+                            NavigationLink(destination: PresetMenuView(showSettingMenu: $isActive)) {
                                 Text("固定支出・収入").style()
                             }
                             Spacer()
@@ -64,7 +64,7 @@ struct SettingMenuView: View {
                         
 
                         HStack {
-                            NavigationLink(destination: EditStartDayView()) {
+                            NavigationLink(destination: EditStartDayView(showSettingMenu: $isActive)) {
                                 Text("カレンダー").style()
                             }
                             Spacer()
@@ -124,16 +124,31 @@ struct SettingMenuView: View {
 
 
 struct EditStartDayView: View {
+    @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var env: StatusObject
+    @Binding var showSettingMenu: Bool
     
     func change() {
         self.env.refreshActive()
     }
     
+    let weekdays: [Int : String] = [
+        1 : "日",
+        2 : "月",
+        3 : "火",
+        4 : "水",
+        5 : "木",
+        6 : "金",
+        7 : "土",
+    ]
+    
+    private func close() {
+        self.presentationMode.wrappedValue.dismiss()
+    }
+    
     var body: some View {
-        ZStack {
-            Color("backGround")
-            VStack {
+        NavigationView {
+//            VStack {
                 Form {
                     Picker("月の開始日", selection: $env.startDay) {
                         ForEach(1...28, id: \.self) { day in
@@ -141,9 +156,7 @@ struct EditStartDayView: View {
                                 .padding(.trailing, 10)
                         }
                     }
-                    //.pickerStyle(WheelPickerStyle())
-                    .foregroundColor(.text)
-                    .onChange(of: env.startDay) { day in
+                    .onChange(of: env.startDay) { _ in
                         self.change()
                     }
                     
@@ -158,14 +171,38 @@ struct EditStartDayView: View {
                                     .padding(.trailing, 10)
                             }
                         }
-                        //.pickerStyle(WheelPickerStyle())
-                        .foregroundColor(.text)
                         .onChange(of: env.forward) { bool in
                             self.change()
                         }
                     }
+                    
+                    Picker("週の開始曜日", selection: $env.startWeekday) {
+                        ForEach(1...7, id: \.self) { index in
+                            Text("\(weekdays[index]!)")
+                                .padding(.trailing, 10)
+                        }
+                    }
+                    .onChange(of: env.startWeekday) { _ in
+//                        self.change()
+                    }
                 }
-            }
+//            }
+                .navigationTitle("")
+            .navigationBarHidden(true)
+            .navigationBarBackButtonHidden(true)
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading: Button(action: { self.close() } )
+            {
+                HStack {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 14, weight: .medium))
+                    Text("戻る").fontWeight(.regular)
+                }
+            })
+        .onAppear() {
+            self.showSettingMenu = false
         }
     }
 }

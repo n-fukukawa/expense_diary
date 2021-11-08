@@ -58,6 +58,7 @@ class Budget: Object, Identifiable {
     
     static func getBudgets(year: Int, month: Int) -> Results<Budget> {
         self.all().filter("year == %@ && month == %@", year, month)
+            .filter("amount > 0")
     }
     
     static func create(year: Int, month: Int, category: Category, amount: Int) -> Budget {

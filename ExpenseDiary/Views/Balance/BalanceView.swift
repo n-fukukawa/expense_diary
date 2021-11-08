@@ -79,44 +79,47 @@ struct BalanceView: View {
             ZStack (alignment: .top) {
                 if show {
                 Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .leading, endPoint: .trailing))
-                }
                 
                 List {
                     if viewModel.viewState == .summary {
                         if !viewModel.summary.isEmpty {
-                            ForEach(viewModel.summary, id: \.key) { summary in
-                                ForEach(summary.value, id: \.key) { s in
-                                    SummaryCardView(category: s.key, amount: s.value).id(summary.key)
-                                        .listRowInsets(EdgeInsets())
-                                        .onTapGesture {
-                                            self.viewModel.onChangeCategory(category: s.key)
-                                        }
+                            VStack {
+                                ForEach(viewModel.summary, id: \.key) { summary in
+                                    ForEach(summary.value, id: \.key) { s in
+                                        SummaryCardView(category: s.key, amount: s.value).id(summary.key)
+                                            .listRowInsets(EdgeInsets())
+                                            .onTapGesture {
+                                                self.viewModel.onChangeCategory(category: s.key)
+                                            }
+                                    }
                                 }
                             }
+                            .padding(.bottom, show ? headerHeight + 90 : 0)
                         } else {
                             NoDataView()
                         }
                     } else {
                         if !viewModel.recordCells.isEmpty {
-                            ForEach(viewModel.recordCells, id: \.id) { recordCell in
-                                RecordCardView(recordCell: recordCell).id(recordCell.id)
-                                .listRowInsets(EdgeInsets())
-                            }
+                            VStack {
+                                ForEach(viewModel.recordCells, id: \.id) { recordCell in
+                                    RecordCardView(recordCell: recordCell).id(recordCell.id)
+                                    .listRowInsets(EdgeInsets())
+                                }
+                            }.padding(.bottom, show ? headerHeight + 90 : 0)
+
                         } else {
                             NoDataView()
                         }
                     }
                 }
                 .listStyle(PlainListStyle())
-                .padding(.top, 6)
-                .padding(.bottom, show ? headerHeight + 90: 0)
                 .frame(maxWidth: width, maxHeight: contentHeight, alignment: .top)
-                .background(Color("backGround"))
-                .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
-                .myShadow(radius: 10, x: 5, y: -5)
+//                .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
+                .myShadow(radius: 10, x: 1, y: -1)
                 .offset(y: show ? headerHeight : 0)
                 .opacity(show ? 1 : 0)
                 .zIndex(show ? 1 : 0)
+                }
             
                 GeometryReader { geometry in
                     VStack {
@@ -130,45 +133,52 @@ struct BalanceView: View {
                             Spacer()
                         }}
                         //収支
-                        HStack (alignment: .center) {
-                            Spacer()
-                            VStack (alignment: .center, spacing: 8) {
-                                if viewModel.viewState == .category {
-                                    Image(viewModel.category!.icon.name)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: headerHeight * 0.18)
-                                        .foregroundColor(.white)
-                                    Text(viewModel.category!.name)
-                                        .style(weight: .medium, tracking: 3, color: .white)
-                                        .padding(.bottom, 4)
-                                }
-                                HStack {
-                                    Text(viewModel.viewState == .category
-                                        ? "\(viewModel.categoryAmount)"
-                                        : "\(viewModel.balance > 0 ? "+" : (viewModel.balance < 0 ? "−" : ""))\(abs(viewModel.balance))")
-                                    .style(.largeTitle, color: .white)
-                                    .scaleEffect(1.1)
-                                    Text("円").style(weight: .regular, color: .white).offset(y: 4)
-                                    if !show {
-                                        Image(systemName: "chevron.right")
-                                            .font(.title3)
+                        Button (action: {
+                                    if !self.show {
+                                        self.open()
+                                    } else {
+                                        onClickBalance()
+                                    }})
+                        {
+                            HStack (alignment: .center) {
+                                Spacer()
+                                VStack (alignment: .center, spacing: 8) {
+                                    if viewModel.viewState == .category {
+                                        Image(viewModel.category!.icon.name)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: headerHeight * 0.18)
                                             .foregroundColor(.white)
-                                            .padding(.leading, 4)
+                                        Text(viewModel.category!.name)
+                                            .style(weight: .medium, tracking: 3, color: .white)
+                                            .padding(.bottom, 4)
                                     }
+                                    HStack {
+                                        Text(viewModel.viewState == .category
+                                            ? "\(viewModel.categoryAmount)"
+                                            : "\(viewModel.balance > 0 ? "+" : (viewModel.balance < 0 ? "−" : ""))\(abs(viewModel.balance))")
+                                        .style(.largeTitle, color: .white)
+                                        .scaleEffect(1.1)
+                                        Text("円").style(weight: .regular, color: .white).offset(y: 4)
+                                        if !show {
+                                            Image(systemName: "chevron.right")
+                                                .font(.title3)
+                                                .foregroundColor(.white)
+                                                .padding(.leading, 4)
+                                        }
+                                    }
+                                    .padding(.leading, 8)
                                 }
-                                .padding(.leading, 8)
+                                if show { Spacer() }
                             }
-                            if show { Spacer() }
                         }
-                        .onTapGesture { onClickBalance() }
                         
                         // 支出と収入
                         if show && viewModel.category == nil {
                             Rectangle().foregroundColor(.white.opacity(0.5)).frame(height: 1)
                             HStack (spacing: 20) {
                                 VStack (spacing: 4) {
-                                    Text("支出").style(.callout, weight: .regular, color: .white)
+                                    Text("支出").style(.caption, weight: .bold, color: .white)
                                     Text("\(viewModel.spending)円").style(.title3, color: .white)
                                 }
                                 .padding(12)
@@ -179,7 +189,7 @@ struct BalanceView: View {
                                 }
                                 
                                 VStack (spacing: 6) {
-                                    Text("収入").style(.callout, weight: .regular, color: .white)
+                                    Text("収入").style(.caption, weight: .bold, color: .white)
                                     Text("\(viewModel.income)円").style(.title3, color: .white)
                                 }
                                 .padding(12)
@@ -197,15 +207,11 @@ struct BalanceView: View {
 //                .background(LinearGradient(gradient: Gradient(colors: [Color("themeDark").opacity(show ? 1 : 0), Color("themeLight").opacity(show ? 1 : 0)]), startPoint: .leading, endPoint: .trailing))
                 .frame(maxWidth: width, maxHeight: headerHeight)
                 .ignoresSafeArea(.all)
-                .onTapGesture {
-                    if !self.show {
-                        self.open()
-                    }
-                }
+                .animation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0))
             }
         }
         .frame(height: contentHeight)
-        .animation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0))
+        .animation(.easeInOut(duration: 0.3))
         .ignoresSafeArea(.all)
         .gesture(
             DragGesture()

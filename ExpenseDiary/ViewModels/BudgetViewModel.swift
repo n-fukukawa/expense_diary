@@ -37,8 +37,10 @@ final class BudgetViewModel: ObservableObject {
         notificationTokens.append(Record.all().observe { change in
             switch change {
                 case .initial(_):
+//                    self.setBudgetCells()
                     self.setRecordCells()
                 case .update(_, _, _, _):
+//                    self.setBudgetCells()
                     self.setRecordCells()
                 case let .error(error):
                     print(error.localizedDescription)

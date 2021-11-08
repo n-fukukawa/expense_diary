@@ -9,10 +9,10 @@ import Foundation
 
 struct PresetCell: Identifiable {
     let id: UUID
+    let day: Int
     let category: Category!
     let amount: Int
     let memo: String
-    let order: Int
     let created_at: Date
     let updated_at: Date
 }

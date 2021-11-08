@@ -9,7 +9,10 @@ import SwiftUI
 
 
 struct CategoryMenuView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.editMode) var editMode
     @ObservedObject var viewModel = CategoryViewModel()
+    @Binding var showSettingMenu: Bool
     let screen = UIScreen.main.bounds
     
     @State var type: RecordType = .expense
@@ -28,9 +31,13 @@ struct CategoryMenuView: View {
         return
     }
     
+    private func close() {
+        self.presentationMode.wrappedValue.dismiss()
+    }
+    
     var body: some View {
         ZStack {
-            Color("backGround")
+//            Color("backGround")
             VStack {
                 HStack {
                     Picker(selection: $type, label: Text("支出収入区分")) {
@@ -63,9 +70,9 @@ struct CategoryMenuView: View {
                         .onTapGesture {
                             self.selectedCategoryCell = categoryCell
                         }
-                       // .deleteDisabled(true)
+                        .deleteDisabled(editMode?.wrappedValue.isEditing == false)
                     }
-                    .onMove(perform: move)
+                    .onMove(perform: self.move)
                     .onDelete(perform: { indexSet in
                         guard let index = indexSet.first else {
                             return
@@ -91,18 +98,29 @@ struct CategoryMenuView: View {
             }
             .frame(width: screen.width)
         }
+        .sheet(isPresented: $isShowing) {
+            EditCategoryView(type: type, categoryCell: nil)
+        }
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading: Button(action: { self.close() } )
+            {
+                HStack {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 14, weight: .medium))
+                    Text("戻る").fontWeight(.regular)
+                }
+            })
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Button(action: { self.isShowing = true }) {
-                    Text("作成").style()
+                    Text("作成").fontWeight(.regular)
                 }
 
-                MyEditButton().foregroundColor(.text)
-                    .padding(.trailing, 20)
+                MyEditButton().padding(.trailing, 20)
             }
         }
-        .sheet(isPresented: $isShowing) {
-            EditCategoryView(type: type, categoryCell: nil)
+        .onAppear() {
+            self.showSettingMenu = false
         }
     }
 }

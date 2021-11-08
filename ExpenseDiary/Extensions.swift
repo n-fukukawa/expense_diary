@@ -57,6 +57,7 @@ extension Text {
             .tracking(tracking)
             .font(font)
             .fontWeight(weight)
+            .lineLimit(1)
             .foregroundColor(color)
     }
 }
@@ -198,5 +199,11 @@ struct RoundedCorner: Shape {
     func path(in rect: CGRect) -> Path {
         let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         return Path(path.cgPath)
+    }
+}
+
+extension UIApplication {
+    func closeKeyboard() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }

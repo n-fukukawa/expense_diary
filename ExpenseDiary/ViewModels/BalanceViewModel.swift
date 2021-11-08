@@ -99,8 +99,6 @@ final class BalanceViewModel: ObservableObject {
         self.recordType = (self.recordType == recordType) ? nil : recordType
         self.setSummary()
     }
-
-
     
     private func setRecordCells() {
         let records = Record.getRecords(start: env.startDate, end: env.endDate, category: self.category)

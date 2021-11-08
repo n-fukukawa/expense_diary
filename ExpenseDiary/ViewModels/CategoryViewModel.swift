@@ -31,7 +31,9 @@ class CategoryViewModel: ObservableObject {
     }
     
     private func setCategoryCells(categories: Results<Category>) {
-        self.categoryCells = CategoryCell.generateCategoryCell(categories: categories)
+        self.categoryCells = categories.map {
+                CategoryCell(id: $0.id, type: $0.type, name: $0.name, icon: $0.icon, order: $0.order, created_at: $0.created_at, updated_at: $0.updated_at)
+                }
     }
     
     func filterCategoryCells(type: RecordType) -> [CategoryCell] {
@@ -103,6 +105,7 @@ class CategoryViewModel: ObservableObject {
                 Category.updateOrder(category: category, order: to + 1)
             }
         }
+        self.setCategoryCells(categories: self.categories)
     }
 }
 

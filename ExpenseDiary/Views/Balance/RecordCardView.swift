@@ -15,29 +15,30 @@ struct RecordCardView: View {
     init(recordCell: RecordCell) {
         self.recordCell = recordCell
         formatter.locale = Locale(identifier: "ja_JP")
-        formatter.dateFormat = "M-d (E)"
+        formatter.dateFormat = "M-d E"
     }
     
     var body: some View {
         VStack (spacing: 0) {
             VStack (spacing: 8) {
                 HStack {
-                    Text(formatter.string(from: recordCell.date)).style(.body, weight: .bold, tracking: 0).opacity(0.8)
+                    Text(formatter.string(from: recordCell.date))
+                        .style(.caption, weight: .bold, tracking: 0)
+                        .scaleEffect(1.1)
+                        .opacity(0.9)
+                        .offset(x: 1)
                     Spacer()
                 }
-                HStack (spacing: 20) {                    
-                    VStack (alignment: .leading, spacing: 2) {
-                        Text(recordCell.category.name).style(.title3)
-                        if !recordCell.memo.isEmpty {
-                            Text(recordCell.memo).style(.caption)
-                        }
-                    }
+                HStack (spacing: 12) {
+                    Text(recordCell.category.name).style(.title3)
+                    Text(recordCell.memo).style(.caption, tracking: 1).scaleEffect(1.2)
                     Spacer()
                     Text("\(recordCell.amount)円").style(.title3, tracking: 1)
                 }
             }
-            .padding(.horizontal, 40)
-            .padding(.vertical, 16)
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
+            .padding(.bottom, 16)
             
             Divider()
         }

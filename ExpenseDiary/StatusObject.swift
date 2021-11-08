@@ -29,7 +29,7 @@ class StatusObject: ObservableObject {
     
     @Published var startWeekday: Int {
         didSet {
-            UserDefaults.standard.set(startDay, forKey: "startWeekday")
+            UserDefaults.standard.set(startWeekday, forKey: "startWeekday")
         }
     }
     
@@ -139,7 +139,15 @@ class StatusObject: ObservableObject {
         } else {
             self.activeMonth -= 1
         }
-        print(self.activeYear, self.activeMonth)
+    }
+    
+    func moveNextMonth() {
+        if self.activeMonth == 12 {
+            self.activeYear += 1
+            self.activeMonth = 1
+        } else {
+            self.activeMonth += 1
+        }
     }
     
     func onChangeViewType(_ viewType: ViewType) {

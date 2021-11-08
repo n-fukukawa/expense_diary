@@ -81,7 +81,6 @@ class EditBudgetViewModel: ObservableObject {
         } else {
             Budget.updates(budgetCells: updates)
             Budget.creates(budgets: creates)
-            print("success")
             return .success([])
         }
     }

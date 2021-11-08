@@ -21,7 +21,6 @@ final class AnalysisViewModel: ObservableObject {
     private var notificationTokens: [NotificationToken] = []
     
     init(env: StatusObject) {
-        print("init")
         self.env = env
         self.setmonthlyAmounts()
         

@@ -9,6 +9,9 @@ import SwiftUI
 
 @main
 struct ExpenseDiaryApp: App {
+    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     var body: some Scene {
         WindowGroup {
             RootView().environmentObject(StatusObject())

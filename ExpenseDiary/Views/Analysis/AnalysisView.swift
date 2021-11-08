@@ -70,10 +70,10 @@ struct AnalysisView: View {
                             HStack (spacing: 30) {
                                 let active = self.viewModel.viewState == .balance
                                 VStack(spacing: 0) {
-                                    Text("収支").style(.title3, color: active ? Color("dangerDark") : .white)
+                                    Text("収支").style(.title3, weight: .medium, color: active ? Color("dangerDark") : .white)
                                         .scaleEffect(0.8)
                                     }
-                                .frame(height: 28)
+                                //.frame(height: 28)
                                 .onTapGesture {
                                     self.viewModel.onClickBalance()
                                     self.closeCategoryPicker()
@@ -82,11 +82,11 @@ struct AnalysisView: View {
                                 ForEach(RecordType.all(), id: \.self) { recordType in
                                     let active = self.viewModel.viewState == .total && self.viewModel.recordType == recordType
                                     VStack(spacing: 0) {
-                                        Text("\(recordType.name)").style(.title3, color: active ? Color("dangerDark") : .white)
+                                        Text("\(recordType.name)").style(.title3, weight: .medium, color: active ? Color("dangerDark") : .white)
                                             .scaleEffect(0.8)
 //                                        Text("合計").style(.caption, color: active ? Color("dangerDark")  : .white)
                                         }
-                                    .frame(height: 28)
+                                  //  .frame(height: 28)
                                     .onTapGesture {
                                         viewModel.onChangeRecordType(recordType: recordType)
                                         self.closeCategoryPicker()
@@ -95,16 +95,20 @@ struct AnalysisView: View {
                                 
                                 ForEach(Category.all(), id: \.id) { category in
                                     let active = self.viewModel.category == category
-                                    Image(category.icon.name)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 28, height: 28)
-                                        .foregroundColor(active ? Color("dangerDark")  : .white)
-                                        .id(category.id)
-                                        .onTapGesture {
-                                            viewModel.onChangeCategory(category: category)
-                                            self.closeCategoryPicker()
-                                        }
+                                    VStack {
+                                        Image(category.icon.name)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 28, height: 28)
+                                            .foregroundColor(active ? Color("dangerDark")  : .white)
+                                            .id(category.id)
+
+                                        Text("\(category.name)").style(.caption2, weight: .medium, tracking: 1, color: active ? Color("dangerDark")  : .white)
+                                    }
+                                    .onTapGesture {
+                                        viewModel.onChangeCategory(category: category)
+                                        self.closeCategoryPicker()
+                                    }
                                 }
                             }
                             //.padding(pad * 0.5)

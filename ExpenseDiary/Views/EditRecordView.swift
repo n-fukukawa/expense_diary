@@ -12,7 +12,7 @@ struct EditRecordView: View {
     @ObservedObject var viewModel = EditRecordViewModel()
     let screen = UIScreen.main.bounds
     let recordCell: RecordCell?
-    let clickedDate: Date?
+    let clickedDate: DateCell?
 
     @Environment(\.presentationMode) var presentationMode
     let formatter = DateFormatter()
@@ -26,17 +26,22 @@ struct EditRecordView: View {
     @State var category: Category?
     
     @State var dragHeight: CGFloat = 0
-    
-    @State var activeField: FieldType?
 
     @State var amount = ""
     @State var memo = ""
+    
+    @State var showCalculator = false
+    @State var activeMemo = false
     
     var iconSize: CGFloat {
         self.screen.width * 0.2
     }
     
-    init(record: RecordCell? = nil, clickedDate: Date? = nil) {
+    var showModal: Bool {
+        self.showDatePicker
+    }
+    
+    init(record: RecordCell? = nil, clickedDate: DateCell? = nil) {
         self.recordCell = record
         self.clickedDate = clickedDate
         
@@ -47,17 +52,7 @@ struct EditRecordView: View {
     func addDay(_ day: Int) {
         self.date = Calendar.current.date(byAdding: .day, value: day, to: self.date)!
     }
-    
-    func changeType(_ type: RecordType) {
-        self.type = type
-        self.category = nil
-    }
-    
-    enum FieldType {
-        case amount
-        case memo
-    }
-    
+
     var body: some View {
         ScrollViewReader { scrollProxy in
             ZStack {
@@ -82,7 +77,7 @@ struct EditRecordView: View {
                             }){
                                 Text(formatter.string(from: date))
                                     .bold()
-                                    .style(.title3, tracking: 1)
+                                    .style(.title3, tracking: 1, color: .secondary)
                                     .padding(screen.width * 0.05)
                             }
                             Button(action:{ self.addDay(1)}) {
@@ -96,62 +91,68 @@ struct EditRecordView: View {
                             }
                         }
                     }
+                    .frame(width: screen.width * 0.8)
+                    .padding(.top, 40)
                     
                     // カテゴリー選択
-                        ScrollView(showsIndicators: false) {
-                            let columns: [GridItem] = Array(repeating: .init(.fixed(iconSize), spacing: iconSize * 0.5), count: 3)
-                            LazyVGrid(columns: columns, alignment: .center, spacing: iconSize * 0.5) {
-                                ForEach(Category.all(), id: \.self) { category in
+                    ScrollView(showsIndicators: false) {
+                        let columns: [GridItem] = Array(repeating: .init(.fixed(iconSize), spacing: iconSize * 0.5), count: 3)
+                        LazyVGrid(columns: columns, alignment: .center, spacing: iconSize * 0.5) {
+                            ForEach(Category.all(), id: \.self) { category in
+                                Button (action: {self.category = category}) {
                                     VStack(spacing: 8) {
                                         ZStack {
-                                            let is_active = category.id == self.category?.id
+                                            let is_active = category == self.category
                                             
                                             RoundedRectangle(cornerRadius: 10)
-                                                .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color("themeDark") : Color("backGround"), is_active ? Color("themeLight") : Color("backGround")]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color("themeDark") : Color("backGround"), is_active ? Color("themeLight") : .white]), startPoint: .topLeading, endPoint: .bottomTrailing))
                                                 .frame(width: iconSize * 0.85, height: iconSize * 0.85)
-                                                .myShadow(radius: 3, x: 2, y: 2)
+                                                .shadow(color: .primary.opacity(0.1), radius: 2, x: 2, y: 2)
                                             Image(category.icon.name)
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
                                                 .frame(width: iconSize * 0.5, height: iconSize * 0.5)
                                                 .foregroundColor(is_active ? .white : .secondary.opacity(0.7))
                                         }
-                                        .animation(.easeInOut(duration: 0.3))
                                         
-                                        Text(category.name).style(.footnote, weight: .bold).lineLimit(1).scaleEffect(1.1)
+                                        Text(category.name).style(.footnote, weight: .bold, color: .secondary).lineLimit(1).scaleEffect(1.1)
                                     }
                                     .id(category.id)
-                                    .onTapGesture {
-                                        withAnimation() {
-                                            self.category = category
-                                        }
-                                    }
                                 }
                             }
-                            .padding(.vertical, screen.width * 0.05)
                         }
-                        .padding(.bottom, screen.width * 0.05)
+                        .padding(.vertical, screen.width * 0.05)
+                    }
+                    .frame(width: screen.width * 0.8)
+                    .padding(.bottom, screen.width * 0.05)
                     
                     
                     // 金額入力
                     VStack(spacing: 0) {
-                        TextField("金額", text: $amount,
-                                  onEditingChanged: { isEditing in
-                                    self.activeField = isEditing ? .amount : nil
-                                  }).customTextField()
+                        TextField("金額", text: $amount)
+                            .customTextField()
+                            .disabled(true)
+                            .onTapGesture {
+                                withAnimation(.linear(duration: 0.2)) {
+                                    UIApplication.shared.closeKeyboard()
+                                    self.showCalculator = true
+                                }
+                            }
                             
-                        Divider().frame(height: 1).background(activeField == .amount ? Color("themeLight") : Color.secondary)
+                        Divider().frame(height: 1).background(showCalculator ? Color("themeLight") : Color.secondary)
                     }
+                    .frame(width: screen.width * 0.8)
                     
                     // メモ入力
                     VStack(spacing: 0) {
-                        TextField("メモ", text: $memo,
-                                  onEditingChanged: { isEditing in
-                                    self.activeField = isEditing ? .memo : nil
-                                  }).customTextField()
-                        Divider().frame(height: 1).background(activeField == .memo ? Color("themeLight") : Color.secondary)
+                        TextField("メモ", text: $memo, onEditingChanged: { isEditing in
+                            self.activeMemo = isEditing
+                            self.showCalculator = false
+                          }).customTextField()
+                        Divider().frame(height: 1).background(activeMemo ? Color("themeLight") : Color.secondary)
                     }
                     .padding(.bottom, screen.width * 0.05)
+                    .frame(width: screen.width * 0.8)
 
                     // 保存ボタン
                     Button(action: {
@@ -166,15 +167,20 @@ struct EditRecordView: View {
                                         title: Text(""),
                                         message: Text(error.message),
                                         dismissButton: .default(Text("OK"))))
+                                UIApplication.shared.closeKeyboard()
+                                withAnimation() {
+                                    self.showCalculator = false
+                                }
                         }
                     }) {
                         Text("保存する").bold().style(color: .white)
                     }
                     .buttonStyle(PrimaryButtonStyle())
+                    .frame(width: screen.width * 0.8)
                     .padding(.bottom, screen.width * 0.05)
 
                     // 削除ボタン
-                    if let recordCell = recordCell {
+                    if let recordCell = recordCell, !showCalculator, !activeMemo {
                         Button(action: {
                             self.showingAlert = AlertItem(
                                 alert: Alert(
@@ -191,20 +197,25 @@ struct EditRecordView: View {
                             Text("削除する").bold().style()
                         }
                     }
+                    
+                    
+                    CalculatorView(show: $showCalculator, value: $amount)
+
                 }
-                .padding(.vertical, 40)
-                .frame(width: screen.width * 0.8)
                 .alert(item: $showingAlert) { item in
                     item.alert
                 }
-            
+                .ignoresSafeArea(.keyboard, edges: .top)
+
             //モーダル背景
                ZStack {
-                   Color.black.opacity(self.showDatePicker ? 0.16 : 0).ignoresSafeArea(.all)
+                   Color.black.opacity(self.showModal ? 0.16 : 0).ignoresSafeArea(.all)
                }
                .onTapGesture {
                     self.showDatePicker = false
                }
+                
+                
                 
             // カレンダー
                 VStack {
@@ -213,7 +224,8 @@ struct EditRecordView: View {
                         .labelsHidden()
 
                     Button(action: { self.showDatePicker = false}) {
-                        Text("完了").style(.title3, color: .white)
+                        Text("完了").style(.title3, weight: .medium, color: .white)
+                            .scaleEffect(0.9)
                     }
                     .buttonStyle(PrimaryButtonStyle())
                     .padding()
@@ -249,8 +261,7 @@ struct EditRecordView: View {
                     self.date     = recordCell.date
                     scrollProxy.scrollTo(recordCell.category.id)
                 } else if let clickedDate = self.clickedDate {
-                    self.date = clickedDate
-                    print("date")
+                    self.date = clickedDate.date
                 }
             }
         }
@@ -262,3 +273,4 @@ struct AlertItem: Identifiable {
     var id = UUID()
     var alert: Alert
 }
+

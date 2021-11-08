@@ -67,7 +67,8 @@ struct ChartView: UIViewRepresentable {
         // 振る舞い
         chart.pinchZoomEnabled = false
         chart.doubleTapToZoomEnabled = false
-        chart.dragEnabled = true
+        chart.dragXEnabled = true
+        chart.dragYEnabled = false
         chart.scaleXEnabled = false
         chart.scaleYEnabled = false
         

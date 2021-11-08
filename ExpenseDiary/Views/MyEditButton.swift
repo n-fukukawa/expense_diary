@@ -20,7 +20,7 @@ struct MyEditButton: View {
                 }
             }
         }) {
-            Text(editMode?.wrappedValue.isEditing == true ? "完了" : "編集")
+            Text(editMode?.wrappedValue.isEditing == true ? "完了" : "編集").fontWeight(.regular)
         }
     }
 }

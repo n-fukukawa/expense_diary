@@ -22,4 +22,8 @@ struct CategoryCell: Identifiable, Hashable {
                 CategoryCell(id: $0.id, type: $0.type, name: $0.name, icon: $0.icon, order: $0.order, created_at: $0.created_at, updated_at: $0.updated_at)
                 }
     }
+    
+    static func generateFromCategory(category: Category) -> CategoryCell {
+        CategoryCell(id: category.id, type: category.type, name: category.name, icon: category.icon, order: category.order, created_at: category.created_at, updated_at: category.updated_at)
+    }
 }

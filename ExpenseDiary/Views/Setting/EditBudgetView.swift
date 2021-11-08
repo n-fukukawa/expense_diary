@@ -11,6 +11,7 @@ import RealmSwift
 struct EditBudgetView: View {
     @ObservedObject var env: StatusObject
     @ObservedObject var viewModel: EditBudgetViewModel
+    @Binding var showSettingMenu: Bool
     let screen = UIScreen.main.bounds
     let budgetCell: BudgetCell?
 
@@ -30,20 +31,21 @@ struct EditBudgetView: View {
         self.screen.width * 0.2
     }
     
-    init(budgetCell: BudgetCell? = nil, env: StatusObject) {
+    init(budgetCell: BudgetCell? = nil, env: StatusObject, showSettingMenu: Binding<Bool>) {
         self.budgetCell = budgetCell
         self.env = env
         self.viewModel = EditBudgetViewModel(env: env)
+        self._showSettingMenu = showSettingMenu
         
         formatter.locale = Locale(identifier: "ja_JP")
         formatter.dateFormat = "M-d E"
     }
     
-    func addMonth(_ day: Int) {
-        //
-    }
-    
     @State var amounts: [(key: CategoryCell, value: String)] = []
+    
+    private func close() {
+        self.presentationMode.wrappedValue.dismiss()
+    }
     
     
     var body: some View {
@@ -97,7 +99,7 @@ struct EditBudgetView: View {
                             
                         switch result {
                             case .success(_):
-                                self.presentationMode.wrappedValue.dismiss()
+                                self.close()
                             case .failure(let error):
                                 self.showingAlert = AlertItem(
                                     alert: Alert(
@@ -127,5 +129,18 @@ struct EditBudgetView: View {
 //                }
             }
         }
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading: Button(action: { self.close()} )
+            {
+                HStack {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 14, weight: .medium))
+                    Text("戻る").fontWeight(.regular)
+                }
+            })
+        .onAppear() {
+            self.showSettingMenu = false
+        }
     }
+
 }

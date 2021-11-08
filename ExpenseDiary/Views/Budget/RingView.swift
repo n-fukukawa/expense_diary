@@ -17,7 +17,7 @@ struct RingView: View {
     
     var color1: Color {
         if self.percent < 70 {
-            return Color("successDark") 
+            return Color("themeDark").opacity(0.8)
         } else if self.percent < 90 {
             return Color("dangerDark") 
         } else {
@@ -27,7 +27,7 @@ struct RingView: View {
     
     var color2: Color {
         if self.percent < 70 {
-            return Color("successLight") 
+            return Color("themeLight").opacity(0.8)
         } else if self.percent < 90 {
             return Color("dangerLight")
         } else {
@@ -40,7 +40,7 @@ struct RingView: View {
         let progress = percent > 100 ? 1 : percent / 100
         ZStack {
             Circle()
-                .stroke(isWhite ? Color.white : .secondary, style: StrokeStyle(lineWidth: 5 * multiplier))
+                .stroke(isWhite ? Color.white : .gray.opacity(0.2), style: StrokeStyle(lineWidth: 5 * multiplier))
                 .frame(width: size * 39 / 44, height: size * 39 / 44)
             Circle()
                 .trim(from: show ? progress : 1, to: 1.0)
@@ -54,7 +54,7 @@ struct RingView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 20 * multiplier)
-                    .foregroundColor(isWhite ? .white : .secondary)
+                    .foregroundColor(isWhite ? .white : .secondary.opacity(0.5))
         }
         .frame(width: size, height: size)
     }
