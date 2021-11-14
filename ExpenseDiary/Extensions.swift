@@ -52,7 +52,7 @@ extension Font {
 }
 
 extension Text {
-    func style(_ font: Font = .body, weight: Font.Weight = .light, tracking: CGFloat = 2, color: Color = .secondary) -> some View {
+    func style(_ font: Font = .body, weight: Font.Weight = .light, tracking: CGFloat = 2, color: Color = Color("secondary")) -> some View {
         self
             .tracking(tracking)
             .font(font)
@@ -72,7 +72,7 @@ extension View {
     func customTextField() -> some View {
         self
             .font(.title3)
-            .foregroundColor(.secondary)
+            .foregroundColor(Color("secondary"))
             .padding(6)
             .padding(.trailing, 6)
             .background(Color.gray.opacity(0.08))

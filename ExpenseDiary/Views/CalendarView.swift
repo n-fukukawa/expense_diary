@@ -17,7 +17,7 @@ struct CalendarView: View {
     
     private func getColor(date: Date) -> Color {
         if !viewModel.isSameMonth(date) {
-            return .secondary.opacity(0.3)
+            return Color("secondary").opacity(0.3)
         }
 //        if date.weekday == 7 {
 //            return Color("saturday")
@@ -26,7 +26,7 @@ struct CalendarView: View {
 //            return Color("warningLight")
 //        }
         
-        return .secondary
+        return Color("secondary").opacity(0.8)
     }
     
     var body: some View {
@@ -41,8 +41,8 @@ struct CalendarView: View {
                         .style(.caption, weight: .regular)
                         .padding(2)
                         .frame(maxWidth: .infinity)
-                        .background((week == "日" ? Color("warningLight") : (week == "土" ? Color("saturday") : Color.secondary)).opacity(0.2))
-                        .border(Color.secondary.opacity(0.2), width: 0.5)
+                        .background((week == "日" ? Color("sunday") : (week == "土" ? Color("saturday") : Color("lightGray"))))
+                        .border(Color("secondary").opacity(0.3), width: 0.5)
                 }
             }
             .frame(width: screen.width)
@@ -53,19 +53,20 @@ struct CalendarView: View {
                         ForEach(viewModel.amounts, id: \.key) { date, amount in
                             let expense = amount[.expense]!
                             let income = amount[.income]!
-                            Button(action: {
-                                if !viewModel.isSameMonth(date) {
-                                    return
-                                }
-                                self.clickedDate = DateCell(date: date)
-                            }) {
+                            NavigationLink(
+                            destination: EditRecordView(clickedDate: DateCell(date: date))) {
                                 VStack(spacing: 0) {
-                                    HStack {
+                                    HStack (spacing: 4) {
                                         Text(String(date.day))
                                             .style(.caption, weight: .medium, tracking: 0, color: getColor(date: date))
                                             .scaleEffect(1.2)
                                             .padding(.leading, 4)
                                             .padding(.top, 2)
+                                        if date.isToday {
+                                            Circle()
+                                                .foregroundColor(Color("themeLight"))
+                                                .frame(width: 4, height: 4)
+                                        }
                                         Spacer()
                                     }
                                     Spacer(minLength: 0)
@@ -77,23 +78,20 @@ struct CalendarView: View {
                                                 .scaleEffect(0.8)
                                                 .frame(maxWidth: .infinity, alignment: .trailing)
                                             Text("\(expense)")
-                                                .style(.caption, tracking: 0, color: .secondary)
+                                                .style(.caption, tracking: 0)
                                                 .opacity(viewModel.isSameMonth(date) && expense != 0 ? 1 : 0)
                                                 .scaleEffect(0.8)
                                                 .frame(maxWidth: .infinity, alignment: .trailing)
                                         }
                                     }
                                 }
-                                .contentShape(Rectangle())
                                 .frame(height: (geometry.frame(in: .local).height - 120 - 20) / 6)
-                                .border(Color.secondary.opacity(0.4), width: 0.5)
-                            }
-                            .sheet(item: $clickedDate) { date in
-                                EditRecordView(clickedDate: date)
+                                .frame(minHeight: 42)
+                                .border(Color("secondary").opacity(0.4), width: 0.5)
                             }
                         }
                     }
-                    .border(Color.secondary.opacity(0.4), width: 0.5)
+                    .border(Color("secondary").opacity(0.4), width: 0.5)
             }
         }
     }

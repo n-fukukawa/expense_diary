@@ -13,8 +13,6 @@ struct CalculatorView: View {
     @Binding var show: Bool
     @Binding var value: String
     
-    
-    
     var body: some View {
         VStack(spacing: 0) {
             if show {
@@ -45,7 +43,7 @@ struct CalculatorView: View {
                                     .foregroundColor(Color("themeDark"))
                                     .offset(x: -2)
                             } else {
-                                Text("\(key.rawValue)").style(.title3, weight: .medium, color: CalcKey.operands().firstIndex(of: key) != nil ? Color("themeDark") : .secondary)
+                                Text("\(key.rawValue)")
                             }
                         }
                         .buttonStyle(CalculatorButtonStyle(key: key))
@@ -53,7 +51,7 @@ struct CalculatorView: View {
                     }
                 }
             }
-            .frame(width: screen.width, height: show ? 340 : 0)
+            .frame(width: screen.width, height: show ? 290 : 0)
             .background(Color("backGround"))
             .ignoresSafeArea(.all)
             .opacity(show ? 1 : 0)
@@ -69,7 +67,13 @@ struct CalculatorView: View {
             clear()
             break
             
-        case .equal:
+        case .equal, .enter:
+            if key == .enter && self.value.isEmpty {
+                withAnimation() {
+                    self.show = false
+                }
+            }
+            
             let value1 = data.result
             let value2 = NSDecimalNumber(string: data.display)
             
@@ -78,26 +82,38 @@ struct CalculatorView: View {
                 return
             }
             
-            let result = calc(key: data.recentOperand, value1, value2)
-            
-            if result.doubleValue >= NSDecimalNumber(10).raising(toPower: CalcModel.maximumDigit).doubleValue {
-                error()
-                return
+            if !data.isOperandActive {
+                let result = calc(key: data.recentOperand, value1, value2)
+                
+                if result.doubleValue >= NSDecimalNumber(10).raising(toPower: CalcModel.maximumDigit).doubleValue {
+                    error()
+                    return
+                }
+                
+                if result == NSDecimalNumber.notANumber {
+                    clear()
+                    return
+                }
+                
+                data.display = result.rounding( accordingToBehavior: NSDecimalNumberHandler(roundingMode: NSDecimalNumber.RoundingMode.plain, scale: 0, raiseOnExactness: false, raiseOnOverflow: false, raiseOnUnderflow: false, raiseOnDivideByZero: false)).description
             }
-            
-            if result == NSDecimalNumber.notANumber {
-                clear()
-                return
-            }
-            
-            data.display = result.rounding( accordingToBehavior: NSDecimalNumberHandler(roundingMode: NSDecimalNumber.RoundingMode.plain, scale: 0, raiseOnExactness: false, raiseOnOverflow: false, raiseOnUnderflow: false, raiseOnDivideByZero: false)).description
+
             data.result = 0
-            
+                        
             data.recentOperand = .equal
             data.isOperandActive = false
+            
+            if key == .enter {
+                withAnimation() {
+                    self.show = false
+                }
+            }
             break
             
         case .plus, .minus, .times, .divide:
+            if self.value.isEmpty {
+                return
+            }
             if !data.isOperandActive {
                 let value1 = data.result
                 let value2 = NSDecimalNumber(string: data.display)
@@ -122,6 +138,10 @@ struct CalculatorView: View {
             break
             
         case .percent:
+            if self.value.isEmpty {
+                return
+            }
+            
             if data.isOperandActive {
                 return
             }

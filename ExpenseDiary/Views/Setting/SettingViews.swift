@@ -18,7 +18,6 @@ struct SettingMenuView: View {
         HStack {
             ZStack {
                 Color("backGround").ignoresSafeArea(.all)
-                    .myShadow(radius: 20, x: 10, y: 20)
                 VStack {
 //                    HStack {
 //                        Spacer()
@@ -31,7 +30,7 @@ struct SettingMenuView: View {
                     HStack {
                         Image(systemName: "gearshape.2")
                             .font(.system(size: 110, weight: .ultraLight))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color("secondary"))
                             .opacity(0.5)
                             .offset(x: -10)
                         Spacer()
@@ -57,7 +56,7 @@ struct SettingMenuView: View {
 
                         HStack {
                             NavigationLink(destination: PresetMenuView(showSettingMenu: $isActive)) {
-                                Text("固定支出・収入").style()
+                                Text("固定支出／収入").style()
                             }
                             Spacer()
                         }
@@ -69,19 +68,13 @@ struct SettingMenuView: View {
                             }
                             Spacer()
                         }
-//                            NavigationLink(destination: EditThemeView()) {
-//                                HStack {
-//                                    Text("テーマカラーの変更").style()
-//                                    Spacer()
-//                                }
-//                            }
 
-                        HStack {
-                            NavigationLink(destination: BackUpMenuView()) {
-                                Text("バックアップ＆引継ぎ").style()
-                            }
-                            Spacer()
-                        }
+//                        HStack {
+//                            NavigationLink(destination: BackUpMenuView()) {
+//                                Text("バックアップ＆引継ぎ").style()
+//                            }
+//                            Spacer()
+//                        }
                         
                         HStack {
                             NavigationLink(destination: Text("AppStore").foregroundColor(.text)) {

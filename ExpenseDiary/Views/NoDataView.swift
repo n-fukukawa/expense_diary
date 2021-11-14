@@ -15,6 +15,8 @@ struct NoDataView: View {
             Text("データがありません").style(.body).frame(maxWidth: .infinity)
             Spacer()
         }
+        .padding(.vertical, 16)
+        .background(Color("backGround"))
     }
 }
 

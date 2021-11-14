@@ -93,11 +93,11 @@ struct ChartView: UIViewRepresentable {
         let xAxis = chart.xAxis
         xAxis.axisLineColor = UIColor(.primary)
         xAxis.gridLineWidth = 1
-        xAxis.gridColor = UIColor(.secondary).withAlphaComponent(0.1)
+        xAxis.gridColor = UIColor(Color("secondary")).withAlphaComponent(0.1)
         xAxis.labelPosition = .bottom
         xAxis.labelCount = 13
         xAxis.labelFont = UIFont.systemFont(ofSize: 12)
-        xAxis.labelTextColor = UIColor(.secondary)
+        xAxis.labelTextColor = UIColor(Color("secondary"))
         
         xAxis.valueFormatter = IndexAxisValueFormatter(values: descs)
         xAxis.granularity = 1
@@ -105,11 +105,11 @@ struct ChartView: UIViewRepresentable {
         let yAxis = chart.leftAxis
         yAxis.axisLineColor = UIColor(.primary)
         yAxis.gridLineWidth = 1
-        yAxis.gridColor = UIColor(.secondary).withAlphaComponent(0.1)
+        yAxis.gridColor = UIColor(Color("secondary")).withAlphaComponent(0.1)
         //yAxis.setLabelCount(3, force: false)
         yAxis.labelPosition = .outsideChart
         yAxis.labelFont = UIFont.systemFont(ofSize: 12)
-        yAxis.labelTextColor = UIColor(.secondary)
+        yAxis.labelTextColor = UIColor(Color("secondary"))
         
         return chart
     }

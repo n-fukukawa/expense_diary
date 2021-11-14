@@ -13,7 +13,7 @@ final class BudgetViewModel: ObservableObject {
     @ObservedObject var env: StatusObject
     @Published var activeBudget: BudgetCell?
     @Published var budgetCells: [BudgetCell] = []
-    @Published var recordCells: [BudgetCell : [RecordCell]] = [:]
+    @Published var recordCells: [BudgetCell : [(key: Date, value: [RecordCell])]] = [:]
     
     private var notificationTokens: [NotificationToken] = []
     
@@ -82,17 +82,27 @@ final class BudgetViewModel: ObservableObject {
     
     private func setRecordCells() {
             self.budgetCells.forEach({ budgetCell in
-                let recordCells = self.getRecords(budgetCell: budgetCell)
+                let recordCells: [RecordCell] = self.getRecords(budgetCell: budgetCell)
                     .map{RecordCell(id: $0.id, date: $0.date, category: $0.category, amount: $0.amount, memo: $0.memo, created_at: $0.created_at, updated_at: $0.updated_at)}
+                    .map { recordCell in
+                        var cell = recordCell
+                        cell.date = cell.date.fixed(hour: 0, minute: 0, second: 0)
+                        return cell
+                    }
             
-                self.recordCells.updateValue(Array(recordCells), forKey: budgetCell)
+                self.recordCells.updateValue(
+                    Dictionary(grouping: recordCells, by: { $0.date }).sorted{$0.key > $1.key}.map{$0}, forKey: budgetCell)
             })
     }
     
     private func getRecords(budgetCell: BudgetCell) -> Results<Record> {
         let date = env.getStartAndEndDate(year: budgetCell.year, month: budgetCell.month)
         
-        return Record.getRecords(start: date[0], end: date[1], category: budgetCell.category)
+        if budgetCell.category.total == 1 {
+            return Record.getRecords(start: date[0], end: date[1], type: .expense)
+        } else {
+            return Record.getRecords(start: date[0], end: date[1], category: budgetCell.category)
+        }
     }
 
     deinit {

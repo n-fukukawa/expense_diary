@@ -54,6 +54,7 @@ struct BudgetCardView: View {
     let budgetCell: BudgetCell
     
     let active: Bool
+    let formatter = DateFormatter()
     
     @State var showRing = false
     
@@ -66,6 +67,9 @@ struct BudgetCardView: View {
         self.active = active
         self._activeBudgetCell = activeBudgetCell
         self.viewModel = viewModel
+        
+        formatter.locale = Locale(identifier: "ja_JP")
+        formatter.dateFormat = "M月d日(E)"
     }
     
     private func open() {
@@ -74,6 +78,7 @@ struct BudgetCardView: View {
         withAnimation() {
             self.env.onChangeViewType(.budget)
         }
+//        self.env.showYearMonthPicker = false
     }
     
     private func close() {
@@ -88,31 +93,34 @@ struct BudgetCardView: View {
     var body: some View {
         ZStack (alignment: .top) {
             if active {
-//                Color("backGround").ignoresSafeArea(.all)
-            Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark").opacity(active ? 1 : 0), Color("themeLight").opacity(active ? 1 : 0)]), startPoint: .leading, endPoint: .trailing))
+                Color("backGround").ignoresSafeArea(.all)
+//            Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark").opacity(active ? 1 : 0), Color("themeLight").opacity(active ? 1 : 0)]), startPoint: .leading, endPoint: .trailing))
             }
             
             List {
                 if !viewModel.recordCells.isEmpty {
                     if let recordCells = viewModel.recordCells[budgetCell] {
-                        VStack {
-                            ForEach(recordCells) { recordCell in
-                                RecordCardView(recordCell: recordCell).id(recordCell.id)
-                                .listRowInsets(EdgeInsets())
+                        ForEach(recordCells, id: \.key) { date, recordCells in
+                            Section (header: RecordSectionHeaderView(date: date, recordCells: recordCells)) {
+                                ForEach(recordCells) { recordCell in
+                                    RecordCardView(recordCell: recordCell).id(recordCell.id)
+                                    .listRowInsets(EdgeInsets())
+                                }
                             }
                         }
-                        .padding(.bottom, height * scale + 60 + 80)
                     } else {
                         NoDataView()
                     }
                 }
             }
             .listStyle(PlainListStyle())
+            .padding(.bottom, height * scale + 60 + 120)
             .frame(width: active ? screen.width : width)
             .frame(height: active ? screen.height : height, alignment: .top)
+            
             .background(Color("backGround"))
 //            .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
-            .myShadow(radius: 10, x: 1, y: -1)
+//            .myShadow(radius: 10, x: 1, y: -1)
             .offset(y: active ? height * scale + 60 : 0)
             .padding(.top, 20)
             .opacity(active ? 1 : 0)
@@ -129,7 +137,7 @@ struct BudgetCardView: View {
                         HStack (spacing: 3) {
                             Image(systemName: "arrow.backward")
                                 .font(.system(size: 24, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Color("secondary"))
                                 .opacity(active ? 1 : 0)
                                 .onTapGesture {
                                     self.close()
@@ -137,20 +145,16 @@ struct BudgetCardView: View {
                             Spacer()
                         }
                         .padding(.leading, 10)
-                        VStack (spacing: 0) {
-                            VStack (spacing: 0) {
-                                VStack (spacing: 8) {
-                                    RingView(icon: budgetCell.category.icon,size: active ?  height * 1.2 : height * 0.8,
-                                             percent: percent, show: $showRing)
-                                    Text("\(budgetCell.category.name)")
-                                        .style(weight: .semibold, color: .secondary)
-                                        .padding(.bottom, 8)
-                                    HStack {
-                                        Text("\(spending) / \(amount)円").style(.title2, color: .secondary)
-                                    }
+                            VStack (spacing: 8) {
+                                RingView(icon: budgetCell.category.icon,size: active ?  height * 1.2 : height * 0.8,
+                                         percent: percent, show: $showRing)
+                                Text("\(budgetCell.category.name)")
+                                    .style(weight: .semibold)
+                                    .padding(.bottom, 8)
+                                HStack {
+                                    Text("\(spending) / \(amount)円").style(.title2)
                                 }
                             }
-                        }
                         Spacer()
                     } else {
                         Button(action: {
@@ -188,11 +192,11 @@ struct BudgetCardView: View {
             .frame(width: active ? screen.width - 40 : width)
             .frame(height: height * scale)
             .background(Color("backGround"))
-            .cornerRadius(10)
+            .cornerRadius(active ? 0 : 10)
             .padding(.top, active ? 60 : 0)
             //.cornerRadius(active ? 0 : height / 2)
             .clipped()
-            .shadow(color: .primary.opacity(active ? 0.5 : 0.2), radius: active ? 12 : 10, x: 0, y: 0)
+            .shadow(color: .primary.opacity(active ? 0.3 : 0.2), radius: active ? 12 : 10, x: 0, y: 0)
             .onTapGesture {
 
             }

@@ -14,6 +14,11 @@ struct AnalysisView: View {
     @ObservedObject var viewModel: AnalysisViewModel
     @State var categoryPicker = false
     
+    init(viewModel: AnalysisViewModel) {
+        self.viewModel = viewModel
+        UITableView.appearance().backgroundColor = UIColor(Color("backGround"))
+    }
+    
     var name: String {
         if self.viewModel.viewState == .category {
             return viewModel.category!.name
@@ -45,109 +50,119 @@ struct AnalysisView: View {
     }
 
     var body: some View {
-        VStack (spacing: 0) {
-            ScrollViewReader { scrollProxy in
-                VStack (spacing: 20) {
-                    HStack (spacing: 6) {
-                        Spacer()
-                        Text(name).style(.title2, color: .white)
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                            .rotationEffect(categoryPicker ? Angle(degrees: 180) : Angle(degrees: 0))
-                        Spacer()
-                    }
-                    .offset(x: 6)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.4)) {
-                            self.categoryPicker.toggle()
+        ZStack(alignment: .top) {
+            Color("backGround").ignoresSafeArea(.all)
+            Rectangle()
+                .fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .leading, endPoint: .trailing))
+                .frame(height: screen.height * 0.3)
+                .ignoresSafeArea(.all)
+            VStack (spacing: 0) {
+                ScrollViewReader { scrollProxy in
+                    VStack (spacing: 20) {
+                        HStack (spacing: 6) {
+                            Spacer()
+                            Text(name).style(.title2, color: .white)
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .rotationEffect(categoryPicker ? Angle(degrees: 180) : Angle(degrees: 0))
+                            Spacer()
                         }
-                    }
-                    
-                    if categoryPicker {
-                        ScrollView (.horizontal, showsIndicators: false) {
-                            HStack (spacing: 30) {
-                                let active = self.viewModel.viewState == .balance
-                                VStack(spacing: 0) {
-                                    Text("収支").style(.title3, weight: .medium, color: active ? Color("dangerDark") : .white)
-                                        .scaleEffect(0.8)
-                                    }
-                                //.frame(height: 28)
-                                .onTapGesture {
-                                    self.viewModel.onClickBalance()
-                                    self.closeCategoryPicker()
-                                }
-                                
-                                ForEach(RecordType.all(), id: \.self) { recordType in
-                                    let active = self.viewModel.viewState == .total && self.viewModel.recordType == recordType
+                        .offset(x: 6)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                self.categoryPicker.toggle()
+                            }
+                        }
+                        
+                        if categoryPicker {
+                            ScrollView (.horizontal, showsIndicators: false) {
+                                HStack (spacing: 16) {
+                                    let active = self.viewModel.viewState == .balance
                                     VStack(spacing: 0) {
-                                        Text("\(recordType.name)").style(.title3, weight: .medium, color: active ? Color("dangerDark") : .white)
+                                        Text("収支").style(.title3, weight: .medium, color: .white)
                                             .scaleEffect(0.8)
-//                                        Text("合計").style(.caption, color: active ? Color("dangerDark")  : .white)
                                         }
-                                  //  .frame(height: 28)
+                                    .padding(4)
+                                    .background(Color.primary.opacity(active ? 0.2 : 0))
+                                    .cornerRadius(5)
+                                    //.frame(height: 28)
                                     .onTapGesture {
-                                        viewModel.onChangeRecordType(recordType: recordType)
+                                        self.viewModel.onClickBalance()
                                         self.closeCategoryPicker()
                                     }
-                                }
-                                
-                                ForEach(Category.all(), id: \.id) { category in
-                                    let active = self.viewModel.category == category
-                                    VStack {
-                                        Image(category.icon.name)
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                            .frame(width: 28, height: 28)
-                                            .foregroundColor(active ? Color("dangerDark")  : .white)
-                                            .id(category.id)
+                                    
+                                    ForEach(RecordType.all(), id: \.self) { recordType in
+                                        let active = self.viewModel.viewState == .total && self.viewModel.recordType == recordType
+                                        VStack(spacing: 0) {
+                                            Text("\(recordType.name)").style(.title3, weight: .medium, color: .white)
+                                                .scaleEffect(0.8)
+                                        }
+                                        .padding(4)
+                                        .background(Color.primary.opacity(active ? 0.2 : 0))
+                                        .cornerRadius(5)
+                                        .onTapGesture {
+                                            viewModel.onChangeRecordType(recordType: recordType)
+                                            self.closeCategoryPicker()
+                                        }
+                                    }
+                                    
+                                    ForEach(Category.all(), id: \.id) { category in
+                                        let active = self.viewModel.category == category
+                                        VStack {
+                                            Image(category.icon.name)
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 28, height: 28)
+                                                .foregroundColor(.white)
+                                                .id(category.id)
 
-                                        Text("\(category.name)").style(.caption2, weight: .medium, tracking: 1, color: active ? Color("dangerDark")  : .white)
-                                    }
-                                    .onTapGesture {
-                                        viewModel.onChangeCategory(category: category)
-                                        self.closeCategoryPicker()
+                                            Text("\(category.name)").style(.caption2, weight: .medium, tracking: 1, color: .white)
+                                        }
+                                        .frame(width: 64, height: 64)
+                                        .background(Color.primary.opacity(active ? 0.2 : 0))
+                                        .cornerRadius(5)
+                                        .onTapGesture {
+                                            viewModel.onChangeCategory(category: category)
+                                            self.closeCategoryPicker()
+                                        }
                                     }
                                 }
+                                .padding(.horizontal, 30)
                             }
-                            //.padding(pad * 0.5)
-                            .padding(.horizontal, 30)
-                        }
-                        .opacity(categoryPicker ? 1 : 0)
-                        .onAppear() {
-                            if let category = self.viewModel.category {
-                                scrollProxy.scrollTo(category.id, anchor: .center)
+                            .opacity(categoryPicker ? 1 : 0)
+                            .onAppear() {
+                                if let category = self.viewModel.category {
+                                    scrollProxy.scrollTo(category.id, anchor: .center)
+                                }
                             }
                         }
                     }
+                    .padding(.top, 10)
+                    .padding(.bottom, 20)
                 }
-                .padding(.top, 60)
-                .padding(.bottom, 20)
-                .background(Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .leading, endPoint: .trailing)))
-            }
-            
-            VStack (alignment: .leading, spacing: 0) {
-                ChartView(dataSet: viewModel.monthlyAmounts.reversed(), balance: self.viewModel.viewState == .balance)
-            }
-            .padding(20)
-            .background(Color("backGround"))
-            .clipped()
-            .myShadow(radius: 4, x: 1, y: 1)
-            .frame(height: screen.height * 0.4)
-            .zIndex(1)
-            
-            List {
-                ForEach(viewModel.monthlyAmounts, id: \.key.id) { s in
-                    MonthlyCardView(yearMonth: s.key, amount: s.value)
-                    .listRowInsets(EdgeInsets())
+                VStack (alignment: .leading, spacing: 0) {
+                    ChartView(dataSet: viewModel.monthlyAmounts.reversed(), balance: self.viewModel.viewState == .balance)
                 }
-            }
-            .listStyle(PlainListStyle())
-            .padding(.top, 20)
+                .padding(20)
+                .background(Color("backGround"))
+                .clipped()
+                .myShadow(radius: 4, x: 1, y: 1)
+                .frame(height: screen.height * 0.4)
+                .zIndex(1)
+                
+                List {
+                    ForEach(viewModel.monthlyAmounts, id: \.key.id) { s in
+                        MonthlyCardView(yearMonth: s.key, amount: s.value)
+                        .listRowInsets(EdgeInsets())
+                    }
+                }
+                .listStyle(PlainListStyle())
+                .padding(.top, 20)
 
-            Spacer(minLength: 50 + 60 + 30)// padding for admob_banner & tabBar
+                Spacer(minLength: 50 + 60 + 30)// padding for admob_banner & tabBar
+            }
         }
-        .ignoresSafeArea(.all)
     }
 }

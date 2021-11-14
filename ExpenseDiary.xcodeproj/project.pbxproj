@@ -61,6 +61,8 @@
 		55799AC927255E6900789305 /* YearMonth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55799AC827255E6900789305 /* YearMonth.swift */; };
 		55799ACB2725696500789305 /* MonthlyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55799ACA2725696500789305 /* MonthlyCardView.swift */; };
 		55799ACD272607B100789305 /* EditBudgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55799ACC272607B100789305 /* EditBudgetView.swift */; };
+		55B21C26273F4FB10026B2A8 /* ListButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B21C25273F4FB10026B2A8 /* ListButtonStyle.swift */; };
+		55B21C28273F82DC0026B2A8 /* RecordSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B21C27273F82DC0026B2A8 /* RecordSectionHeaderView.swift */; };
 		55B85D9C2717939C00267A67 /* RecordCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B85D9B2717939C00267A67 /* RecordCell.swift */; };
 		55B85D9E2719A58500267A67 /* Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B85D9D2719A58400267A67 /* Icon.swift */; };
 		55B85DA02719ADA100267A67 /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B85D9F2719ADA100267A67 /* CategoryCell.swift */; };
@@ -129,6 +131,8 @@
 		55799AC827255E6900789305 /* YearMonth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YearMonth.swift; sourceTree = "<group>"; };
 		55799ACA2725696500789305 /* MonthlyCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyCardView.swift; sourceTree = "<group>"; };
 		55799ACC272607B100789305 /* EditBudgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBudgetView.swift; sourceTree = "<group>"; };
+		55B21C25273F4FB10026B2A8 /* ListButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListButtonStyle.swift; sourceTree = "<group>"; };
+		55B21C27273F82DC0026B2A8 /* RecordSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordSectionHeaderView.swift; sourceTree = "<group>"; };
 		55B85D9B2717939C00267A67 /* RecordCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordCell.swift; sourceTree = "<group>"; };
 		55B85D9D2719A58400267A67 /* Icon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icon.swift; sourceTree = "<group>"; };
 		55B85D9F2719ADA100267A67 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
@@ -237,6 +241,7 @@
 			isa = PBXGroup;
 			children = (
 				551132C1270B507300C8A7A6 /* PrimaryButtonStyle.swift */,
+				55B21C25273F4FB10026B2A8 /* ListButtonStyle.swift */,
 				557021862736581C006B580D /* CalculatorButtonStyle.swift */,
 				551132C3270B52FD00C8A7A6 /* SecondaryButtonStyle.swift */,
 			);
@@ -262,6 +267,7 @@
 				5570217927349C66006B580D /* Calculator */,
 				551132C7270BC0EA00C8A7A6 /* EditRecordView.swift */,
 				5570216E2733436E006B580D /* CalendarView.swift */,
+				55B21C27273F82DC0026B2A8 /* RecordSectionHeaderView.swift */,
 				554E209D272C02B8005FD4C1 /* MyEditButton.swift */,
 				55702170273343A0006B580D /* NoDataView.swift */,
 				557021802734A8E4006B580D /* CalcTextField.swift */,
@@ -398,10 +404,10 @@
 			};
 			buildConfigurationList = 5511328727092D7100C8A7A6 /* Build configuration list for PBXProject "ExpenseDiary" */;
 			compatibilityVersion = "Xcode 9.3";
-			developmentRegion = en;
+			developmentRegion = ja;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
+				ja,
 				Base,
 			);
 			mainGroup = 5511328327092D7100C8A7A6;
@@ -498,6 +504,7 @@
 				5570218B2737E585006B580D /* AppDelegate.swift in Sources */,
 				551132C8270BC0EA00C8A7A6 /* EditRecordView.swift in Sources */,
 				5511329F2709326800C8A7A6 /* Modifiers.swift in Sources */,
+				55B21C28273F82DC0026B2A8 /* RecordSectionHeaderView.swift in Sources */,
 				551132C2270B507300C8A7A6 /* PrimaryButtonStyle.swift in Sources */,
 				554E20A2272C19B1005FD4C1 /* EditBudgetViewModel.swift in Sources */,
 				550D1FA327283A7F001D449E /* ProgressBarView.swift in Sources */,
@@ -507,6 +514,7 @@
 				55799AB52724208200789305 /* BalanceViewModel.swift in Sources */,
 				55799AB92724BC5C00789305 /* BudgetCell.swift in Sources */,
 				557021892737A284006B580D /* PresetViewModel.swift in Sources */,
+				55B21C26273F4FB10026B2A8 /* ListButtonStyle.swift in Sources */,
 				5511329027092D7100C8A7A6 /* ExpenseDiaryApp.swift in Sources */,
 				5570216F2733436E006B580D /* CalendarView.swift in Sources */,
 				550D1FA5272A18ED001D449E /* ViewType.swift in Sources */,

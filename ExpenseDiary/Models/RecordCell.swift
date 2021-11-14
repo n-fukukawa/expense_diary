@@ -9,10 +9,23 @@ import Foundation
 
 struct RecordCell: Identifiable {
     let id: UUID
-    let date: Date
+    var date: Date
     let category: Category!
     let amount: Int
     let memo: String
     let created_at: Date
     let updated_at: Date
+    
+    public static func getSum(_ recordCells: [RecordCell]) -> Int {
+        var sum = 0
+        recordCells.forEach({ recordCell in
+            if recordCell.category.type == RecordType.expense.rawValue {
+                sum -= recordCell.amount
+            } else {
+                sum += recordCell.amount
+            }
+        })
+        
+        return sum
+    }
 }

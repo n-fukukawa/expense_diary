@@ -33,6 +33,8 @@ enum CalcKey: String {
     
     case period = "."
     
+    case enter = "完了"
+    
     static func operands() -> [CalcKey] {
         [.plus, .minus, .times, .divide, .equal]
     }
@@ -43,12 +45,18 @@ enum CalcKey: String {
     
     static func all() -> [CalcKey] {
         [
-            .clear, .percent, .inverse, .delete,
-            .seven, .eight, .nine, .divide,
-            .four, .five, .six, .times,
-            .one, .two, .three, .minus,
-            .zero, .period, .equal, .plus
+            .clear, .percent, .divide, .delete,
+            .seven, .eight, .nine, .times,
+            .four, .five, .six, .minus,
+            .one, .two, .three, .plus,
+            .zero, .period, .equal, .enter,
         ]
     }
     
+    static func special() -> [CalcKey] {
+        [
+            .plus, .minus, .times, .divide, .equal,
+            .delete, .enter
+        ]
+    }
 }

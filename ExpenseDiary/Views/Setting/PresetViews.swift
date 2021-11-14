@@ -22,6 +22,11 @@ struct PresetMenuView: View {
     
     @State var showingAlert: AlertItem?
     @State var deleteTarget: PresetCell?
+    
+    init(showSettingMenu: Binding<Bool>) {
+        self._showSettingMenu = showSettingMenu
+        UITableView.appearance().backgroundColor = UIColor(Color("backGround"))
+    }
 
     
     private func close() {
@@ -29,68 +34,79 @@ struct PresetMenuView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color("backGround")
-            VStack {
-                HStack {
-                    Picker(selection: $type, label: Text("支出収入区分")) {
-                        ForEach(RecordType.all(), id: \.self) { recordType in
-                            Text("固定\(recordType.name)").style()
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                .padding(.horizontal, 40)
-                .padding(.top, 20)
-                .padding(.bottom, 16)
-                List {
-                    let presetCells = viewModel.getPresetCells(type: type)
-                    ForEach(presetCells, id: \.key) { day, cells in
-                        Section(header: Text("毎月\(day)日").style(.caption, color: .primary)) {
-                            ForEach(cells, id: \.id) { presetCell in
-                                HStack (spacing: 12) {
-                                    Text(presetCell.category.name).style(.title3)
-                                    Text(presetCell.memo).style(.caption).scaleEffect(1.2)
-                                    Spacer()
-                                    Text("\(presetCell.amount) 円").style()
-                                }
-                                .padding(.vertical, 6)
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    self.selectedPresetCell = presetCell
-                                }
+        NavigationView {
+            ZStack {
+                Color("backGround").ignoresSafeArea(.all)
+                VStack {
+                    HStack {
+                        Picker(selection: $type, label: Text("支出収入区分")) {
+                            ForEach(RecordType.all(), id: \.self) { recordType in
+                                Text("固定\(recordType.name)").style()
                             }
                         }
+                        .labelsHidden()
+                        .pickerStyle(SegmentedPickerStyle())
+                    }
+                    .padding(.horizontal, 40)
+                    .padding(.top, 20)
+                    .padding(.bottom, 16)
+                    List {
+                        let presetCells = viewModel.getPresetCells(type: type)
+                        if !presetCells.isEmpty {
+                            ForEach(presetCells, id: \.key) { day, cells in
+                                Section(header: Text("毎月\(day)日").style(.caption, color: .primary)) {
+                                    ForEach(cells, id: \.id) { presetCell in
+                                        HStack (spacing: 12) {
+                                            Text(presetCell.category.name).style()
+                                                .offset(x: 4)
+                                            Text(presetCell.memo).style(.caption)
+                                            Spacer()
+                                            Text("\(presetCell.amount)円").style()
+                                        }
+                                        .padding(.vertical, 6)
+                                        .listRowBackground(Color("backGround"))
+                                        .contentShape(Rectangle())
+                                        .onTapGesture {
+                                            self.selectedPresetCell = presetCell
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            NoDataView().listRowInsets(EdgeInsets())
+                        }
+                    }
+                    .listStyle(PlainListStyle())
+                    .sheet(item: $selectedPresetCell) { presetCell in
+                        EditPresetView(presetCell: presetCell, type: RecordType.of(presetCell.category.type))
                     }
                 }
-                .sheet(item: $selectedPresetCell) { presetCell in
-                    EditPresetView(presetCell: presetCell, type: RecordType.of(presetCell.category.type))
+                .padding(.horizontal, 16)
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    HStack {
+                        Button(action: { self.close() }) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(Color(.link))
+                            Text("戻る").fontWeight(.regular).foregroundColor(Color(.link))
+                        }
+                    }
+                }
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button(action: { self.isShowing = true }) {
+                        Text("作成").fontWeight(.regular)
+                    }
                 }
             }
-            .padding(.horizontal, 16)
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button(action: { self.isShowing = true }) {
-                    Text("作成").style()
-                }
+            .sheet(isPresented: $isShowing) {
+                EditPresetView(presetCell: nil, type: type)
             }
-        }
-        .sheet(isPresented: $isShowing) {
-            EditPresetView(presetCell: nil, type: type)
-        }
-        .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading: Button(action: { self.close() } )
-            {
-                HStack {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 14, weight: .medium))
-                    Text("戻る").fontWeight(.regular)
-                }
-            })
-        .onAppear() {
-            self.showSettingMenu = false
+            .onAppear() {
+                self.showSettingMenu = false
+            }
         }
     }
 }
@@ -149,14 +165,14 @@ struct EditPresetView: View {
                                             let is_active = category == self.category
 
                                             RoundedRectangle(cornerRadius: 10)
-                                                .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color("themeDark") : Color("backGround"), is_active ? Color("themeLight") : .white]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color("themeDark") : Color("iconBackground"), is_active ? Color("themeLight") : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
                                                 .frame(width: iconSize * 0.85, height: iconSize * 0.85)
-                                                .shadow(color: .primary.opacity(0.1), radius: 2, x: 2, y: 2)
+                                                .shadow(color: .black.opacity(0.1), radius: 2, x: 2, y: 2)
                                             Image(category.icon.name)
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
                                                 .frame(width: iconSize * 0.5, height: iconSize * 0.5)
-                                                .foregroundColor(is_active ? .white : .secondary.opacity(0.7))
+                                                .foregroundColor(is_active ? .white : Color("darkGray"))
                                         }
 
                                         Text(category.name).style(.footnote, weight: .bold).lineLimit(1).scaleEffect(1.1)
@@ -183,7 +199,7 @@ struct EditPresetView: View {
                                 }
                             }
                             
-                        Divider().frame(height: 1).background(showCalculator ? Color("themeLight") : Color.secondary)
+                        Divider().frame(height: 1).background(showCalculator ? Color("themeLight") : Color("secondary"))
                     }
                     .frame(width: screen.width * 0.8)
                     
@@ -193,7 +209,7 @@ struct EditPresetView: View {
                             self.activeMemo = isEditing
                             self.showCalculator = false
                           }).customTextField()
-                        Divider().frame(height: 1).background(activeMemo ? Color("themeLight") : Color.secondary)
+                        Divider().frame(height: 1).background(activeMemo ? Color("themeLight") : Color("secondary"))
                     }
                     .padding(.bottom, screen.width * 0.05)
                     .frame(width: screen.width * 0.8)
@@ -209,8 +225,8 @@ struct EditPresetView: View {
                             case .failure(let error):
                                 self.showingAlert = AlertItem(
                                     alert: Alert(
-                                        title: Text(""),
-                                        message: Text(error.message),
+                                        title: Text(error.message),
+                                        message: Text(""),
                                         dismissButton: .default(Text("OK"))))
                                 UIApplication.shared.closeKeyboard()
                                 withAnimation() {
@@ -229,8 +245,8 @@ struct EditPresetView: View {
                         Button(action: {
                             self.showingAlert = AlertItem(
                                 alert: Alert(
-                                     title: Text(""),
-                                     message: Text("削除しますか?"),
+                                     title: Text("削除しますか?"),
+                                     message: Text("すでに記録されているものは削除されません。"),
                                      primaryButton: .cancel(Text("キャンセル")),
                                      secondaryButton: .destructive(Text("削除"),
                                      action: {
@@ -239,7 +255,7 @@ struct EditPresetView: View {
                                    })))
                             self.deleteTarget = presetCell
                         }) {
-                            Text("削除する").bold().style()
+                            Text("削除する").style(weight: .regular, color: Color("warningDark"))
                         }
                     }
                     

@@ -161,7 +161,7 @@ struct ListCard: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 18, height: 18)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color("secondary"))
                     .padding(.trailing, 4)
                 
                 Text(name).style().lineLimit(1)

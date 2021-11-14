@@ -13,7 +13,7 @@ final class BalanceViewModel: ObservableObject {
     @ObservedObject var env   : StatusObject
     @Published var recordType : RecordType?
     @Published var category   : Category?
-    @Published var recordCells: [RecordCell] = []
+    @Published var recordCells: [(key: Date, value: [RecordCell])] = []
     @Published var summary    : [(key: RecordType, value: [(key: Category, value: Int)])] = []
     
     private var notificationTokens: [NotificationToken] = []
@@ -56,10 +56,12 @@ final class BalanceViewModel: ObservableObject {
     
     var spending: Int {
         var result = 0
-        self.recordCells.forEach({ record in
-            if record.category.type == RecordType.expense.rawValue {
-                result += record.amount
-            }
+        self.recordCells.forEach({ date, recordCells in
+            recordCells.forEach({ recordCell in
+                if recordCell.category.type == RecordType.expense.rawValue {
+                    result += recordCell.amount
+                }
+            })
         })
         
         return result
@@ -67,10 +69,12 @@ final class BalanceViewModel: ObservableObject {
     
     var income: Int {
         var result = 0
-        self.recordCells.forEach({ record in
-            if record.category.type == RecordType.income.rawValue {
-                result += record.amount
-            }
+        self.recordCells.forEach({ date, recordCells in
+            recordCells.forEach({ recordCell in
+                if recordCell.category.type == RecordType.income.rawValue {
+                    result += recordCell.amount
+                }
+            })
         })
         
         return result
@@ -82,8 +86,10 @@ final class BalanceViewModel: ObservableObject {
     
     var categoryAmount: Int {
         var result = 0
-        self.recordCells.forEach({ record in
-            result += record.amount
+        self.recordCells.forEach({ date, recordCells in
+            recordCells.forEach({ recordCell in
+                result += recordCell.amount
+            })
         })
         
         return result
@@ -103,7 +109,18 @@ final class BalanceViewModel: ObservableObject {
     private func setRecordCells() {
         let records = Record.getRecords(start: env.startDate, end: env.endDate, category: self.category)
         
-        self.recordCells = records.map{RecordCell(id: $0.id, date: $0.date, category: $0.category, amount: $0.amount, memo: $0.memo, created_at: $0.created_at, updated_at: $0.updated_at)}
+        let cells: [RecordCell] = records.map{RecordCell(id: $0.id, date: $0.date, category: $0.category, amount: $0.amount, memo: $0.memo, created_at: $0.created_at, updated_at: $0.updated_at)}
+            .map { recordCell in
+                var cell = recordCell
+                cell.date = cell.date.fixed(hour: 0, minute: 0, second: 0)
+                return cell
+            }
+        
+        let formatter = DateFormatter()
+        
+        formatter.dateFormat = "md"
+        
+        self.recordCells = Dictionary(grouping: cells, by: { $0.date }).sorted{$0.key > $1.key}.map{$0}
     }
     
     private func setSummary() {

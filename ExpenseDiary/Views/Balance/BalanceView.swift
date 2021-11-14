@@ -43,7 +43,9 @@ struct BalanceView: View {
     init(height: CGFloat, viewModel: BalanceViewModel) {
         self.height = height
         self.viewModel = viewModel
-        formatter.dateFormat = "M-d"
+        formatter.locale = Locale(identifier: "ja_JP")
+        formatter.dateFormat = Config.MONTH_DAY_DESC
+        UITableView.appearance().backgroundColor = UIColor(Color("backGround"))
     }
     
     func onClickBackward() {
@@ -63,6 +65,7 @@ struct BalanceView: View {
     }
     
     func open() {
+//        self.env.showYearMonthPicker = false
         self.env.onChangeViewType(.balance)
     }
     
@@ -74,6 +77,7 @@ struct BalanceView: View {
         }
     }
     
+    
     var body: some View {
         ScrollViewReader { scrollProxy in
             ZStack (alignment: .top) {
@@ -83,37 +87,39 @@ struct BalanceView: View {
                 List {
                     if viewModel.viewState == .summary {
                         if !viewModel.summary.isEmpty {
-                            VStack {
-                                ForEach(viewModel.summary, id: \.key) { summary in
-                                    ForEach(summary.value, id: \.key) { s in
-                                        SummaryCardView(category: s.key, amount: s.value).id(summary.key)
-                                            .listRowInsets(EdgeInsets())
-                                            .onTapGesture {
-                                                self.viewModel.onChangeCategory(category: s.key)
-                                            }
-                                    }
+                            ForEach(viewModel.summary, id: \.key) { summary in
+                                ForEach(summary.value, id: \.key) { s in
+                                    SummaryCardView(category: s.key, amount: s.value).id(summary.key)
+                                        .listRowInsets(EdgeInsets())
+                                        .onTapGesture {
+                                            self.viewModel.onChangeCategory(category: s.key)
+                                        }
                                 }
                             }
-                            .padding(.bottom, show ? headerHeight + 90 : 0)
+//                            .padding(.bottom, show ? headerHeight + 90 : 0)
                         } else {
-                            NoDataView()
+                            NoDataView().listRowInsets(EdgeInsets())
                         }
                     } else {
                         if !viewModel.recordCells.isEmpty {
-                            VStack {
-                                ForEach(viewModel.recordCells, id: \.id) { recordCell in
-                                    RecordCardView(recordCell: recordCell).id(recordCell.id)
-                                    .listRowInsets(EdgeInsets())
+                            ForEach(viewModel.recordCells, id: \.key) { date, recordCells in
+                                Section (header:
+                                            RecordSectionHeaderView(date: date, recordCells: recordCells)) {
+                                    ForEach(recordCells, id: \.id) { recordCell in
+                                        RecordCardView(recordCell: recordCell).id(recordCell.id)
+                                        .listRowInsets(EdgeInsets())
+                                    }
                                 }
-                            }.padding(.bottom, show ? headerHeight + 90 : 0)
-
+                            }
                         } else {
-                            NoDataView()
+                            NoDataView().listRowInsets(EdgeInsets())
                         }
                     }
                 }
                 .listStyle(PlainListStyle())
                 .frame(maxWidth: width, maxHeight: contentHeight, alignment: .top)
+                .padding(.bottom, headerHeight + 100)
+                .background(Color("backGround"))
 //                .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
                 .myShadow(radius: 10, x: 1, y: -1)
                 .offset(y: show ? headerHeight : 0)
@@ -129,6 +135,9 @@ struct BalanceView: View {
                             Image(systemName: "arrow.backward")
                                 .font(.title)
                                 .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .contentShape(Rectangle())
+                                .offset(x: -20)
                                 .onTapGesture { self.onClickBackward() }
                             Spacer()
                         }}
@@ -179,10 +188,16 @@ struct BalanceView: View {
                             HStack (spacing: 20) {
                                 VStack (spacing: 4) {
                                     Text("支出").style(.caption, weight: .bold, color: .white)
-                                    Text("\(viewModel.spending)円").style(.title3, color: .white)
+                                        .offset(x: -8)
+                                    HStack (spacing: 6) {
+                                        Text("\(viewModel.spending)円").style(.title3, color: .white)
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 14, weight: .regular))
+                                            .foregroundColor(.white)
+                                    }
                                 }
                                 .padding(12)
-                                .background(Color.secondary.opacity(viewModel.recordType == .expense ? 0.2 : 0))
+                                .background(Color("secondary").opacity(viewModel.recordType == .expense ? 0.2 : 0))
                                 .cornerRadius(5)
                                 .onTapGesture {
                                     viewModel.onChangeRecordType(recordType: .expense)
@@ -190,10 +205,16 @@ struct BalanceView: View {
                                 
                                 VStack (spacing: 6) {
                                     Text("収入").style(.caption, weight: .bold, color: .white)
-                                    Text("\(viewModel.income)円").style(.title3, color: .white)
+                                        .offset(x: -8)
+                                    HStack (spacing: 6) {
+                                        Text("\(viewModel.income)円").style(.title3, color: .white)
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 14, weight: .regular))
+                                            .foregroundColor(.white)
+                                    }
                                 }
                                 .padding(12)
-                                .background(Color.secondary.opacity(viewModel.recordType == .income ? 0.2 : 0))
+                                .background(Color("secondary").opacity(viewModel.recordType == .income ? 0.3 : 0))
                                 .cornerRadius(5)
                                 .onTapGesture {
                                     viewModel.onChangeRecordType(recordType: .income)
@@ -204,7 +225,6 @@ struct BalanceView: View {
                     .padding(pad)
                     .padding(.top, show ? 30 : 0)
                 }
-//                .background(LinearGradient(gradient: Gradient(colors: [Color("themeDark").opacity(show ? 1 : 0), Color("themeLight").opacity(show ? 1 : 0)]), startPoint: .leading, endPoint: .trailing))
                 .frame(maxWidth: width, maxHeight: headerHeight)
                 .ignoresSafeArea(.all)
                 .animation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0))
@@ -244,3 +264,4 @@ struct BalanceView_Previews: PreviewProvider {
         }
     }
 }
+

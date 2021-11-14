@@ -84,25 +84,29 @@ class CategoryViewModel: ObservableObject {
             return
         }
         
-        if source < to {
-            for i in (source + 1)...(to - 1) {
-                if let category = Category.getById(categories[i].id) {
-                    Category.updateOrder(category: category, order: i)
+        let realm = try! Realm()
+        
+        try! realm.write {
+            if source < to {
+                for i in (source + 1)...(to - 1) {
+                    if let category = Category.getById(categories[i].id) {
+                        Category.updateOrder(category: category, order: i)
+                    }
                 }
-            }
-            if let category = Category.getById(categories[source].id) {
-                Category.updateOrder(category: category, order: to)
-            }
-        } else if source > to {
-            var count = 0
-            for i in (to...(source - 1)).reversed() {
-                if let category = Category.getById(categories[i].id) {
-                    Category.updateOrder(category: category, order: source + 1 - count)
+                if let category = Category.getById(categories[source].id) {
+                    Category.updateOrder(category: category, order: to)
                 }
-                count += 1
-            }
-            if let category = Category.getById(categories[source].id) {
-                Category.updateOrder(category: category, order: to + 1)
+            } else if source > to {
+                var count = 0
+                for i in (to...(source - 1)).reversed() {
+                    if let category = Category.getById(categories[i].id) {
+                        Category.updateOrder(category: category, order: source + 1 - count)
+                    }
+                    count += 1
+                }
+                if let category = Category.getById(categories[source].id) {
+                    Category.updateOrder(category: category, order: to + 1)
+                }
             }
         }
         self.setCategoryCells(categories: self.categories)

@@ -9,44 +9,34 @@ import SwiftUI
 
 struct RecordCardView: View {
     let recordCell: RecordCell
-    let formatter = DateFormatter()
     @State var show = false
     
     init(recordCell: RecordCell) {
         self.recordCell = recordCell
-        formatter.locale = Locale(identifier: "ja_JP")
-        formatter.dateFormat = "M-d E"
     }
     
     var body: some View {
-        VStack (spacing: 0) {
-            VStack (spacing: 8) {
-                HStack {
-                    Text(formatter.string(from: recordCell.date))
-                        .style(.caption, weight: .bold, tracking: 0)
-                        .scaleEffect(1.1)
-                        .opacity(0.9)
-                        .offset(x: 1)
-                    Spacer()
-                }
+        Button (action: {self.show.toggle()}) {
+            VStack (spacing: 0) {
                 HStack (spacing: 12) {
-                    Text(recordCell.category.name).style(.title3)
-                    Text(recordCell.memo).style(.caption, tracking: 1).scaleEffect(1.2)
+                    Image("\(recordCell.category.icon.name)")
+                        .resizable().aspectRatio(contentMode: .fit)
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(Color("darkGray"))
+                    
+                    Text(recordCell.category.name).style(.body).offset(x: -4)
+                    Text(recordCell.memo).style(.caption, tracking: 1)
                     Spacer()
-                    Text("\(recordCell.amount)円").style(.title3, tracking: 1)
+                    Text("\(recordCell.amount)円").style(.body, tracking: 1)
                 }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 16)
+                
+                Divider()
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 12)
-            .padding(.bottom, 16)
-            
-            Divider()
         }
-        .background(Color("backGround"))
-        .onTapGesture {
-            self.show.toggle()
-        }
-        .sheet(isPresented: $show) {
+        .buttonStyle(ListButtonStyle())
+        .fullScreenCover(isPresented: $show) {
             EditRecordView(record: recordCell)
         }
     }

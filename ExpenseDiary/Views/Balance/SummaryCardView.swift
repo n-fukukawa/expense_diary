@@ -19,10 +19,10 @@ struct SummaryCardView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 24, height: 24)
-                        .foregroundColor(.secondary).opacity(0.8)
-                    Text(category.name).style(.title3)
+                        .foregroundColor(Color("darkGray")).opacity(0.8)
+                    Text(category.name).style(.body)
                     Spacer()
-                    Text("\(amount)円").style(.title3, tracking: 1)
+                    Text("\(amount)円").style(.body, tracking: 1)
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)

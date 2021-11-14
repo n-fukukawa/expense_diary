@@ -20,6 +20,8 @@ class StatusObject: ObservableObject {
     @Published var activeYear: Int = 0
     @Published var activeMonth: Int = 0
     
+//    @Published var showYearMonthPicker = false
+    
     
     @Published var startDay: Int {
         didSet {

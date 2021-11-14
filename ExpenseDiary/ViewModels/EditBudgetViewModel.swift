@@ -14,7 +14,7 @@ class EditBudgetViewModel: ObservableObject {
     
     init(env: StatusObject) {
         self.env = env
-        self.categoryCells = Category.getByType(.expense)
+        self.categoryCells = Category.getByType(.expense, withTotal: true)
             .map {
                 CategoryCell(id: $0.id, type: $0.type, name: $0.name, icon: $0.icon, order: $0.order, created_at: $0.created_at, updated_at: $0.updated_at)
                 }

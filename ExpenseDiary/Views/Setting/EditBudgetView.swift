@@ -50,94 +50,91 @@ struct EditBudgetView: View {
     
     var body: some View {
         ScrollViewReader { scrollProxy in
-            ZStack {
-            // 背景
-                Color("backGround").ignoresSafeArea(.all)
-            
-                VStack(spacing: 20) {
-
-                    Form {
-                        Section(header: HStack {
-                            Spacer()
-                            Text("\(String(env.activeYear))年\(env.activeMonth)月度の予算")
-                                .style(.title3)
-                            Spacer()
-                        }.padding()
-                        ) {
-                            ForEach(viewModel.categoryCells.indices) { i in
-                                HStack {
+            NavigationView {
+                ZStack {
+                // 背景
+                    Color("backGround").ignoresSafeArea(.all)
+                
+                    VStack(spacing: 20) {
+                        Form {
+                            Section(header: HStack {
+                                Spacer()
+                                Text("\(String(env.activeYear))年\(env.activeMonth)月度の予算")
+                                    .style(.title3)
+                                Spacer()
+                            }.padding()
+                            ) {
+                                ForEach(viewModel.categoryCells.indices) { i in
                                     HStack {
-                                        Text("\(viewModel.categoryCells[i].name)").style()
-                                        Spacer()
+                                        HStack {
+                                            Text("\(viewModel.categoryCells[i].name)").style()
+                                            Spacer()
+                                        }
+                                        .frame(width: screen.width * 0.45)
+                                        TextField("未設定", text: $amounts[i].value)
+                                            .multilineTextAlignment(.trailing)
+                                            .customTextField()
+                                            .keyboardType(.numbersAndPunctuation)
                                     }
-                                    .frame(width: screen.width * 0.4)
-                                    TextField("未設定", text: $amounts[i].value)
-                                        .multilineTextAlignment(.trailing)
-                                        .customTextField()
-                                        .keyboardType(.numbersAndPunctuation)
+                                    .frame(height: screen.height * 0.05)
                                 }
-                                .frame(height: screen.height * 0.05)
                             }
                         }
-                    }
-                    .onAppear() {
-                        self.viewModel.categoryCells.forEach({ categoryCell in
-                            var new: (key: CategoryCell, value: String)
-                            if let budgetCell = self.viewModel.budgetCells
-                                .filter({ $0.category.id == categoryCell.id}).first {
-                                new = (key: categoryCell, value: "\(String(budgetCell.amount))")
-                            } else {
-                                new = (key: categoryCell, value: "")
-                            }
-                            self.amounts.append(new)
-                        })
-                    }
+                        .onAppear() {
+                            self.viewModel.categoryCells.forEach({ categoryCell in
+                                var new: (key: CategoryCell, value: String)
+                                if let budgetCell = self.viewModel.budgetCells
+                                    .filter({ $0.category.id == categoryCell.id}).first {
+                                    new = (key: categoryCell, value: "\(String(budgetCell.amount))")
+                                } else {
+                                    new = (key: categoryCell, value: "")
+                                }
+                                self.amounts.append(new)
+                            })
+                        }
 
-                    // 保存ボタン
-                    Button(action: {                        
-                        let result = self.viewModel.save(amounts: self.amounts, year: env.activeYear, month: env.activeMonth)
-                            
-                        switch result {
-                            case .success(_):
-                                self.close()
-                            case .failure(let error):
-                                self.showingAlert = AlertItem(
-                                    alert: Alert(
-                                        title: Text(""),
-                                        message: Text(error.message),
-                                        dismissButton: .default(Text("OK"))))
+                        // 保存ボタン
+                        Button(action: {
+                            let result = self.viewModel.save(amounts: self.amounts, year: env.activeYear, month: env.activeMonth)
+                                
+                            switch result {
+                                case .success(_):
+                                    self.close()
+                                case .failure(let error):
+                                    self.showingAlert = AlertItem(
+                                        alert: Alert(
+                                            title: Text(""),
+                                            message: Text(error.message),
+                                            dismissButton: .default(Text("OK"))))
+                            }
+                        }) {
+                            Text("保存する").bold().style(color: .white)
                         }
-                    }) {
-                        Text("保存する").bold().style(color: .white)
+                        .buttonStyle(PrimaryButtonStyle())
+                        .padding(.horizontal, screen.width * 0.08)
+                        .padding(.vertical, screen.width * 0.05)
                     }
-                    .buttonStyle(PrimaryButtonStyle())
-                    .padding(.horizontal, screen.width * 0.08)
-                    .padding(.vertical, screen.width * 0.05)
+                    //.padding(.vertical, 40)
+                    //.frame(width: screen.width * 0.9)
+                    .alert(item: $showingAlert) { item in
+                        item.alert
+                    }
+            }
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar{
+                    ToolbarItem(placement: .cancellationAction) {
+                        HStack {
+                            Button(action: { self.close() }) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(Color(.link))
+                                Text("戻る").fontWeight(.regular).foregroundColor(Color(.link))
+                            }
+                        }
+                    }
                 }
-                //.padding(.vertical, 40)
-                //.frame(width: screen.width * 0.9)
-                .alert(item: $showingAlert) { item in
-                    item.alert
-                }
-        }
-            .onAppear {
-//                if let budgetCell = self.budgetCell {
-//                    self.category = budgetCell.category
-//                    self.amount   = "\(budgetCell.amount)"
-//                    self.year     = budgetCell.year
-//                    scrollProxy.scrollTo(budgetCell.category.id)
-//                }
             }
         }
-        .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading: Button(action: { self.close()} )
-            {
-                HStack {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 14, weight: .medium))
-                    Text("戻る").fontWeight(.regular)
-                }
-            })
         .onAppear() {
             self.showSettingMenu = false
         }

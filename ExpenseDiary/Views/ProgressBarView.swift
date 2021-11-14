@@ -49,12 +49,12 @@ struct ProgressBarView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(height: 8 * multiplier)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color("darkGray"))
                 Text("\(category.name)")
                     .style()
             }
             ZStack (alignment: .leading) {
-                RoundedRectangle(cornerRadius: 5 * multiplier).foregroundColor(.secondary)
+                RoundedRectangle(cornerRadius: 5 * multiplier).foregroundColor(Color("secondary"))
                     .frame(width: size, height: 2.5 * multiplier)
                 RoundedRectangle(cornerRadius: 5 * multiplier).fill(LinearGradient(gradient: Gradient(colors: [color1, color2]), startPoint: .topTrailing, endPoint: .bottomLeading))
                     //.rotation3DEffect(Angle(degrees: 180), axis: (x: 1, y: 0, z: 0))

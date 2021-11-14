@@ -36,91 +36,97 @@ struct CategoryMenuView: View {
     }
     
     var body: some View {
-        ZStack {
-//            Color("backGround")
-            VStack {
-                HStack {
-                    Picker(selection: $type, label: Text("支出収入区分")) {
-                        ForEach(RecordType.all(), id: \.self) { recordType in
-                            Text(recordType.name).style()
+        NavigationView {
+            ZStack (alignment: .top) {
+                Color("backGround").ignoresSafeArea(.all)
+                VStack (spacing: 0) {
+                    HStack {
+                        Picker(selection: $type, label: Text("支出収入区分")) {
+                            ForEach(RecordType.all(), id: \.self) { recordType in
+                                Text(recordType.name).style()
+                            }
                         }
+                        .labelsHidden()
+                        .pickerStyle(SegmentedPickerStyle())
                     }
-                    .labelsHidden()
-                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.horizontal, 40)
+                    .padding(.top, 20)
+                    .padding(.bottom, 16)
+                                    
+                    List {
+                        let categoryCells = viewModel.filterCategoryCells(type: type)
+                        ForEach(categoryCells, id: \.id) { categoryCell in
+                            HStack {
+                                Image(categoryCell.icon.name)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 20, height: 20)
+                                    .foregroundColor(Color("secondary")).opacity(0.8)
+                                    .padding(.trailing, 4)
+                                Text(categoryCell.name).style(.body)
+                                Spacer()
+                            }
+                            .padding(.vertical, 8)
+                            .contentShape(Rectangle())
+                            .listRowBackground(Color("backGround"))
+//                            .deleteDisabled(editMode?.wrappedValue.isEditing == false)
+                            .onTapGesture {
+                                self.selectedCategoryCell = categoryCell
+                            }
+                        }
+                        .onMove(perform: self.move)
+                        .onDelete(perform: { indexSet in
+                            guard let index = indexSet.first else {
+                                return
+                            }
+                            self.deleteTarget = categoryCells[index]
+                            self.showingAlert = AlertItem(alert: Alert(
+                                  title: Text("削除しますか?"),
+                                  message:Text("このカテゴリーで登録した記録やプリセットもすべて削除されます。"),
+                                  primaryButton: .cancel(Text("キャンセル")),
+                                  secondaryButton: .destructive(Text("削除"),
+                                  action: {
+                                       self.viewModel.delete(categoryCell: self.deleteTarget)
+                                  })))
+                        })
+                    }
+                    .listStyle(PlainListStyle())
+                    .sheet(item: $selectedCategoryCell) { categoryCell in
+                        EditCategoryView(type: type, categoryCell: categoryCell)
+                    }
+                    .alert(item: $showingAlert) { item in
+                        item.alert
+                    }
+                    .padding(.horizontal, 16)
                 }
-                .padding(.horizontal, 40)
-                .padding(.top, 20)
-                .padding(.bottom, 16)
-                                
-                List {
-                    let categoryCells = viewModel.filterCategoryCells(type: type)
-                    ForEach(categoryCells, id: \.id) { categoryCell in
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
                         HStack {
-                            Image(categoryCell.icon.name)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 20, height: 20)
-                                .foregroundColor(.secondary)
-                                .padding(.trailing, 4)
-                            Text(categoryCell.name).style(.title3)
-                            Spacer()
+                            Button(action: { self.close() }) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(Color(.link))
+                                Text("戻る").fontWeight(.regular).foregroundColor(Color(.link))
+                            }
                         }
-                        .padding(8)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            self.selectedCategoryCell = categoryCell
-                        }
-                        .deleteDisabled(editMode?.wrappedValue.isEditing == false)
                     }
-                    .onMove(perform: self.move)
-                    .onDelete(perform: { indexSet in
-                        guard let index = indexSet.first else {
-                            return
+                    ToolbarItemGroup(placement: .navigationBarTrailing) {
+                        Button(action: { self.isShowing = true }) {
+                            Text("作成").fontWeight(.regular)
                         }
-                        self.deleteTarget = categoryCells[index]
-                        self.showingAlert = AlertItem(alert: Alert(
-                              title: Text("削除しますか?"),
-                              message:Text("このカテゴリーで登録した記録やプリセットもすべて削除されます。"),
-                              primaryButton: .cancel(Text("キャンセル")),
-                              secondaryButton: .destructive(Text("削除"),
-                              action: {
-                                   self.viewModel.delete(categoryCell: self.deleteTarget)
-                              })))
-                    })
-                }
-                .sheet(item: $selectedCategoryCell) { categoryCell in
-                    EditCategoryView(type: type, categoryCell: categoryCell)
-                }
-                .alert(item: $showingAlert) { item in
-                    item.alert
-                }
-                .padding(.horizontal, 16)
-            }
-            .frame(width: screen.width)
-        }
-        .sheet(isPresented: $isShowing) {
-            EditCategoryView(type: type, categoryCell: nil)
-        }
-        .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading: Button(action: { self.close() } )
-            {
-                HStack {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 14, weight: .medium))
-                    Text("戻る").fontWeight(.regular)
-                }
-            })
-        .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button(action: { self.isShowing = true }) {
-                    Text("作成").fontWeight(.regular)
-                }
 
-                MyEditButton().padding(.trailing, 20)
+                        MyEditButton().padding(.trailing, 20)
+                    }
+                }
             }
-        }
-        .onAppear() {
-            self.showSettingMenu = false
+
+            .sheet(isPresented: $isShowing) {
+                EditCategoryView(type: type, categoryCell: nil)
+            }
+            .onAppear() {
+                self.showSettingMenu = false
+            }
         }
     }
 }
@@ -153,7 +159,7 @@ struct EditCategoryView: View {
                         self.isEditing = isEditing
                       }).customTextField()
 
-                    Divider().frame(height: 1).background(isEditing ? Color("themeLight") : Color.secondary)
+                    Divider().frame(height: 1).background(isEditing ? Color("themeLight") : Color("secondary"))
                 }
                 .padding(.top, 20)
                 .padding(.bottom, 50)
@@ -167,14 +173,14 @@ struct EditCategoryView: View {
                                 let is_active = self.icon == icon
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 10)
-                                        .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color("themeDark") : Color("backGround"), is_active ? Color("themeLight") : .white]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                        .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color("themeDark") : Color("iconBackground"), is_active ? Color("themeLight") : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
                                         .frame(width: iconSize * 0.85, height: iconSize * 0.85)
-                                        .myShadow(radius: 3, x: 2, y: 2)
+                                        .shadow(color: .black.opacity(0.1), radius: 3, x: 2, y: 2)
                                     Image(icon.name)
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
                                         .frame(width: iconSize * 0.45, height: iconSize * 0.45)
-                                        .foregroundColor(is_active ? .white : .secondary)
+                                        .foregroundColor(is_active ? .white : Color("darkGray"))
                                 }
                             }
                         }

@@ -23,7 +23,8 @@ struct RootView: View {
     @State var dragUp: CGFloat = .zero
     
     var showModal: Bool {
-        self.showSettingMenu || self.showPicker
+        self.showSettingMenu
+//            || self.env.showYearMonthPicker
     }
     
     init() {
@@ -37,17 +38,15 @@ struct RootView: View {
 //        ColorSet.seed()
 ////
 //        Category.seed()
-////        Budget.seed()
-////        Record.seed()
+//        Budget.seed()
+//        Record.seed()
     }
     @State var memo = ""
 
     var body: some View {
 
         NavigationView {
-            
             ZStack (alignment: .top) {
-                
                 if mode == .home {
                     Color("backGround").ignoresSafeArea(.all)
                     
@@ -57,7 +56,7 @@ struct RootView: View {
                     
                     VStack (spacing: 8) {
                         HeaderView(showSettingMenu: $showSettingMenu, showPicker: $showPicker)
-                            .padding(.top, 10)
+                            .padding(.top, 8)
                             .frame(maxWidth: screen.width - 40)
 
                         GeometryReader { geometry in
@@ -83,7 +82,7 @@ struct RootView: View {
                             CalendarView(viewModel: CalendarViewModel(env: env), height: 300)
                                 .padding(.top, 10)
                         }
-                        .offset(y: showPicker ? 100 - dragUp : 0)                        
+                        .offset(y: showPicker ? 100 - dragUp : 0)
                     }
                     .transition(.opacity)
                     .ignoresSafeArea(.keyboard)
@@ -119,6 +118,7 @@ struct RootView: View {
                 VStack {
                     Spacer()
                     AdmobBannerView().frame(width: 320, height: 50)
+                        .padding(.bottom, 4)
                         .zIndex(2)
                     if env.viewType == .home {
                         HStack {
@@ -130,23 +130,25 @@ struct RootView: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 30, height: 30)
-                                    .foregroundColor(self.mode == .home ? Color("themeDark").opacity(0.8) : .secondary.opacity(0.4))
+                                    .foregroundColor(self.mode == .home ? Color("themeDark").opacity(0.8) : Color("secondary").opacity(0.4))
                             }
                             Spacer()
-                            Button(action: {self.showEdit = true}) {
-                                ZStack {
-                                    Circle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                                        .shadow(color: Color("themeDark").opacity(0.3), radius: 2, x: 0, y: 0)
-                                        .shadow(color: Color("themeDark").opacity(0.8), radius: 1, x: 2, y: 2)
-                                        .shadow(color: Color("themeLight").opacity(0.8), radius: 1, x: -1, y: -1)
-                                    Image(systemName: "plus")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .foregroundColor(.white)
-                                        .frame(width: 20, height: 20)
-                                }
-                                .frame(width: 60, height: 60)
+                            NavigationLink(destination: EditRecordView(record: nil)) {
+//                                Button(action: {self.showEdit = true}) {
+                                    ZStack {
+                                        Circle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .topLeading, endPoint: .bottomTrailing))
+//                                            .shadow(color: Color("themeDark").opacity(0.3), radius: 2, x: 0, y: 0)
+                                            .shadow(color: Color("themeDark").opacity(1), radius: 1, x: 1.5, y: 1.5)
+                                            .shadow(color: Color("themeLight").opacity(0.8), radius: 1, x: -1, y: -1)
+                                        Image(systemName: "plus")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .foregroundColor(.white)
+                                            .frame(width: 16, height: 16)
+                                    }
+                                    .frame(width: 50, height: 50)
                             }
+
                             Spacer()
                             Button(action: {
                                 withAnimation(.easeInOut(duration: 0.4)) {self.mode = .chart}
@@ -155,7 +157,7 @@ struct RootView: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 30, height: 30)
-                                    .foregroundColor(self.mode == .chart ? Color("themeDark").opacity(0.8) : .secondary.opacity(0.4))
+                                    .foregroundColor(self.mode == .chart ? Color("themeDark").opacity(0.8) : Color("secondary").opacity(0.4))
                             }
                             Spacer()
                         }
@@ -163,7 +165,7 @@ struct RootView: View {
                     }
                 }
                 
-                Color.primary.opacity(showSettingMenu ? 0.2 : 0)
+                Color.black.opacity(showSettingMenu ? 0.4 : 0)
                     .ignoresSafeArea(.all)
                     .animation(.easeOut(duration: 0.4))
                     .onTapGesture {
@@ -175,9 +177,6 @@ struct RootView: View {
             .navigationBarHidden(true)
             .navigationBarBackButtonHidden(true)
             .navigationBarTitleDisplayMode(.inline)
-        }
-        .sheet(isPresented: $showEdit) {
-            EditRecordView(record: nil)
         }
     }
 }
@@ -200,7 +199,7 @@ struct HeaderView: View {
     }
     var body: some View {
         ZStack (alignment: .top) {
-            YearMonthPicker(showPicker: $showPicker)
+            YearMonthPicker()
                 .frame(maxWidth: screen.width - 40, maxHeight: showPicker ? 80 : 10, alignment: .top)
                 .offset(y: showPicker ? 80 : 0)
                 .opacity(showPicker ? 1 : 0)
@@ -219,7 +218,7 @@ struct HeaderView: View {
                     }
                     
                     Button(action: { withAnimation() {
-                            self.showPicker.toggle()
+                        self.showPicker.toggle()
                         }
                     })
                     {
@@ -270,105 +269,34 @@ struct ContentView_Previews: PreviewProvider {
 struct YearMonthPicker: View {
     let screen = UIScreen.main.bounds
     @EnvironmentObject var env: StatusObject
-    @Binding var showPicker: Bool
-//    @State var year: Int = 0
-//    @State var month: Int = 0
     
-    func change() {
-        self.env.refreshActive()
-    }
+//    func change() {
+//        self.env.refreshActive()
+//    }
     
     var body: some View {
         VStack {
             HStack {
                 Picker("年", selection: $env.activeYear) {
                     ForEach(1900...2100, id: \.self) { year in
-                        Text("\(String(year))").style(weight: .semibold, tracking: 1, color: .white)
+                        Text("\(String(year))")
+                            .style(weight: .semibold, tracking: 1, color: .white)
                     }
                 }
                 .frame(width: 150, height: 80)
                 .clipped()
-//                .onChange(of: env.activeYear) { bool in
-//                    self.change()
-//                }
+                
                 Picker("月", selection: $env.activeMonth) {
                     ForEach(1...12, id: \.self) { month in
-                        Text("\(String(month))").style(weight: .semibold, tracking: 1, color: .white)
+                        Text("\(String(month))")
+                            .style(weight: .semibold, tracking: 1, color: .white)
                     }
                 }
                 .frame(width: 90, height: 80)
                 .clipped()
-//                .onChange(of: env.activeMonth) { bool in
-//                    self.change()
-//                }
-                
                 Spacer()
             }
             .contentShape(Rectangle())
-            .onTapGesture {
-                withAnimation() {
-                    self.showPicker = false
-                }
-            }
-
-//            HStack {
-//                Spacer()
-//                HStack {
-//                    Button(action: { self.year -= 1 }) {
-//                        Image(systemName: "chevron.left")
-//                            .font(.system(size: 16, weight: .regular))
-//                            .foregroundColor(.secondary)
-//                            .padding(.horizontal, 10)
-//                            .padding(.leading, 10)
-//                    }
-//                    Text("\(String(year))")
-//                        .style(.title3, weight: .bold, tracking: 0, color: .secondary)
-//                    Button(action: { self.year += 1 }) {
-//                        Image(systemName: "chevron.right")
-//                            .font(.system(size: 16, weight: .regular))
-//                            .foregroundColor(.secondary)
-//                            .padding(.horizontal, 10)
-//                            .padding(.trailing, 10)
-//                            .contentShape(Rectangle())
-//                    }
-//                }
-//                .offset(x: 12)
-//                Spacer()
-//                Button(action: {
-//                    self.showPicker = false
-//                    self.year = self.env.activeYear
-//                    self.month = self.env.activeMonth
-//                }){
-//                    Image(systemName: "xmark")
-//                    .font(.system(size: 20, weight: .medium))
-//                    .foregroundColor(.secondary)
-//                }
-//            }
-//            .padding(.bottom, 30)
-            
-//            let columns:[GridItem] = Array(repeating: .init(.flexible(minimum: 30)), count: 3)
-//
-//            LazyVGrid(columns: columns, spacing: 30) {
-//                ForEach(1..<13) {month in
-//                    let active = env.activeYear == self.year && self.env.activeMonth == month
-//                    Button(action: {
-//                        self.env.setActive(year: year, month: month)
-//                        self.showPicker = false
-//                    }) {
-//                        Text("\(month)月").style(.body, weight: .medium, tracking: 0, color: active ? Color("themeDark") : .secondary)
-//                    }
-//                }
-//            }
-            
         }
-//        .padding(30)
-//        .myShadow(radius: 10, x: 5, y: 5)
-//        .offset(y: showPicker ? 0 : screen.height)
-//        //.scaleEffect(showDatePicker ? 0.9 : 1)
-//        .animation(.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 0))
-//        .onAppear() {
-//            self.year = env.activeYear
-//            self.month = env.activeMonth
-//        }
     }
 }
