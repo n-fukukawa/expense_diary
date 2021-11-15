@@ -9,18 +9,19 @@ import SwiftUI
 import Charts
 
 struct ChartView: UIViewRepresentable {
-    
     typealias UIViewType = BarChartView
-    
+
     let dataSet: [(key: YearMonth, value: Int)]
     let balance: Bool
+    var env: StatusObject
     
     var data: [ChartDataEntry] = []
     var descs: [String] = []
     
-    init(dataSet: [(key: YearMonth, value: Int)], balance: Bool) {
+    init(dataSet: [(key: YearMonth, value: Int)], balance: Bool, env: StatusObject) {
         self.dataSet = dataSet
         self.balance = balance
+        self.env = env
 
         var count: Double = 0
         self.dataSet.forEach({ set in
@@ -33,24 +34,9 @@ struct ChartView: UIViewRepresentable {
     func setData() -> BarChartData {
         let dataSet = BarChartDataSet(entries: self.data)
         
-        let gradientColors = [
-            UIColor(Color("themeLight")).withAlphaComponent(0.3).cgColor,
-            UIColor(Color("themeDark")).withAlphaComponent(1).cgColor,
-        ] as CFArray
-        let colorLocations:[CGFloat] = [0.0, 0.8, 0.95] // Positioning of the gradient
-        let gradient = CGGradient.init(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: gradientColors, locations: colorLocations) // Gradient Object
-        //dataSet.mode = .cubicBezier
-//        dataSet.fill = Fill(linearGradient: gradient!, angle: 90)
-//        dataSet.fillAlpha = 0.5
-//        dataSet.drawFilledEnabled = true
-//        dataSet.setCircleColor(UIColor(Color("themeDark")))
-//        dataSet.circleRadius = 2
-        
-        let colorSets = Array(self.dataSet.map{$0.value < 0 ? UIColor(Color("warningLight")) : UIColor(Color("themeLight"))})
+        let colorSets = Array(self.dataSet.map{$0.value < 0 ? UIColor(Color(hex: "cccccc")) : UIColor(Color(env.themeLight))})
         
         dataSet.setColors(colorSets[0], colorSets[1], colorSets[2], colorSets[3], colorSets[4], colorSets[5], colorSets[6], colorSets[7], colorSets[8], colorSets[9], colorSets[10], colorSets[11], colorSets[12])
-        
-//        dataSet.drawCirclesEnabled = false
 
         let barChartData =  BarChartData(dataSet: dataSet)
         barChartData.barWidth = Double(0.4)
@@ -72,9 +58,7 @@ struct ChartView: UIViewRepresentable {
         chart.scaleXEnabled = false
         chart.scaleYEnabled = false
         
-//        if preview {
-            chart.highlightPerTapEnabled = false
-//        }
+        chart.highlightPerTapEnabled = false
         
         chart.leftAxis.axisMinimum = 0
         
@@ -106,7 +90,6 @@ struct ChartView: UIViewRepresentable {
         yAxis.axisLineColor = UIColor(.primary)
         yAxis.gridLineWidth = 1
         yAxis.gridColor = UIColor(Color("secondary")).withAlphaComponent(0.1)
-        //yAxis.setLabelCount(3, force: false)
         yAxis.labelPosition = .outsideChart
         yAxis.labelFont = UIFont.systemFont(ofSize: 12)
         yAxis.labelTextColor = UIColor(Color("secondary"))

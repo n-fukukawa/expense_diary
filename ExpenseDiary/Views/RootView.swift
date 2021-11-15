@@ -22,26 +22,13 @@ struct RootView: View {
     
     @State var dragUp: CGFloat = .zero
     
-    var showModal: Bool {
-        self.showSettingMenu
-//            || self.env.showYearMonthPicker
+    init () {
+        
     }
     
-    init() {
-//        let realm = try! Realm()
-//
-//        try! realm.write {
-//             realm.deleteAll()
-//        }
-//        Icon.seed()
-//        Theme.seed()
-//        ColorSet.seed()
-////
-//        Category.seed()
-//        Budget.seed()
-//        Record.seed()
+    var showModal: Bool {
+        self.showSettingMenu
     }
-    @State var memo = ""
 
     var body: some View {
 
@@ -50,13 +37,13 @@ struct RootView: View {
                 if mode == .home {
                     Color("backGround").ignoresSafeArea(.all)
                     
-                    Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .leading, endPoint: .trailing))
+                    Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color(env.themeDark), Color(env.themeLight)]), startPoint: .topLeading, endPoint: .bottomTrailing))
                         .frame(height: showPicker ? screen.height * 0.3 + 120 - dragUp : screen.height * 0.3)
                         .ignoresSafeArea(.all)
                     
                     VStack (spacing: 8) {
                         HeaderView(showSettingMenu: $showSettingMenu, showPicker: $showPicker)
-                            .padding(.top, 8)
+                            .padding(.top, 5)
                             .frame(maxWidth: screen.width - 40)
 
                         GeometryReader { geometry in
@@ -130,16 +117,15 @@ struct RootView: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 30, height: 30)
-                                    .foregroundColor(self.mode == .home ? Color("themeDark").opacity(0.8) : Color("secondary").opacity(0.4))
+                                    .foregroundColor(self.mode == .home ? Color(env.themeDark).opacity(0.8) : Color("secondary").opacity(0.4))
                             }
                             Spacer()
                             NavigationLink(destination: EditRecordView(record: nil)) {
 //                                Button(action: {self.showEdit = true}) {
                                     ZStack {
-                                        Circle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .topLeading, endPoint: .bottomTrailing))
-//                                            .shadow(color: Color("themeDark").opacity(0.3), radius: 2, x: 0, y: 0)
-                                            .shadow(color: Color("themeDark").opacity(1), radius: 1, x: 1.5, y: 1.5)
-                                            .shadow(color: Color("themeLight").opacity(0.8), radius: 1, x: -1, y: -1)
+                                        Circle().fill(LinearGradient(gradient: Gradient(colors: [Color(env.themeDark), Color(env.themeLight)]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                            .shadow(color: Color(env.themeDark).opacity(1), radius: 1, x: 1, y: 1)
+                                            .shadow(color: Color(env.themeLight).opacity(0.8), radius: 1, x: -1, y: -1)
                                         Image(systemName: "plus")
                                             .resizable()
                                             .aspectRatio(contentMode: .fit)
@@ -157,7 +143,7 @@ struct RootView: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 30, height: 30)
-                                    .foregroundColor(self.mode == .chart ? Color("themeDark").opacity(0.8) : Color("secondary").opacity(0.4))
+                                    .foregroundColor(self.mode == .chart ? Color(env.themeDark).opacity(0.8) : Color("secondary").opacity(0.4))
                             }
                             Spacer()
                         }
@@ -178,6 +164,7 @@ struct RootView: View {
             .navigationBarBackButtonHidden(true)
             .navigationBarTitleDisplayMode(.inline)
         }
+        .accentColor(Color(env.themeDark))
     }
 }
 
@@ -255,7 +242,6 @@ struct HeaderView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-//        let devices = ["iPhone 12", "iPhone 8 Plus", "iPad Air(4th generation)"]
         let devices = ["iPhone 12", "iPhone 8", "iPhone SE", "iPad (8th generation)"]
         ForEach(devices, id: \.self) { device in
             RootView().environmentObject(StatusObject())
@@ -269,10 +255,6 @@ struct ContentView_Previews: PreviewProvider {
 struct YearMonthPicker: View {
     let screen = UIScreen.main.bounds
     @EnvironmentObject var env: StatusObject
-    
-//    func change() {
-//        self.env.refreshActive()
-//    }
     
     var body: some View {
         VStack {

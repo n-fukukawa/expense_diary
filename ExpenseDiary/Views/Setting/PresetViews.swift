@@ -10,6 +10,7 @@ import RealmSwift
 
 
 struct PresetMenuView: View {
+    @EnvironmentObject var env: StatusObject
     @Environment(\.presentationMode) var presentationMode
     @ObservedObject var viewModel = PresetViewModel()
     @Binding var showSettingMenu: Bool
@@ -25,7 +26,6 @@ struct PresetMenuView: View {
     
     init(showSettingMenu: Binding<Bool>) {
         self._showSettingMenu = showSettingMenu
-        UITableView.appearance().backgroundColor = UIColor(Color("backGround"))
     }
 
     
@@ -36,7 +36,6 @@ struct PresetMenuView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color("backGround").ignoresSafeArea(.all)
                 VStack {
                     HStack {
                         Picker(selection: $type, label: Text("支出収入区分")) {
@@ -64,7 +63,7 @@ struct PresetMenuView: View {
                                             Text("\(presetCell.amount)円").style()
                                         }
                                         .padding(.vertical, 6)
-                                        .listRowBackground(Color("backGround"))
+//                                        .listRowBackground(Color("backGround"))
                                         .contentShape(Rectangle())
                                         .onTapGesture {
                                             self.selectedPresetCell = presetCell
@@ -79,6 +78,7 @@ struct PresetMenuView: View {
                     .listStyle(PlainListStyle())
                     .sheet(item: $selectedPresetCell) { presetCell in
                         EditPresetView(presetCell: presetCell, type: RecordType.of(presetCell.category.type))
+                            .environmentObject(env)
                     }
                 }
                 .padding(.horizontal, 16)
@@ -90,8 +90,8 @@ struct PresetMenuView: View {
                         Button(action: { self.close() }) {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(Color(.link))
-                            Text("戻る").fontWeight(.regular).foregroundColor(Color(.link))
+                                .foregroundColor(Color(env.themeDark))
+                            Text("戻る").fontWeight(.regular).foregroundColor(Color(env.themeDark))
                         }
                     }
                 }
@@ -102,16 +102,18 @@ struct PresetMenuView: View {
                 }
             }
             .sheet(isPresented: $isShowing) {
-                EditPresetView(presetCell: nil, type: type)
+                EditPresetView(presetCell: nil, type: type).environmentObject(env)
             }
             .onAppear() {
                 self.showSettingMenu = false
             }
         }
+        .accentColor(Color(env.themeDark))
     }
 }
 
 struct EditPresetView: View {
+    @EnvironmentObject var env: StatusObject
     @ObservedObject var viewModel = PresetViewModel()
     let presetCell: PresetCell?
     let type: RecordType
@@ -165,7 +167,7 @@ struct EditPresetView: View {
                                             let is_active = category == self.category
 
                                             RoundedRectangle(cornerRadius: 10)
-                                                .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color("themeDark") : Color("iconBackground"), is_active ? Color("themeLight") : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color(env.themeDark) : Color("iconBackground"), is_active ? Color(env.themeLight) : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
                                                 .frame(width: iconSize * 0.85, height: iconSize * 0.85)
                                                 .shadow(color: .black.opacity(0.1), radius: 2, x: 2, y: 2)
                                             Image(category.icon.name)
@@ -199,7 +201,7 @@ struct EditPresetView: View {
                                 }
                             }
                             
-                        Divider().frame(height: 1).background(showCalculator ? Color("themeLight") : Color("secondary"))
+                        Divider().frame(height: 1).background(showCalculator ? Color(env.themeLight) : Color("secondary"))
                     }
                     .frame(width: screen.width * 0.8)
                     
@@ -209,7 +211,7 @@ struct EditPresetView: View {
                             self.activeMemo = isEditing
                             self.showCalculator = false
                           }).customTextField()
-                        Divider().frame(height: 1).background(activeMemo ? Color("themeLight") : Color("secondary"))
+                        Divider().frame(height: 1).background(activeMemo ? Color(env.themeLight) : Color("secondary"))
                     }
                     .padding(.bottom, screen.width * 0.05)
                     .frame(width: screen.width * 0.8)
@@ -220,7 +222,6 @@ struct EditPresetView: View {
                             
                         switch result {
                             case .success(_):
-                                Batch.presetBatch()
                                 self.presentationMode.wrappedValue.dismiss()
                             case .failure(let error):
                                 self.showingAlert = AlertItem(
@@ -259,9 +260,7 @@ struct EditPresetView: View {
                         }
                     }
                     
-                    
                     CalculatorView(show: $showCalculator, value: $amount)
-
                 }
                 .alert(item: $showingAlert) { item in
                     item.alert

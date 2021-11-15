@@ -41,8 +41,3 @@ struct RecordCardView: View {
         }
     }
 }
-//struct RecordCardView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        RecordCardView(recordCell: RecordCell(id: "1", date: Date(), category: Category(), amount: 1000, memo: "memomemo", created_at: Date(), updated_at: Date()))
-//    }
-//}

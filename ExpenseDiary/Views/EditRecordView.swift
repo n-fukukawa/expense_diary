@@ -9,7 +9,7 @@ import SwiftUI
 import RealmSwift
 
 struct EditRecordView: View {
-//    @EnvironmentObject var env: StatusObject
+    @EnvironmentObject var env: StatusObject
     @ObservedObject var viewModel = EditRecordViewModel()
     let screen = UIScreen.main.bounds
     let recordCell: RecordCell?
@@ -34,12 +34,14 @@ struct EditRecordView: View {
     @State var showCalculator = false
     @State var activeMemo = false
     
+    @State var success = false
+    
     var iconSize: CGFloat {
         self.screen.width * 0.2
     }
     
     var showModal: Bool {
-        self.showDatePicker
+        self.showDatePicker || self.success
     }
     
     init(record: RecordCell? = nil, clickedDate: DateCell? = nil) {
@@ -59,9 +61,29 @@ struct EditRecordView: View {
         ScrollViewReader { scrollProxy in
             NavigationView {
                 ZStack {
-                // 背景
+                    // 背景
                     Color("backGround").ignoresSafeArea(.all)
                         .ignoresSafeArea(.keyboard, edges: .bottom)
+                    
+                    
+                    // Success Flash
+                    VStack (spacing: 20) {
+                        if let category = self.category {
+                            Image("\(category.icon.name)")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 40, height: 40)
+                                .foregroundColor(Color(env.themeLight))
+                        }
+                        Text("保存しました").style(weight: .medium, tracking: 1)
+                    }
+                    .padding(20)
+                    .frame(width: 200)
+                    .background(Color("backGround"))
+                    .cornerRadius(10)
+                    .myShadow(radius: 5)
+                    .opacity(success ? 1 : 0)
+                    .zIndex(success ? 3 : 0)
                 
                     VStack(spacing: 0) {
                         // カテゴリー選択
@@ -75,7 +97,7 @@ struct EditRecordView: View {
                                                 let is_active = category == self.category
                                                 
                                                 RoundedRectangle(cornerRadius: 10)
-                                                    .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color("themeDark") : Color("iconBackground"), is_active ? Color("themeLight") : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                    .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color(env.themeDark) : Color("iconBackground"), is_active ? Color(env.themeLight) : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
                                                     .frame(width: iconSize * 0.85, height: iconSize * 0.85)
                                                     .shadow(color: .black.opacity(0.1), radius: 3, x: 2, y: 2)
                                                 Image(category.icon.name)
@@ -109,7 +131,7 @@ struct EditRecordView: View {
                                     }
                                 }
                                 
-                            Divider().frame(height: 1).background(showCalculator ? Color("themeLight") : Color("secondary"))
+                            Divider().frame(height: 1).background(showCalculator ? Color(env.themeLight) : Color("secondary"))
                         }
                         .frame(width: screen.width * 0.8)
                         .padding(.bottom, 20)
@@ -120,7 +142,7 @@ struct EditRecordView: View {
                                 self.activeMemo = isEditing
                                 self.showCalculator = false
                               }).customTextField()
-                            Divider().frame(height: 1).background(activeMemo ? Color("themeLight") : Color("secondary"))
+                            Divider().frame(height: 1).background(activeMemo ? Color(env.themeLight) : Color("secondary"))
                         }
                         .padding(.bottom, 20)
                         .frame(width: screen.width * 0.8)
@@ -131,7 +153,12 @@ struct EditRecordView: View {
                                 
                             switch result {
                                 case .success(_):
-                                    self.presentationMode.wrappedValue.dismiss()
+                                    withAnimation(.easeIn(duration: 0.2)) {
+                                        self.success = true
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                                        self.presentationMode.wrappedValue.dismiss()
+                                    }
                                 case .failure(let error):
                                     self.showingAlert = AlertItem(
                                         alert: Alert(
@@ -177,16 +204,18 @@ struct EditRecordView: View {
                     .alert(item: $showingAlert) { item in
                         item.alert
                     }
+                    .blur(radius: success ? 0 : 0)
+                    .zIndex(1)
+
 
                 //モーダル背景
                    ZStack {
-                       Color.black.opacity(self.showModal ? 0.16 : 0).ignoresSafeArea(.all)
+                       Color.primary.opacity(showModal ? 0.1 : 0).ignoresSafeArea(.all)
                    }
                    .onTapGesture {
                         self.showDatePicker = false
                    }
-                    
-                    
+                   .zIndex(showModal ? 2 : 0)
                     
                 // カレンダー
                     VStack {
@@ -223,6 +252,9 @@ struct EditRecordView: View {
                             self.dragHeight = .zero
                         }
                     )
+                    .zIndex(2)
+                    
+
                 }
                 .gesture(
                     DragGesture()
@@ -239,8 +271,8 @@ struct EditRecordView: View {
                             Button(action: { self.presentationMode.wrappedValue.dismiss() }) {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color(.link))
-                                Text("戻る").fontWeight(.regular).foregroundColor(Color(.link))
+                                    .foregroundColor(Color(env.themeDark))
+                                Text("戻る").fontWeight(.regular).foregroundColor(Color(env.themeDark))
                             }
                         }
                     }
@@ -272,6 +304,7 @@ struct EditRecordView: View {
                     }
                 }
             }
+            .accentColor(Color(env.themeDark))
             .onAppear {
                 if let recordCell = self.recordCell {
                     self.category = recordCell.category

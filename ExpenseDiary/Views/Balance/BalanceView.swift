@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct BalanceView: View {
+    @Environment(\.colorScheme) var colorScheme
     let screen = UIScreen.main.bounds
     let height: CGFloat
     @EnvironmentObject var env: StatusObject
@@ -45,7 +46,6 @@ struct BalanceView: View {
         self.viewModel = viewModel
         formatter.locale = Locale(identifier: "ja_JP")
         formatter.dateFormat = Config.MONTH_DAY_DESC
-        UITableView.appearance().backgroundColor = UIColor(Color("backGround"))
     }
     
     func onClickBackward() {
@@ -65,7 +65,6 @@ struct BalanceView: View {
     }
     
     func open() {
-//        self.env.showYearMonthPicker = false
         self.env.onChangeViewType(.balance)
     }
     
@@ -82,7 +81,8 @@ struct BalanceView: View {
         ScrollViewReader { scrollProxy in
             ZStack (alignment: .top) {
                 if show {
-                Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .leading, endPoint: .trailing))
+                Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color(env.themeDark), Color(env.themeLight)]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(height: headerHeight)
                 
                 List {
                     if viewModel.viewState == .summary {
@@ -90,13 +90,12 @@ struct BalanceView: View {
                             ForEach(viewModel.summary, id: \.key) { summary in
                                 ForEach(summary.value, id: \.key) { s in
                                     SummaryCardView(category: s.key, amount: s.value).id(summary.key)
-                                        .listRowInsets(EdgeInsets())
-                                        .onTapGesture {
-                                            self.viewModel.onChangeCategory(category: s.key)
-                                        }
+                                    .listRowInsets(EdgeInsets())
+                                    .onTapGesture {
+                                        self.viewModel.onChangeCategory(category: s.key)
+                                    }
                                 }
                             }
-//                            .padding(.bottom, show ? headerHeight + 90 : 0)
                         } else {
                             NoDataView().listRowInsets(EdgeInsets())
                         }
@@ -109,7 +108,7 @@ struct BalanceView: View {
                                         RecordCardView(recordCell: recordCell).id(recordCell.id)
                                         .listRowInsets(EdgeInsets())
                                     }
-                                }
+                                }.id(UUID())
                             }
                         } else {
                             NoDataView().listRowInsets(EdgeInsets())
@@ -120,8 +119,6 @@ struct BalanceView: View {
                 .frame(maxWidth: width, maxHeight: contentHeight, alignment: .top)
                 .padding(.bottom, headerHeight + 100)
                 .background(Color("backGround"))
-//                .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
-                .myShadow(radius: 10, x: 1, y: -1)
                 .offset(y: show ? headerHeight : 0)
                 .opacity(show ? 1 : 0)
                 .zIndex(show ? 1 : 0)
@@ -190,14 +187,14 @@ struct BalanceView: View {
                                     Text("支出").style(.caption, weight: .bold, color: .white)
                                         .offset(x: -8)
                                     HStack (spacing: 6) {
-                                        Text("\(viewModel.spending)円").style(.title3, color: .white)
+                                        Text("\(viewModel.spending)円").style(.body, weight: .medium, tracking: 1, color: .white)
                                         Image(systemName: "chevron.right")
                                             .font(.system(size: 14, weight: .regular))
                                             .foregroundColor(.white)
                                     }
                                 }
                                 .padding(12)
-                                .background(Color("secondary").opacity(viewModel.recordType == .expense ? 0.2 : 0))
+                                .background(Color.white.opacity(viewModel.recordType == .expense ? 0.2 : 0))
                                 .cornerRadius(5)
                                 .onTapGesture {
                                     viewModel.onChangeRecordType(recordType: .expense)
@@ -207,14 +204,14 @@ struct BalanceView: View {
                                     Text("収入").style(.caption, weight: .bold, color: .white)
                                         .offset(x: -8)
                                     HStack (spacing: 6) {
-                                        Text("\(viewModel.income)円").style(.title3, color: .white)
+                                        Text("\(viewModel.income)円").style(.body, weight:.medium, tracking: 1, color: .white)
                                         Image(systemName: "chevron.right")
                                             .font(.system(size: 14, weight: .regular))
                                             .foregroundColor(.white)
                                     }
                                 }
                                 .padding(12)
-                                .background(Color("secondary").opacity(viewModel.recordType == .income ? 0.3 : 0))
+                                .background(Color.white.opacity(viewModel.recordType == .income ? 0.2 : 0))
                                 .cornerRadius(5)
                                 .onTapGesture {
                                     viewModel.onChangeRecordType(recordType: .income)
@@ -227,11 +224,11 @@ struct BalanceView: View {
                 }
                 .frame(maxWidth: width, maxHeight: headerHeight)
                 .ignoresSafeArea(.all)
-                .animation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0))
+                .animation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0.5))
             }
         }
         .frame(height: contentHeight)
-        .animation(.easeInOut(duration: 0.3))
+        .animation(.easeInOut(duration: 0.4))
         .ignoresSafeArea(.all)
         .gesture(
             DragGesture()
@@ -255,7 +252,6 @@ struct BalanceView: View {
 
 struct BalanceView_Previews: PreviewProvider {
     static var previews: some View {
-//        let devices = ["iPhone 12", "iPhone 8 Plus", "iPad Air(4th generation)"]
         let devices = ["iPhone 12", "iPhone 8"]
         ForEach(devices, id: \.self) { device in
             BalanceView(height: 80, viewModel: BalanceViewModel(env: StatusObject()))

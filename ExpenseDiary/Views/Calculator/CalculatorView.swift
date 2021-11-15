@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CalculatorView: View {
+    @EnvironmentObject var env: StatusObject
     let screen = UIScreen.main.bounds
     var data = CalcModel()
     @Binding var show: Bool
@@ -20,7 +21,7 @@ struct CalculatorView: View {
             }
             VStack(spacing: 0) {
                 HStack {
-                    Text("閉じる").style(weight: .bold, color: Color("themeDark"))
+                    Text("閉じる").style(weight: .bold, color: Color(env.themeDark))
                         .onTapGesture {
                             withAnimation(.linear(duration: 0.2)) {
                                 self.show = false
@@ -40,7 +41,7 @@ struct CalculatorView: View {
                             if key == .delete {
                                 Image(systemName: "delete.left")
                                     .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(Color("themeDark"))
+                                    .foregroundColor(Color(env.themeDark))
                                     .offset(x: -2)
                             } else {
                                 Text("\(key.rawValue)")

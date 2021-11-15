@@ -11,15 +11,17 @@ import SwiftUI
 
 final class BudgetViewModel: ObservableObject {
     @ObservedObject var env: StatusObject
-    @Published var activeBudget: BudgetCell?
+    @Published var active: Bool = false
     @Published var budgetCells: [BudgetCell] = []
     @Published var recordCells: [BudgetCell : [(key: Date, value: [RecordCell])]] = [:]
+    
+    private var budgets = Budget.all()
+    private var records = Record.all()
     
     private var notificationTokens: [NotificationToken] = []
     
     init(env: StatusObject) {
         self.env = env
-        
         self.setBudgetCells()
         self.setRecordCells()
 
@@ -37,10 +39,8 @@ final class BudgetViewModel: ObservableObject {
         notificationTokens.append(Record.all().observe { change in
             switch change {
                 case .initial(_):
-//                    self.setBudgetCells()
                     self.setRecordCells()
                 case .update(_, _, _, _):
-//                    self.setBudgetCells()
                     self.setRecordCells()
                 case let .error(error):
                     print(error.localizedDescription)
@@ -54,10 +54,10 @@ final class BudgetViewModel: ObservableObject {
     }
     
     var viewState: BudgetViewState {
-        if self.activeBudget == nil {
-            return .all
-        } else {
+        if self.active {
             return .select
+        } else {
+            return .all
         }
     }
     
@@ -70,11 +70,11 @@ final class BudgetViewModel: ObservableObject {
         return result
     }
     
-    func onSelectBudget(budgetCell: BudgetCell) {
-        self.activeBudget = budgetCell
-        self.setRecordCells()
-    }
-    
+//    func activation(_ bool : Bool) {
+//        self.active = bool
+//        self.setRecordCells()
+//    }
+//    
     private func setBudgetCells() {
         let budgets = Budget.getBudgets(year: env.activeYear, month: env.activeMonth)
         self.budgetCells = BudgetCell.generateFromBudget(budgets: budgets)

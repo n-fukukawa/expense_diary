@@ -22,34 +22,6 @@ class Budget: Object, Identifiable {
     }
     
     private static var realm = try! Realm()
-
-
-    static func seed() {
-        try! realm.write {
-            let themes = [
-                Budget(value: [
-                              "year" : 2021,
-                              "month" : 10,
-                              "category" : Category.getByType(.expense)[2],
-                              "amount": 10000,
-                            ]),
-                Budget(value: [
-                              "year" : 2021,
-                              "month" : 10,
-                              "category" : Category.getByType(.expense)[0],
-                              "amount": 30000,
-                            ]),
-                Budget(value: [
-                              "year" : 2021,
-                              "month" : 10,
-                              "category" : Category.getByType(.expense)[6],
-                              "amount": 20000,
-                            ]),
-            ]
-            
-            realm.add(themes)
-        }
-    }
     
     static func all() -> Results<Budget> {
         realm.objects(Budget.self)

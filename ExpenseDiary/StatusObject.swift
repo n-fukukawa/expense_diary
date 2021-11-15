@@ -20,8 +20,6 @@ class StatusObject: ObservableObject {
     @Published var activeYear: Int = 0
     @Published var activeMonth: Int = 0
     
-//    @Published var showYearMonthPicker = false
-    
     
     @Published var startDay: Int {
         didSet {
@@ -44,6 +42,22 @@ class StatusObject: ObservableObject {
     @Published var themeId: Int {
         didSet {
             UserDefaults.standard.set(themeId, forKey: "themeId")
+        }
+    }
+    
+    var themeDark: String {
+        if let theme = Theme.find(id: self.themeId) {
+            return theme.colorSetDark
+        } else {
+            return "blueDark"
+        }
+    }
+    
+    var themeLight: String {
+        if let theme = Theme.find(id: self.themeId) {
+            return theme.colorSetLight
+        } else {
+            return "blueLight"
         }
     }
 

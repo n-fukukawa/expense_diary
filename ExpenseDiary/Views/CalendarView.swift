@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CalendarView: View {
     let screen = UIScreen.main.bounds
+    @EnvironmentObject var env: StatusObject
     @ObservedObject var viewModel: CalendarViewModel
     @State var clickedDate: DateCell?
     @State var selectedIndex: Int = 0
@@ -19,12 +20,6 @@ struct CalendarView: View {
         if !viewModel.isSameMonth(date) {
             return Color("secondary").opacity(0.3)
         }
-//        if date.weekday == 7 {
-//            return Color("saturday")
-//        }
-//        if date.weekday == 1 {
-//            return Color("warningLight")
-//        }
         
         return Color("secondary").opacity(0.8)
     }
@@ -38,10 +33,11 @@ struct CalendarView: View {
                 let header = self.viewModel.getCalendarHeader()
                 ForEach(header, id: \.self) { week in
                     Text(week)
-                        .style(.caption, weight: .regular)
+                        .style(.caption, weight: .regular, color: week == "日" ? Color("sunday") : (week == "土" ? Color("saturday") : .primary.opacity(0.7)))
                         .padding(2)
                         .frame(maxWidth: .infinity)
-                        .background((week == "日" ? Color("sunday") : (week == "土" ? Color("saturday") : Color("lightGray"))))
+                        .background(Color("lightGray"))
+//                        .background((week == "日" ? Color("sunday") : (week == "土" ? Color("saturday") : Color("lightGray"))))
                         .border(Color("secondary").opacity(0.3), width: 0.5)
                 }
             }
@@ -64,7 +60,7 @@ struct CalendarView: View {
                                             .padding(.top, 2)
                                         if date.isToday {
                                             Circle()
-                                                .foregroundColor(Color("themeLight"))
+                                                .foregroundColor(Color(env.themeLight))
                                                 .frame(width: 4, height: 4)
                                         }
                                         Spacer()
@@ -73,7 +69,7 @@ struct CalendarView: View {
                                     HStack {
                                         VStack (spacing: 0) {
                                             Text("\(income)")
-                                                .style(.caption, tracking: 0, color: Color("themeDark"))
+                                                .style(.caption, tracking: 0, color: Color(env.themeDark))
                                                 .opacity(viewModel.isSameMonth(date) && income != 0 ? 1 : 0)
                                                 .scaleEffect(0.8)
                                                 .frame(maxWidth: .infinity, alignment: .trailing)

@@ -9,6 +9,7 @@ import SwiftUI
 
 
 struct CategoryMenuView: View {
+    @EnvironmentObject var env: StatusObject
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.editMode) var editMode
     @ObservedObject var viewModel = CategoryViewModel()
@@ -38,7 +39,6 @@ struct CategoryMenuView: View {
     var body: some View {
         NavigationView {
             ZStack (alignment: .top) {
-                Color("backGround").ignoresSafeArea(.all)
                 VStack (spacing: 0) {
                     HStack {
                         Picker(selection: $type, label: Text("支出収入区分")) {
@@ -68,8 +68,6 @@ struct CategoryMenuView: View {
                             }
                             .padding(.vertical, 8)
                             .contentShape(Rectangle())
-                            .listRowBackground(Color("backGround"))
-//                            .deleteDisabled(editMode?.wrappedValue.isEditing == false)
                             .onTapGesture {
                                 self.selectedCategoryCell = categoryCell
                             }
@@ -82,7 +80,7 @@ struct CategoryMenuView: View {
                             self.deleteTarget = categoryCells[index]
                             self.showingAlert = AlertItem(alert: Alert(
                                   title: Text("削除しますか?"),
-                                  message:Text("このカテゴリーで登録した記録やプリセットもすべて削除されます。"),
+                                  message:Text("このカテゴリーで登録した記録、予算、固定支出／収入もすべて削除されます。"),
                                   primaryButton: .cancel(Text("キャンセル")),
                                   secondaryButton: .destructive(Text("削除"),
                                   action: {
@@ -106,8 +104,8 @@ struct CategoryMenuView: View {
                             Button(action: { self.close() }) {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color(.link))
-                                Text("戻る").fontWeight(.regular).foregroundColor(Color(.link))
+                                    .foregroundColor(Color(env.themeDark))
+                                Text("戻る").fontWeight(.regular).foregroundColor(Color(env.themeDark))
                             }
                         }
                     }
@@ -122,12 +120,13 @@ struct CategoryMenuView: View {
             }
 
             .sheet(isPresented: $isShowing) {
-                EditCategoryView(type: type, categoryCell: nil)
+                EditCategoryView(type: type, categoryCell: nil).environmentObject(env)
             }
             .onAppear() {
                 self.showSettingMenu = false
             }
         }
+        .accentColor(Color(env.themeDark))
     }
 }
 
@@ -135,6 +134,7 @@ struct CategoryMenuView: View {
 struct EditCategoryView: View {
     let type: RecordType
     let categoryCell: CategoryCell?
+    @EnvironmentObject var env: StatusObject
     @ObservedObject var viewModel = CategoryViewModel()
     @Environment(\.presentationMode) var presentationMode
     let screen = UIScreen.main.bounds
@@ -159,7 +159,7 @@ struct EditCategoryView: View {
                         self.isEditing = isEditing
                       }).customTextField()
 
-                    Divider().frame(height: 1).background(isEditing ? Color("themeLight") : Color("secondary"))
+                    Divider().frame(height: 1).background(isEditing ? Color(env.themeLight) : Color("secondary"))
                 }
                 .padding(.top, 20)
                 .padding(.bottom, 50)
@@ -173,7 +173,7 @@ struct EditCategoryView: View {
                                 let is_active = self.icon == icon
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 10)
-                                        .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color("themeDark") : Color("iconBackground"), is_active ? Color("themeLight") : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                        .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color(env.themeDark) : Color("iconBackground"), is_active ? Color(env.themeLight) : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
                                         .frame(width: iconSize * 0.85, height: iconSize * 0.85)
                                         .shadow(color: .black.opacity(0.1), radius: 3, x: 2, y: 2)
                                     Image(icon.name)
@@ -186,6 +186,7 @@ struct EditCategoryView: View {
                         }
                     }
                     .padding(.horizontal, 40)
+                    .padding(.vertical, 10)
                 }
                 .padding(.bottom, 40)
 

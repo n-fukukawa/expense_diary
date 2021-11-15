@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct PrimaryButtonStyle: ButtonStyle {
+    @EnvironmentObject var env: StatusObject
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .padding(10)
             .frame(maxWidth: .infinity)
-            .background(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .topLeading, endPoint: .bottomTrailing)
+            .background(LinearGradient(gradient: Gradient(colors: [Color(env.themeDark), Color(env.themeLight)]), startPoint: .topLeading, endPoint: .bottomTrailing)
                             .opacity(configuration.isPressed ? 0.3 : 1))
             .cornerRadius(5)
     }

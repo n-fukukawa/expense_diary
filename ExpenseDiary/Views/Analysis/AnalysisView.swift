@@ -16,7 +16,6 @@ struct AnalysisView: View {
     
     init(viewModel: AnalysisViewModel) {
         self.viewModel = viewModel
-        UITableView.appearance().backgroundColor = UIColor(Color("backGround"))
     }
     
     var name: String {
@@ -53,7 +52,7 @@ struct AnalysisView: View {
         ZStack(alignment: .top) {
             Color("backGround").ignoresSafeArea(.all)
             Rectangle()
-                .fill(LinearGradient(gradient: Gradient(colors: [Color("themeDark"), Color("themeLight")]), startPoint: .leading, endPoint: .trailing))
+                .fill(LinearGradient(gradient: Gradient(colors: [Color(env.themeDark), Color(env.themeLight)]), startPoint: .leading, endPoint: .trailing))
                 .frame(height: screen.height * 0.3)
                 .ignoresSafeArea(.all)
             VStack (spacing: 0) {
@@ -85,9 +84,8 @@ struct AnalysisView: View {
                                             .scaleEffect(0.8)
                                         }
                                     .padding(4)
-                                    .background(Color.primary.opacity(active ? 0.2 : 0))
+                                    .background(Color.white.opacity(active ? 0.2 : 0))
                                     .cornerRadius(5)
-                                    //.frame(height: 28)
                                     .onTapGesture {
                                         self.viewModel.onClickBalance()
                                         self.closeCategoryPicker()
@@ -100,7 +98,7 @@ struct AnalysisView: View {
                                                 .scaleEffect(0.8)
                                         }
                                         .padding(4)
-                                        .background(Color.primary.opacity(active ? 0.2 : 0))
+                                        .background(Color.white.opacity(active ? 0.2 : 0))
                                         .cornerRadius(5)
                                         .onTapGesture {
                                             viewModel.onChangeRecordType(recordType: recordType)
@@ -121,7 +119,7 @@ struct AnalysisView: View {
                                             Text("\(category.name)").style(.caption2, weight: .medium, tracking: 1, color: .white)
                                         }
                                         .frame(width: 64, height: 64)
-                                        .background(Color.primary.opacity(active ? 0.2 : 0))
+                                        .background(Color.white.opacity(active ? 0.2 : 0))
                                         .cornerRadius(5)
                                         .onTapGesture {
                                             viewModel.onChangeCategory(category: category)
@@ -143,7 +141,7 @@ struct AnalysisView: View {
                     .padding(.bottom, 20)
                 }
                 VStack (alignment: .leading, spacing: 0) {
-                    ChartView(dataSet: viewModel.monthlyAmounts.reversed(), balance: self.viewModel.viewState == .balance)
+                    ChartView(dataSet: viewModel.monthlyAmounts.reversed(), balance: self.viewModel.viewState == .balance, env: env)
                 }
                 .padding(20)
                 .background(Color("backGround"))

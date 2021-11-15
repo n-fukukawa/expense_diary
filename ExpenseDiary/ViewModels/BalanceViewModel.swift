@@ -115,6 +115,7 @@ final class BalanceViewModel: ObservableObject {
                 cell.date = cell.date.fixed(hour: 0, minute: 0, second: 0)
                 return cell
             }
+            .sorted{ $0.created_at > $1.created_at }
         
         let formatter = DateFormatter()
         

@@ -78,6 +78,8 @@ class PresetViewModel: ObservableObject {
         if let presetCell = presetCell {
             if let preset = Preset.getById(presetCell.id) {
                 let updatePreset = Preset.update(preset: preset, day: day, category: category, amount: amount, memo: memo)
+                
+                Batch.presetBatch()
                 return .success(updatePreset)
             }
             
@@ -87,6 +89,7 @@ class PresetViewModel: ObservableObject {
         // 新規作成
         let preset = Preset.create(day: day, category: category, amount: amount, memo: memo)
 
+        Batch.presetBatch()
         return .success(preset)
     }
     
@@ -112,7 +115,7 @@ enum EditPresetError : Error {
         case .bothEmpty        : return "金額またはメモのどちらかは入力してください"
         case .amountNotNumeric : return "金額には正の整数を入力してください"
         case .memoTooLong      : return "メモは\(Config.RECORD_MEMO_MAX)文字以内で入力してください"
-        case .presetNotFound   : return "プリセットがみつかりませんでした"
+        case .presetNotFound   : return "固定支出／収入がみつかりませんでした"
         }
     }
 }

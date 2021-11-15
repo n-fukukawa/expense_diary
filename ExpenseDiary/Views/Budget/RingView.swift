@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct RingView: View {
+    @EnvironmentObject var env: StatusObject
     let icon: Icon
     let size: CGFloat
     let percent: CGFloat
@@ -16,23 +17,27 @@ struct RingView: View {
     var isWhite = false
     
     var color1: Color {
-        if self.percent < 70 {
-            return Color("themeDark").opacity(0.8)
-        } else if self.percent < 90 {
-            return Color("dangerDark") 
-        } else {
-            return Color("warningDark")
-        }
+        return Color(env.themeDark)
+        
+//        if self.percent < 70 {
+//            return Color("safeDark").opacity(0.8)
+//        } else if self.percent < 90 {
+//            return Color("dangerDark") 
+//        } else {
+//            return Color("warningDark")
+//        }
     }
     
     var color2: Color {
-        if self.percent < 70 {
-            return Color("themeLight").opacity(0.8)
-        } else if self.percent < 90 {
-            return Color("dangerLight")
-        } else {
-            return Color("warningLight")
-        }
+        return Color(env.themeLight)
+        
+//        if self.percent < 70 {
+//            return Color("safeLight").opacity(0.8)
+//        } else if self.percent < 90 {
+//            return Color("dangerLight")
+//        } else {
+//            return Color("warningLight")
+//        }
     }
     
     var body: some View {
@@ -40,7 +45,7 @@ struct RingView: View {
         let progress = percent > 100 ? 1 : percent / 100
         ZStack {
             Circle()
-                .stroke(isWhite ? Color.white : Color("lightGray"), style: StrokeStyle(lineWidth: 5 * multiplier))
+                .stroke(isWhite ? Color.white : Color("darkGray").opacity(0.8), style: StrokeStyle(lineWidth: 5 * multiplier))
                 .frame(width: size * 39 / 44, height: size * 39 / 44)
             Circle()
                 .trim(from: show ? progress : 1, to: 1.0)
@@ -54,14 +59,8 @@ struct RingView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 20 * multiplier)
-                    .foregroundColor(isWhite ? .white : Color("secondary").opacity(0.5))
+                    .foregroundColor(isWhite ? .white : Color("darkGray"))
         }
         .frame(width: size, height: size)
     }
 }
-
-//struct RingView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        RingView(icon: Icon.all().first!, size: 90, percent: 75, show: .constant(true))
-//    }
-//}

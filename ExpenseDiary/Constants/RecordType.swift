@@ -30,28 +30,4 @@ enum RecordType: Int {
         case .income : return "収入"
         }
     }
-    
-    var colorSet: ColorSet {
-        switch self {
-            case .expense: return ColorSet(value: ["id" : 1,
-                                    "name" : "ホライゾンレッド",
-                                    "color1": "ea44a0",
-                                    "color2" : "ce2235",
-                                    "order" : 1])
-                
-            case .income:  return ColorSet(value: ["id" : 1,
-                                   "name" : "ホライゾンブルー",
-                                   "color1": "a0d8ea",
-                                   "color2" : "35a0ce",
-                                   "order" : 1])
-        }
-    }
-    
-    var color1: Color {
-        Color(hex: self.colorSet.color1)
-    }
-    
-    var color2: Color {
-        Color(hex: self.colorSet.color2)
-    }
 }

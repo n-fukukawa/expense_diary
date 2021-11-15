@@ -21,16 +21,17 @@ class Record: Object, Identifiable  {
     override static func primaryKey() -> String? {
         return "id"
     }
-//
-//    var identity: String {
-//        return isInvalidated ? "deleted-object-\(UUID().uuidString)" : id
-//    }
+    
+    override static func indexedProperties() -> [String] {
+        return ["date"]
+    }
     
     private static var realm = try! Realm()
     
     
     static func all() -> Results<Record> {
-        self.realm.objects(Record.self)
+        return self.realm.objects(Record.self)
+
     }
     
     static func getRecords(start: Date, end: Date, category: Category? = nil) -> Results<Record> {
@@ -125,24 +126,22 @@ class Record: Object, Identifiable  {
         return self.realm.objects(Record.self).filter("id == %@", id).first
     }
     
-    
-    static func seed() {
-        var records:[Record] = []
-        for i in 1...500 {
-            for j in 1...5 {
-                if (i + j) % 2 == 0 {
-                    records.append(Record(value: [
-                                            "date"     : Calendar.current.date(byAdding: .day, value: -i, to: Date())!,
-                                            "category" : Category.all()[j % 9],
-                                            "amount"   : 500,
-                                            "memo"     : "テストです"
-                    ]))
-                }
-            }
-        }
-        try! realm.write {
-            realm.add(records)
-        }
-    }
-    
+//    static func seed() {
+//        var records:[Record] = []
+//        for i in 1...3650 {
+//            for j in 1...10 {
+//                if (i + j) % 2 == 0 {
+//                    records.append(Record(value: [
+//                                            "date"     : Calendar.current.date(byAdding: .day, value: -i, to: Date())!,
+//                                            "category" : Category.all()[j % 9],
+//                                            "amount"   : 500,
+//                                            "memo"     : "テストです"
+//                    ]))
+//                }
+//            }
+//        }
+//        try! realm.write {
+//            realm.add(records)
+//        }
+//    }
 }

@@ -114,8 +114,6 @@ struct EditBudgetView: View {
                         .padding(.horizontal, screen.width * 0.08)
                         .padding(.vertical, screen.width * 0.05)
                     }
-                    //.padding(.vertical, 40)
-                    //.frame(width: screen.width * 0.9)
                     .alert(item: $showingAlert) { item in
                         item.alert
                     }
@@ -127,8 +125,8 @@ struct EditBudgetView: View {
                             Button(action: { self.close() }) {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color(.link))
-                                Text("戻る").fontWeight(.regular).foregroundColor(Color(.link))
+                                    .foregroundColor(Color(env.themeDark))
+                                Text("戻る").fontWeight(.regular).foregroundColor(Color(env.themeDark))
                             }
                         }
                     }
