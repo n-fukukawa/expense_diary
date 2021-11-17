@@ -16,7 +16,6 @@ struct RootView: View {
     
     @State var showEdit = false
     @State var showSettingMenu = false
-    @State var showPicker = false
 
     @State var showRing = false
     
@@ -38,11 +37,11 @@ struct RootView: View {
                     Color("backGround").ignoresSafeArea(.all)
                     
                     Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color(env.themeDark), Color(env.themeLight)]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(height: showPicker ? screen.height * 0.3 + 120 - dragUp : screen.height * 0.3)
+                        .frame(height: env.showMonthPicker ? screen.height * 0.3 + 120 - dragUp : screen.width * 0.6)
                         .ignoresSafeArea(.all)
                     
                     VStack (spacing: 8) {
-                        HeaderView(showSettingMenu: $showSettingMenu, showPicker: $showPicker)
+                        HeaderView(showSettingMenu: $showSettingMenu, showPicker: $env.showMonthPicker)
                             .padding(.top, 5)
                             .frame(maxWidth: screen.width - 40)
 
@@ -53,7 +52,7 @@ struct RootView: View {
                         .frame(maxWidth: env.viewType == .balance ? .infinity : screen.width - 40)
                         .frame(height: 60)
                         .zIndex(env.viewType == .balance ? 1 : 0)
-                        .offset(y: showPicker ? 100 - dragUp : 0)
+                        .offset(y: env.showMonthPicker ? 100 - dragUp : 0)
 
                         GeometryReader { geometry in
                             BudgetView(viewModel: BudgetViewModel(env: env))
@@ -63,34 +62,34 @@ struct RootView: View {
                         .frame(height: 80)
                         .padding(.bottom, 20)
                         .zIndex(env.viewType == .budget ? 1 : 0)
-                        .offset(y: showPicker ? 100 - dragUp : 0)
+                        .offset(y: env.showMonthPicker ? 100 - dragUp : 0)
                         
                         GeometryReader { geometry in
                             CalendarView(viewModel: CalendarViewModel(env: env), height: 300)
                                 .padding(.top, 10)
                         }
-                        .offset(y: showPicker ? 100 - dragUp : 0)
+                        .offset(y: env.showMonthPicker ? 100 - dragUp : 0)
                     }
                     .transition(.opacity)
                     .ignoresSafeArea(.keyboard)
                     .gesture(
                         DragGesture()
                             .onChanged{ value in
-                                if !showPicker { return }
+                                if !env.showMonthPicker { return }
                                 if value.translation.height < 0 {
                                     self.dragUp = -value.translation.height
                                 }
                                 if value.translation.height < -80 {
                                     withAnimation() {
-                                        self.showPicker = false
+                                        self.env.showMonthPicker = false
                                     }
                                     self.dragUp = .zero
                                 }
                             }
                             .onEnded{ value in
-                                if !showPicker { return }
+                                if !env.showMonthPicker { return }
                                 if value.translation.height < -80 {
-                                    self.showPicker = false
+                                    self.env.showMonthPicker = false
                                 }
                                 self.dragUp = .zero
                             }
@@ -104,9 +103,9 @@ struct RootView: View {
                 
                 VStack {
                     Spacer()
-                    AdmobBannerView().frame(width: 320, height: 50)
-                        .padding(.bottom, 4)
-                        .zIndex(2)
+//                    AdmobBannerView().frame(width: 320, height: 50)
+//                        .padding(.bottom, 4)
+//                        .zIndex(2)
                     if env.viewType == .home {
                         HStack {
                             Spacer()
@@ -211,7 +210,7 @@ struct HeaderView: View {
                     {
                         HStack (alignment: .center, spacing: 1) {
                             Text("\(env.activeMonth)").style(.title, color: .white)
-                            Text("月").style(color: .white).offset(y: 2)
+                            Text("月").style(color: .white).offset(y: 3)
                             Image(systemName: "chevron.down")
                                 .font(.caption)
                                 .foregroundColor(.white)

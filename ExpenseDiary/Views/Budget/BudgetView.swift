@@ -213,10 +213,6 @@ struct BudgetCardView: View {
                 self.showRing = true
             }
         }
-        .onDisappear() {
-            self.showRing = false
-        }
-
     }
 }
 

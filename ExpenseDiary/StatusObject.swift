@@ -60,6 +60,10 @@ class StatusObject: ObservableObject {
             return "blueLight"
         }
     }
+    
+    @Published var showMonthPicker = false
+    
+    var balanceViewDate: Date? = nil
 
     init() {
         UserDefaults.standard.register(defaults: ["startDay" : 1,
@@ -168,5 +172,6 @@ class StatusObject: ObservableObject {
     
     func onChangeViewType(_ viewType: ViewType) {
         self.viewType = viewType
+        self.showMonthPicker = false
     }
 }

@@ -43,6 +43,8 @@ struct EditBudgetView: View {
     
     @State var amounts: [(key: CategoryCell, value: String)] = []
     
+    @State var success = false
+    
     private func close() {
         self.presentationMode.wrappedValue.dismiss()
     }
@@ -54,6 +56,30 @@ struct EditBudgetView: View {
                 ZStack {
                 // 背景
                     Color("backGround").ignoresSafeArea(.all)
+                    
+                    // Success Flash
+                    VStack (spacing: 20) {
+                        Image("yen")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(Color(env.themeLight))
+                        
+                        Text("保存しました").style(weight: .medium, tracking: 1)
+                    }
+                    .padding(20)
+                    .frame(width: 200)
+                    .background(Color("backGround"))
+                    .cornerRadius(10)
+                    .myShadow(radius: 5)
+                    .opacity(success ? 1 : 0)
+                    .zIndex(success ? 3 : 0)
+                    
+                //モーダル背景
+                   ZStack {
+                       Color.primary.opacity(success ? 0.16 : 0).ignoresSafeArea(.all)
+                   }
+                   .zIndex(success ? 2 : 0)
                 
                     VStack(spacing: 20) {
                         Form {
@@ -99,7 +125,12 @@ struct EditBudgetView: View {
                                 
                             switch result {
                                 case .success(_):
-                                    self.close()
+                                    withAnimation(.easeIn(duration: 0.2)) {
+                                        self.success = true
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                                        self.presentationMode.wrappedValue.dismiss()
+                                    }
                                 case .failure(let error):
                                     self.showingAlert = AlertItem(
                                         alert: Alert(

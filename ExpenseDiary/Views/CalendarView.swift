@@ -84,6 +84,11 @@ struct CalendarView: View {
                                 .frame(height: (geometry.frame(in: .local).height - 120 - 20) / 6)
                                 .frame(minHeight: 42)
                                 .border(Color("secondary").opacity(0.4), width: 0.5)
+                                .contentShape(Rectangle())
+                                .onTapGesture(count: 2) {
+                                    self.env.balanceViewDate = date
+                                    self.env.viewType = .balance
+                                }
                             }
                         }
                     }

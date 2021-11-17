@@ -58,7 +58,7 @@ struct PresetMenuView: View {
                                         HStack (spacing: 12) {
                                             Text(presetCell.category.name).style()
                                                 .offset(x: 4)
-                                            Text(presetCell.memo).style(.caption)
+                                            Text(presetCell.memo).style(.caption, tracking: 1)
                                             Spacer()
                                             Text("\(presetCell.amount)円").style()
                                         }
@@ -135,6 +135,8 @@ struct EditPresetView: View {
     @State var showCalculator = false
     @State var activeMemo = false
     
+    @State var success = false
+    
     var iconSize: CGFloat {
         self.screen.width * 0.2
     }
@@ -144,50 +146,84 @@ struct EditPresetView: View {
             ZStack {
             // 背景
                 Color("backGround").ignoresSafeArea(.all)
+                
+                // Success Flash
+//                VStack (spacing: 20) {
+//                    if let category = self.category {
+//                        Image("\(category.icon.name)")
+//                            .resizable()
+//                            .aspectRatio(contentMode: .fit)
+//                            .frame(width: 40, height: 40)
+//                            .foregroundColor(Color(env.themeLight))
+//                    }
+//                    Text("保存しました").style(weight: .medium, tracking: 1)
+//                }
+//                .padding(20)
+//                .frame(width: 200)
+//                .background(Color("backGround"))
+//                .cornerRadius(10)
+//                .myShadow(radius: 5)
+//                .opacity(success ? 1 : 0)
+//                .zIndex(success ? 3 : 0)
+                
+            //モーダル背景
+               ZStack {
+                   Color.primary.opacity(success ? 0.16 : 0).ignoresSafeArea(.all)
+               }
+               .zIndex(success ? 2 : 0)
             
                 VStack(spacing: 20) {
-                    Spacer(minLength: 30)
+                    Rectangle().foregroundColor(.secondary)
+                        .frame(width: 100, height: 4)
+                    
+                    Spacer(minLength: 10)
                     
                     Picker ("日を選択", selection: $day) {
                         ForEach(1...28, id: \.self) { day in
                             Text("毎月\(day)日").style(color: .primary)
                         }
                     }
-                    .frame(width: 180, height: showCalculator ? 0 : 90)
+                    .frame(width: 180, height: showCalculator ? 0 : 110)
                     .clipped()
                     
                     // カテゴリー選択
-                    ScrollView(showsIndicators: false) {
-                        let columns: [GridItem] = Array(repeating: .init(.fixed(iconSize), spacing: iconSize * 0.5), count: 3)
-                        LazyVGrid(columns: columns, alignment: .center, spacing: iconSize * 0.5) {
-                            ForEach(viewModel.getCategoryCells(type: type), id: \.self) { category in
-                                Button (action: {self.category = category}) {
-                                    VStack(spacing: 8) {
-                                        ZStack {
-                                            let is_active = category == self.category
+                    ScrollViewReader { scrollProxy in
+                        ScrollView(showsIndicators: false) {
+                            let columns: [GridItem] = Array(repeating: .init(.fixed(iconSize), spacing: iconSize * 0.5), count: 3)
+                            LazyVGrid(columns: columns, alignment: .center, spacing: iconSize * 0.5) {
+                                ForEach(viewModel.getCategoryCells(type: type), id: \.self.id) { category in
+                                    Button (action: {self.category = category}) {
+                                        VStack(spacing: 8) {
+                                            ZStack {
+                                                let is_active = category == self.category
 
-                                            RoundedRectangle(cornerRadius: 10)
-                                                .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color(env.themeDark) : Color("iconBackground"), is_active ? Color(env.themeLight) : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                                                .frame(width: iconSize * 0.85, height: iconSize * 0.85)
-                                                .shadow(color: .black.opacity(0.1), radius: 2, x: 2, y: 2)
-                                            Image(category.icon.name)
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fit)
-                                                .frame(width: iconSize * 0.5, height: iconSize * 0.5)
-                                                .foregroundColor(is_active ? .white : Color("darkGray"))
+                                                RoundedRectangle(cornerRadius: 10)
+                                                    .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color(env.themeDark) : Color("iconBackground"), is_active ? Color(env.themeLight) : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                    .frame(width: iconSize * 0.85, height: iconSize * 0.85)
+                                                    .shadow(color: .black.opacity(0.1), radius: 2, x: 2, y: 2)
+                                                Image(category.icon.name)
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fit)
+                                                    .frame(width: iconSize * 0.5, height: iconSize * 0.5)
+                                                    .foregroundColor(is_active ? .white : Color("darkGray"))
+                                            }
+
+                                            Text(category.name).style(.footnote, weight: .bold).lineLimit(1).scaleEffect(1.1)
                                         }
-
-                                        Text(category.name).style(.footnote, weight: .bold).lineLimit(1).scaleEffect(1.1)
-                                    }
-                                    .id(category.id)
+                                        .id(category.id)
+                                    }.id(category.id)
                                 }
                             }
+                            .padding(.vertical, screen.width * 0.05)
                         }
-                        .padding(.vertical, screen.width * 0.05)
+                        .frame(width: screen.width * 0.8)
+                        .padding(.bottom, screen.width * 0.05)
+                        .onAppear() {
+                            if let presetCell = self.presetCell {
+                                scrollProxy.scrollTo(presetCell.category.id)
+                            }
+                        }
                     }
-                    .frame(width: screen.width * 0.8)
-                    .padding(.bottom, screen.width * 0.05)
-                    
                     
                     // 金額入力
                     VStack(spacing: 0) {
@@ -239,7 +275,6 @@ struct EditPresetView: View {
                     }
                     .buttonStyle(PrimaryButtonStyle())
                     .frame(width: screen.width * 0.8)
-                    .padding(.bottom, screen.width * 0.05)
 
                     // 削除ボタン
                     if let presetCell = presetCell, !showCalculator, !activeMemo {
@@ -262,6 +297,9 @@ struct EditPresetView: View {
                     
                     CalculatorView(show: $showCalculator, value: $amount)
                 }
+                .padding(.bottom, 4)
+                .padding(.top, 20)
+                .zIndex(1)
                 .alert(item: $showingAlert) { item in
                     item.alert
                 }

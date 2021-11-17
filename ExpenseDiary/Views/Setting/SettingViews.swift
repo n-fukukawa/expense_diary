@@ -56,7 +56,7 @@ struct SettingMenuView: View {
                         
                         HStack {
                             NavigationLink(destination: PresetMenuView(showSettingMenu: $isActive)) {
-                                Text("固定支出／収入").style(tracking: 1)
+                                Text("固定収支").style(tracking: 1)
                             }
                             Spacer()
                         }

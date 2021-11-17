@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		550D1FA5272A18ED001D449E /* ViewType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550D1FA4272A18ED001D449E /* ViewType.swift */; };
 		550F0F5D2740C85600E5EC08 /* initial.realm in Resources */ = {isa = PBXBuildFile; fileRef = 550F0F5C2740C85600E5EC08 /* initial.realm */; };
+		550F0F6227447E2200E5EC08 /* EditCategoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550F0F6127447E2200E5EC08 /* EditCategoryViewModel.swift */; };
 		5511329027092D7100C8A7A6 /* ExpenseDiaryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5511328F27092D7100C8A7A6 /* ExpenseDiaryApp.swift */; };
 		5511329227092D7100C8A7A6 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5511329127092D7100C8A7A6 /* RootView.swift */; };
 		5511329427092D7100C8A7A6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5511329327092D7100C8A7A6 /* Assets.xcassets */; };
@@ -73,6 +74,7 @@
 		3DA5B531D5CD28ABE86C094C /* Pods-ExpenseDiary.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExpenseDiary.release.xcconfig"; path = "Target Support Files/Pods-ExpenseDiary/Pods-ExpenseDiary.release.xcconfig"; sourceTree = "<group>"; };
 		550D1FA4272A18ED001D449E /* ViewType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewType.swift; sourceTree = "<group>"; };
 		550F0F5C2740C85600E5EC08 /* initial.realm */ = {isa = PBXFileReference; lastKnownFileType = file; name = initial.realm; path = ExpenseDiary/Seed/initial.realm; sourceTree = SOURCE_ROOT; };
+		550F0F6127447E2200E5EC08 /* EditCategoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCategoryViewModel.swift; sourceTree = "<group>"; };
 		5511328C27092D7100C8A7A6 /* ExpenseDiary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExpenseDiary.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5511328F27092D7100C8A7A6 /* ExpenseDiaryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseDiaryApp.swift; sourceTree = "<group>"; };
 		5511329127092D7100C8A7A6 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -331,6 +333,7 @@
 				55799ABA2724BDF100789305 /* BudgetViewModel.swift */,
 				5570216C272EBC7A006B580D /* CalendarViewModel.swift */,
 				554E209B272C025D005FD4C1 /* CategoryViewModel.swift */,
+				550F0F6127447E2200E5EC08 /* EditCategoryViewModel.swift */,
 				554E20A1272C19B1005FD4C1 /* EditBudgetViewModel.swift */,
 				557021882737A284006B580D /* PresetViewModel.swift */,
 				554E209F272C1958005FD4C1 /* EditRecordViewModel.swift */,
@@ -514,6 +517,7 @@
 				55B85DA4271A88D600267A67 /* Config.swift in Sources */,
 				55799ACB2725696500789305 /* MonthlyCardView.swift in Sources */,
 				551132B82709907300C8A7A6 /* ViewMode.swift in Sources */,
+				550F0F6227447E2200E5EC08 /* EditCategoryViewModel.swift in Sources */,
 				55799AC3272503CC00789305 /* SummaryCardView.swift in Sources */,
 				55D1AE502723DE460068A377 /* Budget.swift in Sources */,
 				55799ABB2724BDF100789305 /* BudgetViewModel.swift in Sources */,

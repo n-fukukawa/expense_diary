@@ -84,7 +84,17 @@ struct EditRecordView: View {
                     .myShadow(radius: 5)
                     .opacity(success ? 1 : 0)
                     .zIndex(success ? 3 : 0)
+                    
+                    //モーダル背景
+                   ZStack {
+                       Color.primary.opacity(showModal ? 0.16 : 0).ignoresSafeArea(.all)
+                   }
+                   .onTapGesture {
+                        self.showDatePicker = false
+                   }
+                   .zIndex(showModal ? 2 : 0)
                 
+                    
                     VStack(spacing: 0) {
                         // カテゴリー選択
                         ScrollView(showsIndicators: false) {
@@ -204,18 +214,8 @@ struct EditRecordView: View {
                     .alert(item: $showingAlert) { item in
                         item.alert
                     }
-                    .blur(radius: success ? 0 : 0)
                     .zIndex(1)
 
-
-                //モーダル背景
-                   ZStack {
-                       Color.primary.opacity(showModal ? 0.1 : 0).ignoresSafeArea(.all)
-                   }
-                   .onTapGesture {
-                        self.showDatePicker = false
-                   }
-                   .zIndex(showModal ? 2 : 0)
                     
                 // カレンダー
                     VStack {

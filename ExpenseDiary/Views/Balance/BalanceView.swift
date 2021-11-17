@@ -108,7 +108,18 @@ struct BalanceView: View {
                                         RecordCardView(recordCell: recordCell).id(recordCell.id)
                                         .listRowInsets(EdgeInsets())
                                     }
-                                }.id(UUID())
+                                }.id(date)
+                            }
+                            .onAppear() {
+                                if let targetDate = self.env.balanceViewDate {
+                                    viewModel.recordCells.forEach({ date, recordCells in
+                                        if date == targetDate {
+                                            scrollProxy.scrollTo(date, anchor: .center)
+                                            return
+                                        }
+                                    })
+                                    self.env.balanceViewDate = nil
+                                }
                             }
                         } else {
                             NoDataView().listRowInsets(EdgeInsets())

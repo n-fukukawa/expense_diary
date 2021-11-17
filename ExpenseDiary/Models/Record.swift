@@ -52,7 +52,7 @@ class Record: Object, Identifiable  {
         let end = Calendar.current.date(byAdding: .day, value: 1, to: end)!
         let endOfDay = Calendar.current.startOfDay(for: end)
         return self.realm.objects(Record.self)
-            .filter("date BETWEEN {%@, %@} && category.type == %@", startOfDay, endOfDay, type.rawValue)
+            .filter("date >= %@ && date < %@ && category.type == %@", startOfDay, endOfDay, type.rawValue)
     }
     
     static func getAmount(start: Date, end: Date, category: Category? = nil) -> Int {
