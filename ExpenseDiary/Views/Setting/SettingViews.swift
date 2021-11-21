@@ -19,14 +19,6 @@ struct SettingMenuView: View {
             ZStack {
                 Color("backGround").ignoresSafeArea(.all)
                 VStack {
-                    //                    HStack {
-                    //                        Spacer()
-                    //                        Button(action: {self.isActive = false})
-                    //                        {
-                    //                            Image(systemName: "xmark")
-                    //                                .font(.system(size: 24, weight: .medium))
-                    //                        }
-                    //                    }
                     HStack {
                         Image(systemName: "gearshape.2")
                             .font(.system(size: 110, weight: .ultraLight))
@@ -69,12 +61,12 @@ struct SettingMenuView: View {
                             Spacer()
                         }
                         
-                        HStack {
-                            NavigationLink(destination: Text("AppStore")) {
-                                Text("レビュー").style(tracking: 1)
-                            }
-                            Spacer()
-                        }
+//                        HStack {
+//                            NavigationLink(destination: Text("AppStore")) {
+//                                Text("レビュー").style(tracking: 1)
+//                            }
+//                            Spacer()
+//                        }
                     }
                     Spacer()
                     Spacer()

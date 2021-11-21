@@ -82,7 +82,7 @@ struct CategoryMenuView: View {
                             self.deleteTarget = categoryCells[index]
                             self.showingAlert = AlertItem(alert: Alert(
                                   title: Text("削除しますか?"),
-                                  message:Text("このカテゴリーで登録した記録、予算、固定支出／収入もすべて削除されます。"),
+                                  message:Text("このカテゴリーで登録した記録、予算、固定収支もすべて削除されます。"),
                                   primaryButton: .cancel(Text("キャンセル")),
                                   secondaryButton: .destructive(Text("削除"),
                                   action: {

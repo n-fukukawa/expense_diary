@@ -115,7 +115,7 @@ enum EditPresetError : Error {
         case .bothEmpty        : return "金額またはメモのどちらかは入力してください"
         case .amountNotNumeric : return "金額には正の整数を入力してください"
         case .memoTooLong      : return "メモは\(Config.RECORD_MEMO_MAX)文字以内で入力してください"
-        case .presetNotFound   : return "固定支出／収入がみつかりませんでした"
+        case .presetNotFound   : return "固定収支がみつかりませんでした"
         }
     }
 }

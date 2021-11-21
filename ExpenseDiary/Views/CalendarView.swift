@@ -69,7 +69,7 @@ struct CalendarView: View {
                                     HStack {
                                         VStack (spacing: 0) {
                                             Text("\(income)")
-                                                .style(.caption, tracking: 0, color: Color(env.themeDark))
+                                                .style(.caption, tracking: 0, color: Color(env.themeLight))
                                                 .opacity(viewModel.isSameMonth(date) && income != 0 ? 1 : 0)
                                                 .scaleEffect(0.8)
                                                 .frame(maxWidth: .infinity, alignment: .trailing)

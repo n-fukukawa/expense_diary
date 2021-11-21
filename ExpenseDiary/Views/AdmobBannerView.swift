@@ -15,9 +15,9 @@ struct AdmobBannerView: UIViewControllerRepresentable {
         let view = GADBannerView(adSize: kGADAdSizeBanner)
         let viewController = UIViewController()
 //        #if DEBUG
-        view.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+//        view.adUnitID = "ca-app-pub-3940256099942544/2934735716"
 //        #else
-//        view.adUnitID = "ca-app-pub-8749873771528689/6539666383"
+        view.adUnitID = "ca-app-pub-8749873771528689/2888646003"
 //        #endif
         view.rootViewController = viewController
         viewController.view.addSubview(view)

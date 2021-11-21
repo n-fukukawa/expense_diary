@@ -89,6 +89,7 @@ final class BudgetViewModel: ObservableObject {
                         cell.date = cell.date.fixed(hour: 0, minute: 0, second: 0)
                         return cell
                     }
+                    .sorted{ $0.created_at > $1.created_at }
             
                 self.recordCells.updateValue(
                     Dictionary(grouping: recordCells, by: { $0.date }).sorted{$0.key > $1.key}.map{$0}, forKey: budgetCell)

@@ -69,7 +69,7 @@ class StatusObject: ObservableObject {
         UserDefaults.standard.register(defaults: ["startDay" : 1,
                                                   "startWeekday" : 1,
                                                   "forward"  : 0,
-                                                  "themeId"  : 1])
+                                                  "themeId"  : 2])
         self.startDay     = UserDefaults.standard.integer(forKey: "startDay")
         self.startWeekday = UserDefaults.standard.integer(forKey: "startWeekday")
         self.forward      = UserDefaults.standard.integer(forKey: "forward")

@@ -120,7 +120,7 @@ struct BudgetCardView: View {
                                     RecordCardView(recordCell: recordCell).id(recordCell.id)
                                     .listRowInsets(EdgeInsets())
                                 }
-                            }.id(UUID())
+                            }.id(date)
                         }
                     }
                 }

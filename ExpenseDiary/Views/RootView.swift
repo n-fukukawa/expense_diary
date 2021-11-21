@@ -19,10 +19,8 @@ struct RootView: View {
 
     @State var showRing = false
     
-    @State var dragUp: CGFloat = .zero
-    
     init () {
-        
+        print(Realm.Configuration.defaultConfiguration.fileURL!)
     }
     
     var showModal: Bool {
@@ -37,7 +35,7 @@ struct RootView: View {
                     Color("backGround").ignoresSafeArea(.all)
                     
                     Rectangle().fill(LinearGradient(gradient: Gradient(colors: [Color(env.themeDark), Color(env.themeLight)]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(height: env.showMonthPicker ? screen.height * 0.3 + 120 - dragUp : screen.width * 0.6)
+                        .frame(height: env.showMonthPicker ? screen.height * 0.3 + 120 : screen.width * 0.6)
                         .ignoresSafeArea(.all)
                     
                     VStack (spacing: 8) {
@@ -52,7 +50,7 @@ struct RootView: View {
                         .frame(maxWidth: env.viewType == .balance ? .infinity : screen.width - 40)
                         .frame(height: 60)
                         .zIndex(env.viewType == .balance ? 1 : 0)
-                        .offset(y: env.showMonthPicker ? 100 - dragUp : 0)
+                        .offset(y: env.showMonthPicker ? 100 : 0)
 
                         GeometryReader { geometry in
                             BudgetView(viewModel: BudgetViewModel(env: env))
@@ -62,13 +60,13 @@ struct RootView: View {
                         .frame(height: 80)
                         .padding(.bottom, 20)
                         .zIndex(env.viewType == .budget ? 1 : 0)
-                        .offset(y: env.showMonthPicker ? 100 - dragUp : 0)
+                        .offset(y: env.showMonthPicker ? 100 : 0)
                         
                         GeometryReader { geometry in
                             CalendarView(viewModel: CalendarViewModel(env: env), height: 300)
                                 .padding(.top, 10)
                         }
-                        .offset(y: env.showMonthPicker ? 100 - dragUp : 0)
+                        .offset(y: env.showMonthPicker ? 100 : 0)
                     }
                     .transition(.opacity)
                     .ignoresSafeArea(.keyboard)
@@ -76,14 +74,10 @@ struct RootView: View {
                         DragGesture()
                             .onChanged{ value in
                                 if !env.showMonthPicker { return }
-                                if value.translation.height < 0 {
-                                    self.dragUp = -value.translation.height
-                                }
                                 if value.translation.height < -80 {
                                     withAnimation() {
                                         self.env.showMonthPicker = false
                                     }
-                                    self.dragUp = .zero
                                 }
                             }
                             .onEnded{ value in
@@ -91,7 +85,6 @@ struct RootView: View {
                                 if value.translation.height < -80 {
                                     self.env.showMonthPicker = false
                                 }
-                                self.dragUp = .zero
                             }
                     )
                 } else {
@@ -103,9 +96,9 @@ struct RootView: View {
                 
                 VStack {
                     Spacer()
-//                    AdmobBannerView().frame(width: 320, height: 50)
-//                        .padding(.bottom, 4)
-//                        .zIndex(2)
+                    AdmobBannerView().frame(width: 320, height: 50)
+                        .padding(.bottom, 4)
+                        .zIndex(2)
                     if env.viewType == .home {
                         HStack {
                             Spacer()
