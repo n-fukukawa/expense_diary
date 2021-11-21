@@ -8,14 +8,21 @@
 import SwiftUI
 import RealmSwift
 import Firebase
+import AdSupport
+import AppTrackingTransparency
+import GoogleMobileAds
+
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        FirebaseApp.configure()
         
         self.makeInitialDatabase()
         
         Batch.presetBatch()
+        
+        self.requestIDFA()
+        
+        FirebaseApp.configure()
         
         return true
     }
@@ -31,6 +38,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
               print("error: \(error)")
             }
         }
+    }
+    
+    private func requestIDFA() {
+      ATTrackingManager.requestTrackingAuthorization(completionHandler: { _ in
+      // Tracking authorization completed. Start loading ads here.
+      })
     }
 }
 

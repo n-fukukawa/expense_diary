@@ -28,9 +28,3 @@ struct AdmobBannerView: UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }
-
-struct AdmobBannerView_Previews: PreviewProvider {
-    static var previews: some View {
-        AdmobBannerView()
-    }
-}
