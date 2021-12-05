@@ -18,16 +18,21 @@ struct MonthlyCardView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             HStack (spacing: 20) {
                 Text(yearMonth.fullDesc).style()
                 Spacer()
                 Text("\(amount)円").style()
             }
-            Divider()
+            .padding(.vertical, 12)
+            
+            if #available(iOS 15.0, *) {
+            } else {
+                Divider()
+            }
         }
-        .padding(.bottom, 16)
         .padding(.horizontal, 32)
+        .frame(maxWidth: .infinity)
         .background(Color("backGround"))
     }
 }

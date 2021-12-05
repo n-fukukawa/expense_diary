@@ -11,7 +11,6 @@ import RealmSwift
 struct EditBudgetView: View {
     @ObservedObject var env: StatusObject
     @ObservedObject var viewModel: EditBudgetViewModel
-    @Binding var showSettingMenu: Bool
     let screen = UIScreen.main.bounds
     let budgetCell: BudgetCell?
 
@@ -27,32 +26,49 @@ struct EditBudgetView: View {
     
     @State var isEditing = false
     
-    var iconSize: CGFloat {
-        self.screen.width * 0.2
-    }
-    
-    init(budgetCell: BudgetCell? = nil, env: StatusObject, showSettingMenu: Binding<Bool>) {
-        self.budgetCell = budgetCell
-        self.env = env
-        self.viewModel = EditBudgetViewModel(env: env)
-        self._showSettingMenu = showSettingMenu
-        
-        formatter.locale = Locale(identifier: "ja_JP")
-        formatter.dateFormat = "M-d E"
-    }
-    
     @State var amounts: [(key: CategoryCell, value: String)] = []
     
     @State var success = false
     
+    var iconSize: CGFloat {
+        self.screen.width * 0.2
+    }
+    
+    init(budgetCell: BudgetCell? = nil, env: StatusObject) {
+        self.budgetCell = budgetCell
+        self.env = env
+        self.viewModel = EditBudgetViewModel(env: env)
+        
+        formatter.locale = Locale(identifier: "ja_JP")
+        formatter.dateFormat = "M-d E"
+        
+        var tempAmounts: [(key: CategoryCell, value: String)] = []
+        
+        self.viewModel.categoryCells.forEach({ categoryCell in
+            var new: (key: CategoryCell, value: String)
+            if let budgetCell = self.viewModel.budgetCells
+                .filter({ $0.category.id == categoryCell.id}).first {
+                new = (key: categoryCell, value: "\(String(budgetCell.amount))")
+            } else {
+                new = (key: categoryCell, value: "")
+            }
+            tempAmounts.append(new)
+        })
+        
+        _amounts = State(initialValue: tempAmounts)
+    }
+
+    
     private func close() {
-        self.presentationMode.wrappedValue.dismiss()
+        UIApplication.shared.closeKeyboard()
+        self.success = false
+        self.env.setViewType(.home)
     }
     
     
     var body: some View {
         ScrollViewReader { scrollProxy in
-            NavigationView {
+//            NavigationView {
                 ZStack {
                 // 背景
                     Color("backGround").ignoresSafeArea(.all)
@@ -81,43 +97,65 @@ struct EditBudgetView: View {
                    }
                    .zIndex(success ? 2 : 0)
                 
-                    VStack(spacing: 20) {
-                        Form {
-                            Section(header: HStack {
+                    VStack {
+                        HStack {
+                            Button(action: { self.close() }) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 14, weight: .medium))
+                                Text("戻る")
+                            }
+                            .padding(.leading, 12)
+                            Spacer()
+                        }
+                        .foregroundColor(Color(env.themeDark))
+                        
+                        Divider()
+
+                        VStack {
+                            HStack {
                                 Spacer()
                                 Text("\(String(env.activeYear))年\(env.activeMonth)月度の予算")
                                     .style(.title3)
                                 Spacer()
-                            }.padding()
-                            ) {
-                                ForEach(viewModel.categoryCells.indices) { i in
-                                    HStack {
+                            }
+                            .padding(.vertical, 12)
+                            
+                            ScrollView {
+                                VStack (spacing: 2) {
+                                    ForEach(viewModel.categoryCells.indices) { i in
                                         HStack {
-                                            Text("\(viewModel.categoryCells[i].name)").style()
-                                            Spacer()
+                                            HStack {
+                                                Text("\(viewModel.categoryCells[i].name)").style()
+                                                Spacer()
+                                            }
+                                            .frame(width: screen.width * 0.45)
+                                            .padding(.leading, 16)
+                                            TextField("未設定", text: $amounts[i].value)
+                                                .onAppear() {
+                                                    self.viewModel.categoryCells.forEach({ categoryCell in
+                                                        var new: (key: CategoryCell, value: String)
+                                                        if let budgetCell = self.viewModel.budgetCells
+                                                            .filter({ $0.category.id == categoryCell.id}).first {
+                                                            new = (key: categoryCell, value: "\(String(budgetCell.amount))")
+                                                        } else {
+                                                            new = (key: categoryCell, value: "")
+                                                        }
+                                                        self.amounts.append(new)
+                                                    })
+                                                }
+                                                .multilineTextAlignment(.trailing)
+                                                .customTextField()
+                                                .keyboardType(.numbersAndPunctuation)
+                                                .padding(.trailing, 16)
                                         }
-                                        .frame(width: screen.width * 0.45)
-                                        TextField("未設定", text: $amounts[i].value)
-                                            .multilineTextAlignment(.trailing)
-                                            .customTextField()
-                                            .keyboardType(.numbersAndPunctuation)
+                                        .frame(height: screen.height * 0.06)
+                                        Divider()
                                     }
-                                    .frame(height: screen.height * 0.05)
                                 }
                             }
+
                         }
-                        .onAppear() {
-                            self.viewModel.categoryCells.forEach({ categoryCell in
-                                var new: (key: CategoryCell, value: String)
-                                if let budgetCell = self.viewModel.budgetCells
-                                    .filter({ $0.category.id == categoryCell.id}).first {
-                                    new = (key: categoryCell, value: "\(String(budgetCell.amount))")
-                                } else {
-                                    new = (key: categoryCell, value: "")
-                                }
-                                self.amounts.append(new)
-                            })
-                        }
+                        .padding(.horizontal, 16)
 
                         // 保存ボタン
                         Button(action: {
@@ -129,7 +167,7 @@ struct EditBudgetView: View {
                                         self.success = true
                                     }
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                                        self.presentationMode.wrappedValue.dismiss()
+                                        self.close()
                                     }
                                 case .failure(let error):
                                     self.showingAlert = AlertItem(
@@ -149,23 +187,20 @@ struct EditBudgetView: View {
                         item.alert
                     }
             }
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar{
-                    ToolbarItem(placement: .cancellationAction) {
-                        HStack {
-                            Button(action: { self.close() }) {
-                                Image(systemName: "chevron.left")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color(env.themeDark))
-                                Text("戻る").fontWeight(.regular).foregroundColor(Color(env.themeDark))
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        .onAppear() {
-            self.showSettingMenu = false
+//                .navigationBarTitleDisplayMode(.inline)
+//                .toolbar{
+//                    ToolbarItem(placement: .cancellationAction) {
+//                        HStack {
+//                            Button(action: { self.close() }) {
+//                                Image(systemName: "chevron.left")
+//                                    .font(.system(size: 14, weight: .medium))
+//                                    .foregroundColor(Color(env.themeDark))
+//                                Text("戻る").fontWeight(.regular).foregroundColor(Color(env.themeDark))
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 

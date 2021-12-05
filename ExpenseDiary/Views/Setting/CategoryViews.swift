@@ -13,7 +13,6 @@ struct CategoryMenuView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.editMode) var editMode
     @ObservedObject var viewModel = CategoryViewModel()
-    @Binding var showSettingMenu: Bool
     let screen = UIScreen.main.bounds
     
     @State var type: RecordType = .expense
@@ -22,6 +21,8 @@ struct CategoryMenuView: View {
     
     @State var showingAlert: AlertItem?
     @State var deleteTarget: CategoryCell?
+    
+    @State var updateId = UUID()
     
     private func move(_ from: IndexSet, _ to: Int) {
         self.viewModel.move(type: self.type, from, to)
@@ -33,13 +34,14 @@ struct CategoryMenuView: View {
     }
     
     private func close() {
-        self.presentationMode.wrappedValue.dismiss()
+        self.env.setViewType(.home)
     }
     
     var body: some View {
-        NavigationView {
-            ZStack (alignment: .top) {
-                VStack (spacing: 0) {
+        ZStack (alignment: .top) {
+            Color("backGround").ignoresSafeArea(.all)
+            NavigationView {
+                VStack {
                     HStack {
                         Picker(selection: $type, label: Text("支出収入区分")) {
                             ForEach(RecordType.all(), id: \.self) { recordType in
@@ -52,11 +54,10 @@ struct CategoryMenuView: View {
                     .padding(.horizontal, 40)
                     .padding(.top, 20)
                     .padding(.bottom, 16)
-                                    
+                                
                     List {
                         let categoryCells = viewModel.filterCategoryCells(type: type)
                         ForEach(categoryCells, id: \.id) { categoryCell in
-//                            NavigationLink(destination: EditCategoryView(type: type, categoryCell: categoryCell)) {
                             HStack {
                                 Image(categoryCell.icon.name)
                                     .resizable()
@@ -67,8 +68,9 @@ struct CategoryMenuView: View {
                                 Text(categoryCell.name).style(.body)
                                 Spacer()
                             }
-//                            }
+    //                            }
                             .padding(.vertical, 8)
+//                            .listRowBackground()
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 self.selectedCategoryCell = categoryCell
@@ -102,32 +104,26 @@ struct CategoryMenuView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        HStack {
-                            Button(action: { self.close() }) {
-                                Image(systemName: "chevron.left")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color(env.themeDark))
-                                Text("戻る").fontWeight(.regular).foregroundColor(Color(env.themeDark))
-                            }
+                        Button(action: { self.close() }) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 14, weight: .medium))
+                            Text("戻る")
                         }
                     }
                     ToolbarItemGroup(placement: .navigationBarTrailing) {
                         Button(action: { self.isShowing = true }) {
                             Text("作成").fontWeight(.regular)
                         }
-
-                        MyEditButton().padding(.trailing, 20)
+                            MyEditButton()
+                        }
                     }
-                }
-                .sheet(isPresented: $isShowing) {
-                    EditCategoryView(type: type, categoryCell: nil).environmentObject(env)
-                }
             }
-            .onAppear() {
-                self.showSettingMenu = false
-            }
+            .accentColor(Color(env.themeDark))
         }
-        .accentColor(Color(env.themeDark))
+        .sheet(isPresented: $isShowing) {
+            EditCategoryView(type: type, categoryCell: nil).environmentObject(env)
+        }
+
     }
 }
 
@@ -158,8 +154,8 @@ struct EditCategoryView: View {
             
 //             Success Flash
             VStack (spacing: 20) {
-                if let category = self.categoryCell {
-                    Image("\(category.icon.name)")
+                if let icon = self.icon {
+                    Image("\(icon.name)")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 40, height: 40)
@@ -238,12 +234,12 @@ struct EditCategoryView: View {
                     
                     switch result {
                         case .success(_):
-//                            withAnimation(.easeIn(duration: 0.2)) {
-//                                self.success = true
-//                            }
-//                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                            withAnimation(.easeIn(duration: 0.2)) {
+                                self.success = true
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                                 self.presentationMode.wrappedValue.dismiss()
-//                            }
+                            }
                         case .failure(let error):
                             self.showingAlert = AlertItem(
                                 alert: Alert(

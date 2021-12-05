@@ -10,7 +10,7 @@ import SwiftUI
 struct CalculatorView: View {
     @EnvironmentObject var env: StatusObject
     let screen = UIScreen.main.bounds
-    var data = CalcModel()
+    @State var data = CalcModel()
     @Binding var show: Bool
     @Binding var value: String
     

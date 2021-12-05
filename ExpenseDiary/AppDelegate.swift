@@ -5,6 +5,7 @@
 //  Created by Naruki Fukukawa on 2021/11/07.
 //
 
+import UIKit
 import SwiftUI
 import RealmSwift
 import Firebase
@@ -20,12 +21,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         
         Batch.presetBatch()
         
-        self.requestIDFA()
-        
         FirebaseApp.configure()
         
         return true
     }
+    
     
     private func makeInitialDatabase() {
         let defaultRealmPath = Realm.Configuration.defaultConfiguration.fileURL!
@@ -40,10 +40,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         }
     }
     
-    private func requestIDFA() {
-      ATTrackingManager.requestTrackingAuthorization(completionHandler: { _ in
-      // Tracking authorization completed. Start loading ads here.
-      })
-    }
+
 }
 

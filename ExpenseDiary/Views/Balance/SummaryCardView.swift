@@ -24,12 +24,16 @@ struct SummaryCardView: View {
                     Spacer()
                     Text("\(amount)円").style(.body, tracking: 1)
                 }
-                .padding(.horizontal, 24)
                 .padding(.vertical, 16)
+                .padding(.horizontal, 24)
             }
-            .background(Color("backGround"))
             
-            Divider()
+            if #available(iOS 15.0, *) {
+            } else {
+                Divider()
+            }
         }
+        .frame(maxWidth: .infinity)
+        .background(Color("backGround"))
     }
 }

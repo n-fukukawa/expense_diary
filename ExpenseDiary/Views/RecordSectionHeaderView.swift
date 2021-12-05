@@ -20,14 +20,16 @@ struct RecordSectionHeaderView: View {
     var body: some View {
         HStack {
             Text("\(formatter.string(from: date))")
-                .style(.caption, weight: .medium, tracking: 1)
+                .style(.caption, weight: .medium, tracking: 0)
                 .scaleEffect(1.1)
-                .padding(.horizontal, 4)
             Spacer()
             Text("\(RecordCell.getSum(recordCells))円")
                 .style(.caption, weight: .regular, tracking: 0)
                 .scaleEffect(1.1)
                 .padding(.trailing, 12)
         }
+        .modifier(SectionHeaderModifier())
+
+
     }
 }

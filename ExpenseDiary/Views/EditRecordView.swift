@@ -50,6 +50,8 @@ struct EditRecordView: View {
         
         formatter.locale = Locale(identifier: "ja_JP")
         formatter.dateFormat = Config.MONTH_DAY_DESC
+        
+
     }
     
     func addDay(_ day: Int) {
@@ -59,7 +61,7 @@ struct EditRecordView: View {
     var body: some View {
 
         ScrollViewReader { scrollProxy in
-            NavigationView {
+//            NavigationView {
                 ZStack {
                     // 背景
                     Color("backGround").ignoresSafeArea(.all)
@@ -94,39 +96,72 @@ struct EditRecordView: View {
                    }
                    .zIndex(showModal ? 2 : 0)
                 
-                    
                     VStack(spacing: 0) {
+                        // ヘッダー
+                        HStack (spacing: 0) {
+                            Button(action:{ self.addDay(-1) }) {
+                                Text("<")
+                                    .style(.title3, tracking: 1)
+                                    .padding(.horizontal, 16)
+                            }
+                            Button(action: {
+                                withAnimation {self.showDatePicker = true}
+                            }){
+                                Text(formatter.string(from: date))
+                                    .style(.title3, weight: .bold, tracking: 1)
+                                    .padding(.horizontal, 16)
+                            }
+                            Button(action:{ self.addDay(1)}) {
+                                Text(">")
+                                    .style(.title3, tracking: 1)
+                                    .padding(.horizontal, 16)
+                            }
+                        }
+                        .padding(.top, 40)
                         // カテゴリー選択
-                        ScrollView(showsIndicators: false) {
-                            let columns: [GridItem] = Array(repeating: .init(.fixed(iconSize), spacing: iconSize * 0.5), count: 3)
-                            LazyVGrid(columns: columns, alignment: .center, spacing: iconSize * 0.5) {
-                                ForEach(Category.all(), id: \.self) { category in
-                                    Button (action: {self.category = category}) {
-                                        VStack(spacing: 8) {
-                                            ZStack {
-                                                let is_active = category == self.category
+                        ScrollViewReader { scrollProxy in
+                            ScrollView(showsIndicators: false) {
+                                let columns: [GridItem] = Array(repeating: .init(.fixed(iconSize), spacing: iconSize * 0.5), count: 3)
+                                LazyVGrid(columns: columns, alignment: .center, spacing: iconSize * 0.5) {
+                                    ForEach(Category.all(), id: \.self) { category in
+                                        Button (action: {self.category = category}) {
+                                            VStack(spacing: 8) {
+                                                ZStack {
+                                                    let is_active = category == self.category
+                                                    
+                                                    RoundedRectangle(cornerRadius: 10)
+                                                        .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color(env.themeDark) : Color("iconBackground"), is_active ? Color(env.themeLight) : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                        .frame(width: iconSize * 0.85, height: iconSize * 0.85)
+                                                        .shadow(color: .black.opacity(0.1), radius: 3, x: 2, y: 2)
+                                                    Image(category.icon.name)
+                                                        .resizable()
+                                                        .aspectRatio(contentMode: .fit)
+                                                        .frame(width: iconSize * 0.45, height: iconSize * 0.45)
+                                                        .foregroundColor(is_active ? .white :  Color("darkGray"))
+                                                }
                                                 
-                                                RoundedRectangle(cornerRadius: 10)
-                                                    .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color(env.themeDark) : Color("iconBackground"), is_active ? Color(env.themeLight) : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                                                    .frame(width: iconSize * 0.85, height: iconSize * 0.85)
-                                                    .shadow(color: .black.opacity(0.1), radius: 3, x: 2, y: 2)
-                                                Image(category.icon.name)
-                                                    .resizable()
-                                                    .aspectRatio(contentMode: .fit)
-                                                    .frame(width: iconSize * 0.45, height: iconSize * 0.45)
-                                                    .foregroundColor(is_active ? .white :  Color("darkGray"))
+                                                Text(category.name).style(.footnote, weight: .bold).lineLimit(1).scaleEffect(1.1)
                                             }
-                                            
-                                            Text(category.name).style(.footnote, weight: .bold).lineLimit(1).scaleEffect(1.1)
+                                            .id(category.id)
                                         }
-                                        .id(category.id)
+                                    }
+                                }
+                                .padding(.vertical, screen.width * 0.05)
+                            }
+                            .frame(width: screen.width * 0.8)
+                            .padding(.vertical, 20)
+                            .onAppear() {
+                                if let recordCell = self.recordCell {
+                                    if #available(iOS 15.0, *) {
+                                        // Might Bug
+//                                         scrollProxy.scrollTo(recordCell.category.id)
+                                    } else {
+                                        scrollProxy.scrollTo(recordCell.category.id)
                                     }
                                 }
                             }
-                            .padding(.vertical, screen.width * 0.05)
                         }
-                        .frame(width: screen.width * 0.8)
-                        .padding(.vertical, 20)
+
                         
                         
                         // 金額入力
@@ -222,6 +257,7 @@ struct EditRecordView: View {
                         DatePicker("日付を選択", selection: $date, displayedComponents: .date)
                             .datePickerStyle(GraphicalDatePickerStyle())
                             .labelsHidden()
+                            .accentColor(Color(env.themeDark))
 
                         Button(action: { self.showDatePicker = false}) {
                             Text("完了").style(.title3, weight: .medium, color: .white)
@@ -254,7 +290,6 @@ struct EditRecordView: View {
                     )
                     .zIndex(2)
                     
-
                 }
                 .gesture(
                     DragGesture()
@@ -264,54 +299,12 @@ struct EditRecordView: View {
                             }
                         }
                 )
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        HStack (spacing: 0) {
-                            Button(action: { self.presentationMode.wrappedValue.dismiss() }) {
-                                Image(systemName: "chevron.left")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color(env.themeDark))
-                                Text("戻る").fontWeight(.regular).foregroundColor(Color(env.themeDark))
-                            }
-                        }
-                    }
-                    
-                    ToolbarItem(placement: .principal) {
-                        ZStack {
-                            HStack (spacing: 0) {
-                                Button(action: {
-                                    withAnimation {self.showDatePicker = true}
-                                }){
-                                    Text(formatter.string(from: date))
-                                        .bold()
-                                        .style(.title3, tracking: 1)
-                                        .padding(.horizontal, 16)
-                                }
-                            }
-                        }
-                    }
-                    
-                    ToolbarItemGroup(placement: .navigationBarTrailing) {
-                        HStack {
-                            Button(action:{ self.addDay(-1) }) {
-                                Text("前日")
-                            }
-                            Button(action:{ self.addDay(1)}) {
-                                Text("翌日")
-                            }
-                        }
-                    }
-                }
-            }
-            .accentColor(Color(env.themeDark))
             .onAppear {
                 if let recordCell = self.recordCell {
                     self.category = recordCell.category
                     self.amount   = "\(recordCell.amount)"
                     self.memo     = recordCell.memo
                     self.date     = recordCell.date
-                    scrollProxy.scrollTo(recordCell.category.id)
                 } else if let clickedDate = self.clickedDate {
                     self.date = clickedDate.date
                 }

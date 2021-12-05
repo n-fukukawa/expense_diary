@@ -20,6 +20,20 @@ struct ModalCardModifier: ViewModifier {
     }
 }
 
+struct SectionHeaderModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(.horizontal, 16)
+            .frame(width: UIScreen.main.bounds.width, height: 28)
+            .background(Color("lightGray"))
+            .listRowInsets(EdgeInsets(
+                top: 0,
+                leading: 0,
+                bottom: 0,
+                trailing: 0))
+    }
+}
+
 //struct FontModifier: ViewModifier {
 //    let size: CGFloat
 //    func body(content: Content) -> some View {

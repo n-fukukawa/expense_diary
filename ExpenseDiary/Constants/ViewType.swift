@@ -12,4 +12,14 @@ enum ViewType: String {
     case balance
     case budget
     case analysis
+    case settingBudget
+    case settingCategory
+    case settingPreset
+    case settingCalendarTheme
+    
+    static func settings() -> [ViewType] {
+        return [
+            .settingBudget, .settingCategory, .settingPreset, .settingCalendarTheme
+        ]
+    }
 }

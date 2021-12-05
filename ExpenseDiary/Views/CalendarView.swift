@@ -14,6 +14,9 @@ struct CalendarView: View {
     @State var clickedDate: DateCell?
     @State var selectedIndex: Int = 0
     
+    @State var longPressed = false
+
+    
     let height: CGFloat
     
     private func getColor(date: Date) -> Color {
@@ -49,8 +52,13 @@ struct CalendarView: View {
                         ForEach(viewModel.amounts, id: \.key) { date, amount in
                             let expense = amount[.expense]!
                             let income = amount[.income]!
-                            NavigationLink(
-                            destination: EditRecordView(clickedDate: DateCell(date: date))) {
+                            Button (action: {
+                                if self.longPressed {
+                                    self.longPressed = false
+                                } else {
+                                    self.clickedDate = DateCell(date: date)
+                                }
+                            }) {
                                 VStack(spacing: 0) {
                                     HStack (spacing: 4) {
                                         Text(String(date.day))
@@ -85,10 +93,16 @@ struct CalendarView: View {
                                 .frame(minHeight: 42)
                                 .border(Color("secondary").opacity(0.4), width: 0.5)
                                 .contentShape(Rectangle())
-                                .onTapGesture(count: 2) {
+                            }
+                            .simultaneousGesture(
+                                LongPressGesture().onEnded{ _ in
+                                    longPressed = true
                                     self.env.balanceViewDate = date
                                     self.env.viewType = .balance
                                 }
+                            )
+                            .sheet(item: $clickedDate) { date in
+                                EditRecordView(clickedDate: date).environmentObject(env)
                             }
                         }
                     }

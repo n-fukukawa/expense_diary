@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RecordCardView: View {
     let recordCell: RecordCell
+    @EnvironmentObject var env: StatusObject
     @State var show = false
     
     init(recordCell: RecordCell) {
@@ -17,6 +18,7 @@ struct RecordCardView: View {
     
     var body: some View {
         Button (action: {self.show.toggle()}) {
+//        NavigationLink(destination: EditRecordView(record: recordCell)) {
             VStack (spacing: 0) {
                 HStack (spacing: 12) {
                     Image("\(recordCell.category.icon.name)")
@@ -29,15 +31,19 @@ struct RecordCardView: View {
                     Spacer()
                     Text("\(recordCell.amount)円").style(.body, tracking: 1)
                 }
+                .padding(.vertical, 12)
                 .padding(.horizontal, 24)
-                .padding(.vertical, 16)
                 
-                Divider()
+                if #available(iOS 15.0, *) {
+                } else {
+                    Divider()
+                }
+
             }
         }
         .buttonStyle(ListButtonStyle())
-        .fullScreenCover(isPresented: $show) {
-            EditRecordView(record: recordCell)
+        .sheet(isPresented: $show) {
+            EditRecordView(record: recordCell).environmentObject(env)
         }
     }
 }

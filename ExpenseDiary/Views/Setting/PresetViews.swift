@@ -13,7 +13,6 @@ struct PresetMenuView: View {
     @EnvironmentObject var env: StatusObject
     @Environment(\.presentationMode) var presentationMode
     @ObservedObject var viewModel = PresetViewModel()
-    @Binding var showSettingMenu: Bool
     let screen = UIScreen.main.bounds
     
     @State var type = RecordType.expense
@@ -24,19 +23,31 @@ struct PresetMenuView: View {
     @State var showingAlert: AlertItem?
     @State var deleteTarget: PresetCell?
     
-    init(showSettingMenu: Binding<Bool>) {
-        self._showSettingMenu = showSettingMenu
-    }
-
-    
     private func close() {
-        self.presentationMode.wrappedValue.dismiss()
+        self.env.viewType = .home
     }
     
     var body: some View {
-        NavigationView {
             ZStack {
+                Color("backGround").ignoresSafeArea(.all)
                 VStack {
+                    HStack {
+                        Button(action: { self.close() }) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 14, weight: .medium))
+                            Text("戻る")
+                        }
+                        .padding(.leading, 16)
+                        Spacer()
+                        Button(action: { self.isShowing = true }) {
+                            Text("作成")
+                        }
+                        .padding(.trailing, 16)
+                    }
+                    .foregroundColor(Color(env.themeDark))
+                    
+                    Divider()
+                    
                     HStack {
                         Picker(selection: $type, label: Text("支出収入区分")) {
                             ForEach(RecordType.all(), id: \.self) { recordType in
@@ -49,11 +60,16 @@ struct PresetMenuView: View {
                     .padding(.horizontal, 40)
                     .padding(.top, 20)
                     .padding(.bottom, 16)
+                    
                     List {
                         let presetCells = viewModel.getPresetCells(type: type)
                         if !presetCells.isEmpty {
                             ForEach(presetCells, id: \.key) { day, cells in
-                                Section(header: Text("毎月\(day)日").style(.caption, color: .primary)) {
+                                Section(header: HStack{
+                                    Text("毎月\(day)日").style(.caption, color: .primary)
+                                        .padding(.leading, 16)
+                                    Spacer()
+                                }.modifier(SectionHeaderModifier())) {
                                     ForEach(cells, id: \.id) { presetCell in
                                         HStack (spacing: 12) {
                                             Text(presetCell.category.name).style()
@@ -63,7 +79,7 @@ struct PresetMenuView: View {
                                             Text("\(presetCell.amount)円").style()
                                         }
                                         .padding(.vertical, 6)
-//                                        .listRowBackground(Color("backGround"))
+                                        .listRowBackground(Color("backGround"))
                                         .contentShape(Rectangle())
                                         .onTapGesture {
                                             self.selectedPresetCell = presetCell
@@ -75,40 +91,17 @@ struct PresetMenuView: View {
                             NoDataView().listRowInsets(EdgeInsets())
                         }
                     }
+                    .padding(.horizontal, 16)
                     .listStyle(PlainListStyle())
                     .sheet(item: $selectedPresetCell) { presetCell in
                         EditPresetView(presetCell: presetCell, type: RecordType.of(presetCell.category.type))
                             .environmentObject(env)
                     }
                 }
-                .padding(.horizontal, 16)
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    HStack {
-                        Button(action: { self.close() }) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(Color(env.themeDark))
-                            Text("戻る").fontWeight(.regular).foregroundColor(Color(env.themeDark))
-                        }
-                    }
-                }
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    Button(action: { self.isShowing = true }) {
-                        Text("作成").fontWeight(.regular)
-                    }
-                }
             }
             .sheet(isPresented: $isShowing) {
                 EditPresetView(presetCell: nil, type: type).environmentObject(env)
             }
-            .onAppear() {
-                self.showSettingMenu = false
-            }
-        }
-        .accentColor(Color(env.themeDark))
     }
 }
 
@@ -147,24 +140,24 @@ struct EditPresetView: View {
             // 背景
                 Color("backGround").ignoresSafeArea(.all)
                 
-                // Success Flash
-//                VStack (spacing: 20) {
-//                    if let category = self.category {
-//                        Image("\(category.icon.name)")
-//                            .resizable()
-//                            .aspectRatio(contentMode: .fit)
-//                            .frame(width: 40, height: 40)
-//                            .foregroundColor(Color(env.themeLight))
-//                    }
-//                    Text("保存しました").style(weight: .medium, tracking: 1)
-//                }
-//                .padding(20)
-//                .frame(width: 200)
-//                .background(Color("backGround"))
-//                .cornerRadius(10)
-//                .myShadow(radius: 5)
-//                .opacity(success ? 1 : 0)
-//                .zIndex(success ? 3 : 0)
+            // Success Flash
+                VStack (spacing: 20) {
+                    if let category = self.category {
+                        Image("\(category.icon.name)")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(Color(env.themeLight))
+                    }
+                    Text("保存しました").style(weight: .medium, tracking: 1)
+                }
+                .padding(20)
+                .frame(width: 200)
+                .background(Color("backGround"))
+                .cornerRadius(10)
+                .myShadow(radius: 5)
+                .opacity(success ? 1 : 0)
+                .zIndex(success ? 3 : 0)
                 
             //モーダル背景
                ZStack {
@@ -183,47 +176,41 @@ struct EditPresetView: View {
                             Text("毎月\(day)日").style(color: .primary)
                         }
                     }
+                    .pickerStyle(WheelPickerStyle())
                     .frame(width: 180, height: showCalculator ? 0 : 110)
                     .clipped()
                     
                     // カテゴリー選択
-                    ScrollViewReader { scrollProxy in
-                        ScrollView(showsIndicators: false) {
-                            let columns: [GridItem] = Array(repeating: .init(.fixed(iconSize), spacing: iconSize * 0.5), count: 3)
-                            LazyVGrid(columns: columns, alignment: .center, spacing: iconSize * 0.5) {
-                                ForEach(viewModel.getCategoryCells(type: type), id: \.self.id) { category in
-                                    Button (action: {self.category = category}) {
-                                        VStack(spacing: 8) {
-                                            ZStack {
-                                                let is_active = category == self.category
+                    ScrollView(showsIndicators: false) {
+                        let columns: [GridItem] = Array(repeating: .init(.fixed(iconSize), spacing: iconSize * 0.5), count: 3)
+                        LazyVGrid(columns: columns, alignment: .center, spacing: iconSize * 0.5) {
+                            ForEach(viewModel.getCategoryCells(type: type), id: \.self.id) { category in
+                                Button (action: {self.category = category}) {
+                                    VStack(spacing: 8) {
+                                        ZStack {
+                                            let is_active = category == self.category
 
-                                                RoundedRectangle(cornerRadius: 10)
-                                                    .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color(env.themeDark) : Color("iconBackground"), is_active ? Color(env.themeLight) : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                                                    .frame(width: iconSize * 0.85, height: iconSize * 0.85)
-                                                    .shadow(color: .black.opacity(0.1), radius: 2, x: 2, y: 2)
-                                                Image(category.icon.name)
-                                                    .resizable()
-                                                    .aspectRatio(contentMode: .fit)
-                                                    .frame(width: iconSize * 0.5, height: iconSize * 0.5)
-                                                    .foregroundColor(is_active ? .white : Color("darkGray"))
-                                            }
-
-                                            Text(category.name).style(.footnote, weight: .bold).lineLimit(1).scaleEffect(1.1)
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .fill(LinearGradient(gradient: Gradient(colors: [is_active ? Color(env.themeDark) : Color("iconBackground"), is_active ? Color(env.themeLight) : Color("iconBackground")]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                .frame(width: iconSize * 0.85, height: iconSize * 0.85)
+                                                .shadow(color: .black.opacity(0.1), radius: 2, x: 2, y: 2)
+                                            Image(category.icon.name)
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: iconSize * 0.5, height: iconSize * 0.5)
+                                                .foregroundColor(is_active ? .white : Color("darkGray"))
                                         }
-                                        .id(category.id)
-                                    }.id(category.id)
-                                }
-                            }
-                            .padding(.vertical, screen.width * 0.05)
-                        }
-                        .frame(width: screen.width * 0.8)
-                        .padding(.bottom, screen.width * 0.05)
-                        .onAppear() {
-                            if let presetCell = self.presetCell {
-                                scrollProxy.scrollTo(presetCell.category.id)
+
+                                        Text(category.name).style(.footnote, weight: .bold).lineLimit(1).scaleEffect(1.1)
+                                    }
+                                    .id(category.id)
+                                }.id(category.id)
                             }
                         }
+                        .padding(.vertical, screen.width * 0.05)
                     }
+                    .frame(width: screen.width * 0.8)
+                    .padding(.bottom, screen.width * 0.05)
                     
                     // 金額入力
                     VStack(spacing: 0) {
@@ -258,7 +245,12 @@ struct EditPresetView: View {
                             
                         switch result {
                             case .success(_):
+                            withAnimation(.easeIn(duration: 0.2)) {
+                                self.success = true
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                                 self.presentationMode.wrappedValue.dismiss()
+                            }
                             case .failure(let error):
                                 self.showingAlert = AlertItem(
                                     alert: Alert(

@@ -41,6 +41,7 @@
 		554E209E272C02B8005FD4C1 /* MyEditButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 554E209D272C02B8005FD4C1 /* MyEditButton.swift */; };
 		554E20A0272C1958005FD4C1 /* EditRecordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 554E209F272C1958005FD4C1 /* EditRecordViewModel.swift */; };
 		554E20A2272C19B1005FD4C1 /* EditBudgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 554E20A1272C19B1005FD4C1 /* EditBudgetViewModel.swift */; };
+		5557C097275A7EAA00FEA468 /* EditOtherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5557C096275A7EAA00FEA468 /* EditOtherView.swift */; };
 		5570216D272EBC7A006B580D /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5570216C272EBC7A006B580D /* CalendarViewModel.swift */; };
 		5570216F2733436E006B580D /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5570216E2733436E006B580D /* CalendarView.swift */; };
 		55702171273343A0006B580D /* NoDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55702170273343A0006B580D /* NoDataView.swift */; };
@@ -110,6 +111,7 @@
 		554E209D272C02B8005FD4C1 /* MyEditButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEditButton.swift; sourceTree = "<group>"; };
 		554E209F272C1958005FD4C1 /* EditRecordViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecordViewModel.swift; sourceTree = "<group>"; };
 		554E20A1272C19B1005FD4C1 /* EditBudgetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBudgetViewModel.swift; sourceTree = "<group>"; };
+		5557C096275A7EAA00FEA468 /* EditOtherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditOtherView.swift; sourceTree = "<group>"; };
 		5570216C272EBC7A006B580D /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
 		5570216E2733436E006B580D /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		55702170273343A0006B580D /* NoDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoDataView.swift; sourceTree = "<group>"; };
@@ -320,6 +322,7 @@
 				55799ACC272607B100789305 /* EditBudgetView.swift */,
 				551132D6271304E400C8A7A6 /* CategoryViews.swift */,
 				551132D4271304BB00C8A7A6 /* PresetViews.swift */,
+				5557C096275A7EAA00FEA468 /* EditOtherView.swift */,
 			);
 			path = Setting;
 			sourceTree = "<group>";
@@ -527,6 +530,7 @@
 				55B85D9C2717939C00267A67 /* RecordCell.swift in Sources */,
 				554E209E272C02B8005FD4C1 /* MyEditButton.swift in Sources */,
 				5570218327364E1B006B580D /* CalcKey.swift in Sources */,
+				5557C097275A7EAA00FEA468 /* EditOtherView.swift in Sources */,
 				55799AC727255D3900789305 /* AnalysisViewModel.swift in Sources */,
 				55799AB72724374400789305 /* BalanceView.swift in Sources */,
 				551132BA2709D34500C8A7A6 /* Preset.swift in Sources */,
@@ -674,11 +678,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"ExpenseDiary/Preview Content\"";
 				DEVELOPMENT_TEAM = W8Y63B3AVP;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = ExpenseDiary/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -698,11 +703,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"ExpenseDiary/Preview Content\"";
 				DEVELOPMENT_TEAM = W8Y63B3AVP;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = ExpenseDiary/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

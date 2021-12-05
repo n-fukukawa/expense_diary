@@ -16,7 +16,7 @@ struct NoDataView: View {
             Spacer()
         }
         .padding(.vertical, 16)
-//        .background(Color("backGround"))
+        .background(Color("backGround"))
     }
 }
 

@@ -98,6 +98,10 @@ class StatusObject: ObservableObject {
         }
     }
     
+    var isSetting: Bool {
+        ViewType.settings().firstIndex(of: self.viewType) != nil
+    }
+    
     func getStartAndEndDate(year: Int, month: Int) -> [Date] {
         let start: Date
         let end:   Date
@@ -173,5 +177,11 @@ class StatusObject: ObservableObject {
     func onChangeViewType(_ viewType: ViewType) {
         self.viewType = viewType
         self.showMonthPicker = false
+    }
+    
+    func setViewType(_ viewType: ViewType) {
+        withAnimation(.easeIn(duration: 0.2)) {
+            self.viewType = viewType
+        }
     }
 }

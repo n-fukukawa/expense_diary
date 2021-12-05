@@ -208,6 +208,14 @@ struct BudgetCardView: View {
 
         }
         .ignoresSafeArea(.all)
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    if self.active && value.translation.width > 50 {
+                        self.close()
+                    }
+                }
+        )
         .onAppear() {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 self.showRing = true

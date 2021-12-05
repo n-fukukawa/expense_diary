@@ -19,13 +19,13 @@
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-8749873771528689~2972406480</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>このアプリでは画面の下部に広告が表示されます。「許可」するとお客様に無関係の広告が表示されにくくなります。</string>
+	<string>このアプリでは画面の下部に広告が表示されます。「許可」するとお客様にとって不適切な広告が表示されにくくなります。</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
